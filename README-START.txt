@@ -50,3 +50,11 @@ CATATAN
 - GitHub Pages statis tidak bisa menulis langsung ke repo dari browser biasa tanpa auth/backend.
 - Karena itu admin-local.html dibuat untuk EXPORT data JSON.
 - Kalau nanti mau full web admin, kamu bisa lanjut ke GitHub API / OAuth / Decap CMS.
+
+- money-editor.html
+- money-editor.js
+
+Tambahan baru:
+- Money Editor RPGM (beta) untuk edit uang/gold save .rpgsave secara lokal di browser
+- Admin Lokal tetap ada
+- Search, filter, tag klik, dan katalog tetap dipertahankan
