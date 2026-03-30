@@ -1,1 +1,13 @@
-
+body{
+  background:#0f172a;
+  color:#fff;
+  font-family:Arial,sans-serif;
+}
+.logo{
+  font-size:28px;
+  font-weight:700;
+}
+nav a{
+  color:#fff;
+  margin-right:14px;
+}
