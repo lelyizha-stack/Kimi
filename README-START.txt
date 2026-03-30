@@ -58,3 +58,5 @@ Tambahan baru:
 - Money Editor RPGM (beta) untuk edit uang/gold save .rpgsave secara lokal di browser
 - Admin Lokal tetap ada
 - Search, filter, tag klik, dan katalog tetap dipertahankan
+
+- Pagination default sudah aktif untuk katalog tanpa filter maupun saat filter/search dipakai

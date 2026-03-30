@@ -119,9 +119,27 @@ function filterLink(game, type, value) {
   return `${page}?${sp.toString()}`;
 }
 
+function normalizeDownloadUrls(game) {
+  const urls = game.downloadUrls && typeof game.downloadUrls === "object" ? game.downloadUrls : {};
+  const legacy = (game.downloadUrl || "").trim();
+  const platform = Array.isArray(game.platform) ? game.platform : [];
+  return {
+    Windows: urls.Windows || ((legacy && platform.includes("Windows")) ? legacy : ""),
+    Android: urls.Android || ((legacy && platform.includes("Android")) ? legacy : "")
+  };
+}
+
+function renderDownloadButtons(game) {
+  const urls = normalizeDownloadUrls(game);
+  return ["Windows", "Android"].filter(item => (game.platform || []).includes(item)).map(item => {
+    const href = urls[item] || "#";
+    return `<a href="${escapeHTML(href)}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">${escapeHTML(item)}</a>`;
+  }).join("");
+}
+
 function renderCard(game) {
   const detail = game.detailUrl || "#";
-  const download = game.downloadUrl || "#";
+  const downloadButtons = renderDownloadButtons(game);
   return `
     <article class="download-card">
       ${renderImage(game)}
@@ -147,7 +165,7 @@ function renderCard(game) {
 
         <div class="download-actions">
           <a href="${escapeHTML(detail)}" class="btn btn-secondary">Detail</a>
-          <a href="${escapeHTML(download)}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Download</a>
+          ${downloadButtons}
         </div>
       </div>
     </article>
