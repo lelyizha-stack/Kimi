@@ -6,6 +6,11 @@ const CATEGORY_META = {
   cheat: { title: "Cheat", page: "./cheat.html" }
 };
 
+const PAGE_SIZE = {
+  home: 8,
+  catalog: 12
+};
+
 function escapeHTML(text) {
   return String(text ?? "").replace(/[&<>"']/g, m => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
@@ -25,7 +30,8 @@ function getParams() {
     category: sp.get("category") || "all",
     genre: sp.get("genre") || "",
     platform: sp.get("platform") || "",
-    sort: sp.get("sort") || "latest"
+    sort: sp.get("sort") || "latest",
+    page: Math.max(1, parseInt(sp.get("page") || "1", 10) || 1)
   };
 }
 
@@ -36,6 +42,7 @@ function updateParams(state, fixedCategory) {
   if (state.genre) sp.set("genre", state.genre);
   if (state.platform) sp.set("platform", state.platform);
   if (state.sort && state.sort !== "latest") sp.set("sort", state.sort);
+  if (state.page && state.page > 1) sp.set("page", String(state.page));
   const qs = sp.toString();
   history.replaceState({}, "", qs ? `${window.location.pathname}?${qs}` : window.location.pathname);
 }
@@ -46,7 +53,7 @@ function activeCategory(pageCategory, selectedCategory) {
 
 function uniqueGenres(games, category) {
   const base = category === "all" ? games : games.filter(g => g.category === category);
-  return [...new Set(base.flatMap(g => g.genres))].sort((a,b) => a.localeCompare(b));
+  return [...new Set(base.flatMap(g => g.genres || []))].sort((a,b) => a.localeCompare(b));
 }
 
 function filterGames(games, state, pageCategory) {
@@ -64,8 +71,8 @@ function filterGames(games, state, pageCategory) {
       return text.includes(q);
     });
   }
-  if (state.genre) result = result.filter(g => g.genres.includes(state.genre));
-  if (state.platform) result = result.filter(g => g.platform.includes(state.platform));
+  if (state.genre) result = result.filter(g => (g.genres || []).includes(state.genre));
+  if (state.platform) result = result.filter(g => (g.platform || []).includes(state.platform));
 
   switch (state.sort) {
     case "title":
@@ -80,6 +87,20 @@ function filterGames(games, state, pageCategory) {
       break;
   }
   return result;
+}
+
+function paginateItems(items, currentPage, perPage) {
+  const totalPages = Math.max(1, Math.ceil(items.length / perPage));
+  const safePage = Math.min(Math.max(1, currentPage), totalPages);
+  const start = (safePage - 1) * perPage;
+  return {
+    pageItems: items.slice(start, start + perPage),
+    totalPages,
+    currentPage: safePage,
+    totalItems: items.length,
+    startIndex: items.length ? start + 1 : 0,
+    endIndex: Math.min(start + perPage, items.length)
+  };
 }
 
 function renderImage(game) {
@@ -149,9 +170,59 @@ function fillGenreSelect(select, games, category, selected = "") {
   select.value = selected && genres.includes(selected) ? selected : "";
 }
 
+function pageButton(label, page, disabled = false, active = false) {
+  return `<button type="button" class="page-btn${active ? " active" : ""}" data-page="${page}"${disabled ? " disabled" : ""}>${label}</button>`;
+}
+
+function renderPagination(target, currentPage, totalPages) {
+  if (!target) return;
+  if (totalPages <= 1) {
+    target.innerHTML = "";
+    return;
+  }
+
+  const buttons = [];
+  buttons.push(pageButton("Prev", currentPage - 1, currentPage <= 1, false));
+
+  let start = Math.max(1, currentPage - 2);
+  let end = Math.min(totalPages, currentPage + 2);
+  if (currentPage <= 3) end = Math.min(totalPages, 5);
+  if (currentPage >= totalPages - 2) start = Math.max(1, totalPages - 4);
+
+  if (start > 1) {
+    buttons.push(pageButton("1", 1, false, currentPage === 1));
+    if (start > 2) buttons.push('<span class="page-dots">…</span>');
+  }
+
+  for (let page = start; page <= end; page += 1) {
+    buttons.push(pageButton(String(page), page, false, page === currentPage));
+  }
+
+  if (end < totalPages) {
+    if (end < totalPages - 1) buttons.push('<span class="page-dots">…</span>');
+    buttons.push(pageButton(String(totalPages), totalPages, false, currentPage === totalPages));
+  }
+
+  buttons.push(pageButton("Next", currentPage + 1, currentPage >= totalPages, false));
+  target.innerHTML = `<div class="pagination">${buttons.join("")}</div>`;
+}
+
+function bindPagination(target, onChange) {
+  if (!target) return;
+  target.addEventListener("click", event => {
+    const btn = event.target.closest(".page-btn");
+    if (!btn || btn.disabled) return;
+    const page = parseInt(btn.dataset.page || "1", 10) || 1;
+    onChange(page);
+  });
+}
+
 function bindCatalogPage(allGames) {
   const body = document.body;
+  const pageType = body.dataset.page || "catalog";
   const pageCategory = body.dataset.category || "all";
+  const perPage = PAGE_SIZE[pageType] || 12;
+
   const searchInput = document.getElementById("searchInput");
   const categoryFilter = document.getElementById("categoryFilter");
   const genreFilter = document.getElementById("genreFilter");
@@ -160,6 +231,7 @@ function bindCatalogPage(allGames) {
   const resetBtn = document.getElementById("resetFilters");
   const countEl = document.getElementById("catalogCount");
   const catalogList = document.getElementById("catalogList");
+  const paginationTarget = document.getElementById("catalogPagination");
   const featuredList = document.getElementById("featuredList");
 
   if (featuredList) {
@@ -175,7 +247,8 @@ function bindCatalogPage(allGames) {
     category: params.category,
     genre: params.genre,
     platform: params.platform,
-    sort: params.sort
+    sort: params.sort,
+    page: params.page
   };
 
   if (searchInput) searchInput.value = state.q;
@@ -183,7 +256,7 @@ function bindCatalogPage(allGames) {
   if (platformFilter) platformFilter.value = state.platform;
   if (sortFilter) sortFilter.value = state.sort;
 
-  function rerender() {
+  function rerender(resetPage = false) {
     const currentCategory = activeCategory(pageCategory, categoryFilter ? categoryFilter.value : state.category);
     fillGenreSelect(genreFilter, allGames, currentCategory, state.genre);
 
@@ -192,34 +265,55 @@ function bindCatalogPage(allGames) {
     state.genre = genreFilter ? genreFilter.value : state.genre;
     state.platform = platformFilter ? platformFilter.value : state.platform;
     state.sort = sortFilter ? sortFilter.value : state.sort;
+    if (resetPage) state.page = 1;
 
     const filtered = filterGames(allGames, state, pageCategory);
-    renderList(catalogList, filtered);
+    const paged = paginateItems(filtered, state.page, perPage);
+    state.page = paged.currentPage;
+
+    renderList(catalogList, paged.pageItems);
+    renderPagination(paginationTarget, paged.currentPage, paged.totalPages);
+
     if (countEl) {
       const label = activeCategory(pageCategory, state.category);
-      countEl.textContent = `Ditemukan ${filtered.length} item${label !== "all" ? ` • ${CATEGORY_META[label].title}` : ""}`;
+      const categoryText = label !== "all" ? ` • ${CATEGORY_META[label].title}` : "";
+      countEl.textContent = `Ditemukan ${paged.totalItems} item${categoryText} • Halaman ${paged.currentPage}/${paged.totalPages}`;
     }
     updateParams(state, pageCategory !== "all");
   }
 
-  if (searchInput) searchInput.addEventListener("input", rerender);
+  const resetAndRender = () => rerender(true);
+
+  if (searchInput) searchInput.addEventListener("input", resetAndRender);
   if (categoryFilter) categoryFilter.addEventListener("change", () => {
     state.genre = "";
-    rerender();
+    rerender(true);
   });
-  if (genreFilter) genreFilter.addEventListener("change", rerender);
-  if (platformFilter) platformFilter.addEventListener("change", rerender);
-  if (sortFilter) sortFilter.addEventListener("change", rerender);
+  if (genreFilter) genreFilter.addEventListener("change", resetAndRender);
+  if (platformFilter) platformFilter.addEventListener("change", resetAndRender);
+  if (sortFilter) sortFilter.addEventListener("change", resetAndRender);
   if (resetBtn) resetBtn.addEventListener("click", () => {
     if (searchInput) searchInput.value = "";
     if (categoryFilter) categoryFilter.value = "all";
     if (platformFilter) platformFilter.value = "";
     if (sortFilter) sortFilter.value = "latest";
-    state.q = ""; state.genre = ""; state.platform = ""; state.sort = "latest"; state.category = "all";
-    rerender();
+    state.q = "";
+    state.genre = "";
+    state.platform = "";
+    state.sort = "latest";
+    state.category = "all";
+    state.page = 1;
+    rerender(false);
   });
 
-  rerender();
+  bindPagination(paginationTarget, page => {
+    state.page = page;
+    rerender(false);
+    const topTarget = document.getElementById("cari-katalog") || document.querySelector(".page-hero-wrap") || document.querySelector(".page-section");
+    if (topTarget) topTarget.scrollIntoView({behavior: "smooth", block: "start"});
+  });
+
+  rerender(false);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
