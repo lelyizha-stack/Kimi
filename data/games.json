@@ -1,31 +1,329 @@
 [
   {
-  "id": "renpy-001",
-  "slug": "the-coolest-boy",
-  "title": "The Coolest Boy",
-  "category": "renpy",
-  "genres": [
-    "3DCG",
-    "Male protagonist",
-    "Adventure",
-    "Humor",
-    "Mobile game",
-    "Romance",
-    "Visual Novel"
-  ],
-  "platform": [
-    "Windows",
-    "Android"
-  ],
-  "version": "v0.6",
-  "size": "800 MB",
-  "language": "TL Indo",
-  "status": "Ongoing",
-  "emoji": "❤️‍🔥",
-  "image": "",
-  "description": "Eugine (pemain) adalah anak miskin yang nggak bisa melanjutkan tahun kedua sekolah menengahnya. Ayahnya sudah lama meninggal, sekarang dia hanya tinggal bersama ibunya (Lena) dan adik perempuannya (Felicia). Tapi suatu hari, sahabat lama ibunya bernama (Suzy) ingin membantu Lena dengan membuat Eugine (pemain) bisa bersekolah lagi—namun di kotanya, Cherry Town. Dia membantu karena dulu dia berutang banyak pada Lena.\nDan dari situlah semuanya dimulai—Eugine (pemain) pergi ke Cherry Town untuk memulai hidup barunya di kota itu dan di sekolah barunya di sana.",
-  "detailUrl": "./posts/renpy/the-coolest-boy.html",
-  "downloadUrl": "https://sfl.gl/2g3EQ",
-  "createdAt": "2026-03-30"
+    "id": "renpy-001",
+    "slug": "moonlight-confession",
+    "title": "Moonlight Confession",
+    "category": "renpy",
+    "genres": [
+      "Romance",
+      "Drama",
+      "Visual Novel"
+    ],
+    "platform": [
+      "Android",
+      "Windows"
+    ],
+    "version": "v0.21",
+    "size": "684 MB",
+    "language": "English",
+    "status": "Ongoing",
+    "emoji": "🎭",
+    "image": "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80",
+    "description": "Visual novel romance dengan fokus cerita, pilihan dialog, dan update berkala.",
+    "createdAt": "2026-03-31",
+    "detailUrl": "./posts/renpy/moonlight-confession.html",
+    "downloadUrls": {
+      "Windows": "#",
+      "Android": "#"
+    }
+  },
+  {
+    "id": "renpy-002",
+    "slug": "crimson-summer",
+    "title": "Crimson Summer",
+    "category": "renpy",
+    "genres": [
+      "Comedy",
+      "Slice of Life",
+      "Visual Novel"
+    ],
+    "platform": [
+      "Android"
+    ],
+    "version": "v1.0",
+    "size": "412 MB",
+    "language": "English",
+    "status": "Completed",
+    "emoji": "🌙",
+    "image": "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=1200&q=80",
+    "description": "Story game ringan dengan nuansa santai, karakter kuat, dan cabang pilihan yang jelas.",
+    "createdAt": "2026-03-28",
+    "detailUrl": "./posts/renpy/crimson-summer.html",
+    "downloadUrls": {
+      "Windows": "",
+      "Android": "#"
+    }
+  },
+  {
+    "id": "renpy-003",
+    "slug": "night-apartment",
+    "title": "Night Apartment",
+    "category": "renpy",
+    "genres": [
+      "Mystery",
+      "Horror",
+      "Visual Novel"
+    ],
+    "platform": [
+      "Windows"
+    ],
+    "version": "v0.8",
+    "size": "530 MB",
+    "language": "English",
+    "status": "Updated",
+    "emoji": "🕯️",
+    "image": "https://images.unsplash.com/photo-1520034475321-cbe63696469a?auto=format&fit=crop&w=1200&q=80",
+    "description": "Visual novel misteri untuk Windows dengan cerita gelap, event tersembunyi, dan suasana tegang.",
+    "createdAt": "2026-03-27",
+    "detailUrl": "./posts/renpy/night-apartment.html",
+    "downloadUrls": {
+      "Windows": "#",
+      "Android": ""
+    }
+  },
+  {
+    "id": "rpgm-001",
+    "slug": "dungeon-legacy",
+    "title": "Dungeon Legacy",
+    "category": "rpgm",
+    "genres": [
+      "Fantasy",
+      "Adventure",
+      "RPG"
+    ],
+    "platform": [
+      "Windows"
+    ],
+    "version": "v1.03",
+    "size": "1.2 GB",
+    "language": "English",
+    "status": "Completed",
+    "emoji": "🗺️",
+    "image": "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80",
+    "description": "RPG Maker fantasy adventure dengan exploration, dungeon crawl, dan quest-style gameplay.",
+    "createdAt": "2026-03-26",
+    "detailUrl": "./posts/rpgm/dungeon-legacy.html",
+    "downloadUrls": {
+      "Windows": "#",
+      "Android": ""
+    }
+  },
+  {
+    "id": "rpgm-002",
+    "slug": "forest-route",
+    "title": "Forest Route",
+    "category": "rpgm",
+    "genres": [
+      "Adventure",
+      "Exploration",
+      "Fantasy"
+    ],
+    "platform": [
+      "Android",
+      "Windows"
+    ],
+    "version": "v0.95",
+    "size": "740 MB",
+    "language": "English",
+    "status": "Ongoing",
+    "emoji": "🌲",
+    "image": "https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=1200&q=80",
+    "description": "RPGM dengan fokus petualangan, eksplorasi map, dan progres cerita yang santai.",
+    "createdAt": "2026-03-24",
+    "detailUrl": "./posts/rpgm/forest-route.html",
+    "downloadUrls": {
+      "Windows": "#",
+      "Android": "#"
+    }
+  },
+  {
+    "id": "rpgm-003",
+    "slug": "kingdom-of-echoes",
+    "title": "Kingdom of Echoes",
+    "category": "rpgm",
+    "genres": [
+      "RPG",
+      "Strategy",
+      "Fantasy"
+    ],
+    "platform": [
+      "Windows"
+    ],
+    "version": "v2.0",
+    "size": "968 MB",
+    "language": "English",
+    "status": "Updated",
+    "emoji": "🏰",
+    "image": "https://images.unsplash.com/photo-1511882150382-421056c89033?auto=format&fit=crop&w=1200&q=80",
+    "description": "RPG Maker dengan elemen strategi, fantasy kingdom, dan progression yang panjang.",
+    "createdAt": "2026-03-22",
+    "detailUrl": "./posts/rpgm/kingdom-of-echoes.html",
+    "downloadUrls": {
+      "Windows": "#",
+      "Android": ""
+    }
+  },
+  {
+    "id": "mod-001",
+    "slug": "prime-patch-pack",
+    "title": "Prime Patch Pack",
+    "category": "mod",
+    "genres": [
+      "Patch",
+      "Gallery Unlock",
+      "Utility"
+    ],
+    "platform": [
+      "Android",
+      "Windows"
+    ],
+    "version": "v2.0",
+    "size": "78 MB",
+    "language": "Multi",
+    "status": "Updated",
+    "emoji": "🧩",
+    "image": "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80",
+    "description": "Patch premium untuk update game, unlock gallery, dan extra content.",
+    "createdAt": "2026-03-20",
+    "detailUrl": "./posts/mod/prime-patch-pack.html",
+    "downloadUrls": {
+      "Windows": "#",
+      "Android": "#"
+    }
+  },
+  {
+    "id": "mod-002",
+    "slug": "save-boost-custom",
+    "title": "Save Boost Custom",
+    "category": "mod",
+    "genres": [
+      "Save",
+      "Custom",
+      "Utility"
+    ],
+    "platform": [
+      "Windows"
+    ],
+    "version": "v1.4",
+    "size": "12 MB",
+    "language": "English",
+    "status": "Updated",
+    "emoji": "💾",
+    "image": "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=1200&q=80",
+    "description": "Save siap pakai untuk testing progress, event, dan checkpoint penting.",
+    "createdAt": "2026-03-18",
+    "detailUrl": "./posts/mod/save-boost-custom.html",
+    "downloadUrls": {
+      "Windows": "#",
+      "Android": ""
+    }
+  },
+  {
+    "id": "mod-003",
+    "slug": "night-city-modmenu",
+    "title": "Night City ModMenu",
+    "category": "mod",
+    "genres": [
+      "Cheat",
+      "Patch",
+      "Sci-Fi"
+    ],
+    "platform": [
+      "Android"
+    ],
+    "version": "v1.1",
+    "size": "95 MB",
+    "language": "English",
+    "status": "Ongoing",
+    "emoji": "🌃",
+    "image": "https://images.unsplash.com/photo-1520034475321-cbe63696469a?auto=format&fit=crop&w=1200&q=80",
+    "description": "Mod menu untuk build sci-fi dengan shortcut cheat, unlock, dan custom tweaks.",
+    "createdAt": "2026-03-15",
+    "detailUrl": "./posts/mod/night-city-modmenu.html",
+    "downloadUrls": {
+      "Windows": "",
+      "Android": "#"
+    }
+  },
+  {
+    "id": "cheat-001",
+    "slug": "cheat-menu-layout",
+    "title": "Cheat Menu Layout",
+    "category": "cheat",
+    "genres": [
+      "Cheat",
+      "Utility",
+      "Menu"
+    ],
+    "platform": [
+      "Android",
+      "Windows"
+    ],
+    "version": "v1.4",
+    "size": "25 MB",
+    "language": "English",
+    "status": "Updated",
+    "emoji": "⚡",
+    "image": "https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&w=1200&q=80",
+    "description": "Cheat menu, unlock feature, dan patch gameplay untuk testing cepat.",
+    "createdAt": "2026-03-14",
+    "detailUrl": "./posts/cheat/cheat-menu-layout.html",
+    "downloadUrls": {
+      "Windows": "#",
+      "Android": "#"
+    }
+  },
+  {
+    "id": "cheat-002",
+    "slug": "save-editor-lite",
+    "title": "Save Editor Lite",
+    "category": "cheat",
+    "genres": [
+      "Save Editor",
+      "Utility"
+    ],
+    "platform": [
+      "Windows"
+    ],
+    "version": "v0.9",
+    "size": "8 MB",
+    "language": "English",
+    "status": "Beta",
+    "emoji": "🛠️",
+    "image": "https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=1200&q=80",
+    "description": "Editor save ringan untuk cek flag, uang, progress, dan variabel penting.",
+    "createdAt": "2026-03-12",
+    "detailUrl": "./posts/cheat/save-editor-lite.html",
+    "downloadUrls": {
+      "Windows": "#",
+      "Android": ""
+    }
+  },
+  {
+    "id": "cheat-003",
+    "slug": "trainer-windows-pack",
+    "title": "Trainer Windows Pack",
+    "category": "cheat",
+    "genres": [
+      "Trainer",
+      "Cheat",
+      "Action"
+    ],
+    "platform": [
+      "Windows"
+    ],
+    "version": "v2.3",
+    "size": "33 MB",
+    "language": "English",
+    "status": "Completed",
+    "emoji": "🎯",
+    "image": "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80",
+    "description": "Paket trainer untuk Windows dengan opsi cepat dan layout yang mudah dipakai.",
+    "createdAt": "2026-03-10",
+    "detailUrl": "./posts/cheat/trainer-windows-pack.html",
+    "downloadUrls": {
+      "Windows": "#",
+      "Android": ""
+    }
   }
 ]
