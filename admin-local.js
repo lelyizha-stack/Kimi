@@ -1,20 +1,225 @@
-const STORAGE_KEY = 'karbit-prime-admin-data';
+const STORAGE_KEY = "karbit-prime-admin-data";
+
 let localGames = [];
 let lastEntry = null;
-function slugify(text){return String(text).toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-')}
-function escapeHTML(text){return String(text ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function normalizeDownloadUrls(entry){const urls=entry.downloadUrls && typeof entry.downloadUrls==='object'?entry.downloadUrls:{};const legacy=(entry.downloadUrl||'').trim();const platform=Array.isArray(entry.platform)?entry.platform:[];return {Windows:urls.Windows||((legacy&&platform.includes('Windows'))?legacy:''),Android:urls.Android||((legacy&&platform.includes('Android'))?legacy:'')}}
-function makeGenreChips(game){return (game.genres||[]).slice(0,6).map(genre=>`<span class="chip">${escapeHTML(genre)}</span>`).join('')}
-function makePlatformSpans(game){return (game.platform||[]).map(p=>`<span class="tag platform">${escapeHTML(p)}</span>`).join('')}
-function makeDownloadButtons(game){const urls=normalizeDownloadUrls(game);return ['Windows','Android'].filter(p=>(game.platform||[]).includes(p)).map(p=>`<a href="${escapeHTML(urls[p]||'#')}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">${escapeHTML(p)}</a>`).join('')}
-function makeDetailHtml(game){const imageHtml=game.image?`<img src="${escapeHTML(game.image)}" alt="${escapeHTML(game.title)}">`:'';return `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${escapeHTML(game.title)} - Karbit Prime</title><link rel="stylesheet" href="../../style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"></head><body><header class="site-header"><div class="container header-inner"><a href="../../" class="logo-wrap"><div class="logo-mark">KP</div><div class="logo-text"><span class="logo-title">Karbit Prime</span><span class="logo-sub">TL Indo • Mod • Cheat</span></div></a><nav class="main-nav"><a href="../../">Home</a><a href="../../donasi.html">Donasi</a><a href="../../renpy.html">Ren'Py</a><a href="../../rpgm.html">RPGM</a><a href="../../mod.html">Mod</a><a href="../../cheat.html">Cheat</a><a href="../../money-editor.html">Money Editor</a><a href="../../admin-local.html">Admin</a></nav></div></header><main class="page-shell"><div class="container"><section class="page-hero"><div class="page-copy"><div class="hero-badge">${escapeHTML(game.emoji||'🎮')} Detail Game</div><h1>${escapeHTML(game.title)}</h1><p>${escapeHTML(game.description)}</p><div class="toolbar" style="margin-top:20px">${makeGenreChips(game)}</div></div><div class="page-icon">${escapeHTML(game.emoji||'🎮')}</div></section><section class="page-section"><div class="download-card"><div class="catalog-cover">${imageHtml}<div class="cover-emoji">${escapeHTML(game.emoji||'🎮')}</div></div><div class="download-body"><div class="post-meta"><a class="tag ${escapeHTML(game.category)}" href="../../${escapeHTML(game.category)}.html">${escapeHTML(String(game.category||'').toUpperCase())}</a>${makePlatformSpans(game)}<span class="tag status">${escapeHTML(game.status||'Updated')}</span></div><h3>Informasi Ringkas</h3><p>Halaman detail ini dibuat dari Admin Lokal.</p><div class="download-meta"><div><strong>${escapeHTML(game.version||'-')}</strong><span>Versi</span></div><div><strong>${escapeHTML(game.size||'-')}</strong><span>Ukuran</span></div><div><strong>${escapeHTML(game.language||'-')}</strong><span>Bahasa</span></div></div><div class="note-box" style="margin-top:18px">Genre: ${escapeHTML((game.genres||[]).join(', '))}<br>Platform: ${escapeHTML((game.platform||[]).join(', '))}<br>Status: ${escapeHTML(game.status||'Updated')}</div><div class="download-actions" style="margin-top:18px">${makeDownloadButtons(game)}<a href="../../${escapeHTML(game.category)}.html" class="btn btn-secondary">Kembali ke Katalog</a></div></div></div></section></div></main></body></html>`}
-function renderSummary(){const summary=document.getElementById('localSummary');if(!summary)return;if(!localGames.length){summary.innerHTML=`<div class="mini-row"><span>Belum ada data lokal</span><span>0 item</span></div>`;return}const counts=localGames.reduce((a,i)=>(a[i.category]=(a[i.category]||0)+1,a),{});summary.innerHTML=Object.entries(counts).map(([k,v])=>`<div class="mini-row"><strong>${k.toUpperCase()}</strong><span>${v} item</span></div>`).join('')}
-function renderPreview(){const target=document.getElementById('entryPreview');if(!target)return;target.textContent=lastEntry?JSON.stringify(lastEntry,null,2):'{ "status": "Belum ada entry baru" }';renderSummary()}
-function saveLocal(){localStorage.setItem(STORAGE_KEY,JSON.stringify(localGames))}
-function migrateGames(items){return (Array.isArray(items)?items:[]).map(item=>{const next={...item};next.downloadUrls=normalizeDownloadUrls(item);delete next.downloadUrl;return next})}
-function loadLocal(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');if(Array.isArray(saved))localGames=migrateGames(saved)}catch(e){localGames=[]}renderPreview()}
-async function loadSiteData(){const res=await fetch('./data/games.json');localGames=migrateGames(await res.json());saveLocal();renderPreview();alert('Data situs berhasil dimuat ke admin lokal.')}
-function buildEntry(form){const data=new FormData(form);const title=String(data.get('title')||'').trim();const category=data.get('category');const genres=String(data.get('genres')||'').split(',').map(s=>s.trim()).filter(Boolean);const platform=[...form.querySelectorAll('input[name="platform"]:checked')].map(i=>i.value);if(!platform.length)throw new Error('Pilih minimal satu platform.');const slug=slugify(title);const sameCategory=localGames.filter(item=>item.category===category);return {id:`${category}-${String(sameCategory.length+1).padStart(3,'0')}`,slug,title,category,genres,platform,version:(data.get('version')||'').trim()||'v1.0',size:(data.get('size')||'').trim()||'-',language:(data.get('language')||'').trim()||'English',status:(data.get('status')||'').trim()||'Updated',emoji:(data.get('emoji')||'').trim()||'🎮',image:(data.get('image')||'').trim(),description:(data.get('description')||'').trim(),detailUrl:(data.get('detailUrl')||'').trim()||`./posts/${category}/${slug}.html`,downloadUrls:{Windows:String(data.get('downloadWindows')||'').trim(),Android:String(data.get('downloadAndroid')||'').trim()},createdAt:new Date().toISOString().slice(0,10)}}
-function exportJson(){const blob=new Blob([JSON.stringify(localGames,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='games.json';a.click();URL.revokeObjectURL(url)}
-async function exportBundle(){if(typeof JSZip==='undefined'){alert('JSZip tidak termuat.');return}const zip=new JSZip();zip.file('data/games.json',JSON.stringify(localGames,null,2));localGames.forEach(game=>{zip.file(`posts/${game.category}/${game.slug}.html`,makeDetailHtml(game));});const blob=await zip.generateAsync({type:'blob'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='karbit-prime-detail-bundle.zip';a.click();URL.revokeObjectURL(url)}
-document.addEventListener('DOMContentLoaded',()=>{loadLocal();document.getElementById('loadCurrentData')?.addEventListener('click',async()=>{try{await loadSiteData()}catch(e){alert('Gagal load data situs: '+e.message)}});document.getElementById('exportJson')?.addEventListener('click',exportJson);document.getElementById('exportBundle')?.addEventListener('click',exportBundle);document.getElementById('clearLocal')?.addEventListener('click',()=>{if(!confirm('Hapus local cache admin?'))return;localGames=[];lastEntry=null;saveLocal();renderPreview()});document.getElementById('copyEntry')?.addEventListener('click',async()=>{if(!lastEntry)return alert('Belum ada entry baru.');await navigator.clipboard.writeText(JSON.stringify(lastEntry,null,2));alert('Entry terakhir berhasil dicopy.')});document.getElementById('importJson')?.addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;const text=await file.text();const data=JSON.parse(text);if(!Array.isArray(data))return alert('File JSON tidak valid.');localGames=migrateGames(data);saveLocal();renderPreview();alert('games.json berhasil diimport.')});document.getElementById('gameForm')?.addEventListener('submit',e=>{e.preventDefault();try{const entry=buildEntry(e.currentTarget);localGames.unshift(entry);lastEntry=entry;saveLocal();renderPreview();e.currentTarget.reset();alert('Game baru masuk ke data lokal. Export games.json atau bundle ZIP untuk menyimpan hasilnya.')}catch(err){alert(err.message)}})})
+
+function slugify(text) {
+  return String(text)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+function renderSummary() {
+  const summary = document.getElementById("localSummary");
+  if (!summary) return;
+
+  if (!localGames.length) {
+    summary.innerHTML = `<div class="mini-row"><span>Belum ada data lokal</span><span>0 item</span></div>`;
+    return;
+  }
+
+  const counts = localGames.reduce((acc, item) => {
+    acc[item.category] = (acc[item.category] || 0) + 1;
+    return acc;
+  }, {});
+
+  summary.innerHTML = Object.entries(counts)
+    .map(([key, value]) => {
+      return `<div class="mini-row"><strong>${key.toUpperCase()}</strong><span>${value} item</span></div>`;
+    })
+    .join("");
+}
+
+function renderPreview() {
+  const target = document.getElementById("entryPreview");
+  if (!target) return;
+  target.textContent = lastEntry
+    ? JSON.stringify(lastEntry, null, 2)
+    : '{ "status": "Belum ada entry baru" }';
+  renderSummary();
+}
+
+function saveLocal() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(localGames));
+}
+
+function normalizeGameDownloads(game) {
+  if (game.downloadUrls && typeof game.downloadUrls === "object") {
+    return {
+      ...game,
+      downloadUrls: {
+        Windows: game.downloadUrls.Windows || "#",
+        Android: game.downloadUrls.Android || "#"
+      }
+    };
+  }
+
+  if (game.downloadUrl) {
+    return {
+      ...game,
+      downloadUrls: {
+        Windows: game.downloadUrl,
+        Android: "#"
+      }
+    };
+  }
+
+  return {
+    ...game,
+    downloadUrls: {
+      Windows: "#",
+      Android: "#"
+    }
+  };
+}
+
+function loadLocal() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    if (Array.isArray(saved)) {
+      localGames = saved.map(normalizeGameDownloads);
+    }
+  } catch (e) {
+    localGames = [];
+  }
+  renderPreview();
+}
+
+async function loadSiteData() {
+  const res = await fetch("./data/games.json");
+  const data = await res.json();
+  localGames = Array.isArray(data) ? data.map(normalizeGameDownloads) : [];
+  saveLocal();
+  renderPreview();
+  alert("Data situs berhasil dimuat ke admin lokal.");
+}
+
+function buildEntry(form) {
+  const data = new FormData(form);
+
+  const title = String(data.get("title") || "").trim();
+  if (!title) throw new Error("Judul wajib diisi.");
+
+  const category = String(data.get("category") || "").trim();
+  const genres = String(data.get("genres") || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const platform = [...form.querySelectorAll('input[name="platform"]:checked')].map((i) => i.value);
+  if (!platform.length) {
+    throw new Error("Pilih minimal satu platform.");
+  }
+
+  const slug = slugify(title);
+  const sameCategory = localGames.filter((item) => item.category === category);
+
+  const downloadWindows = String(data.get("downloadWindows") || "").trim() || "#";
+  const downloadAndroid = String(data.get("downloadAndroid") || "").trim() || "#";
+
+  if (platform.includes("Windows") && downloadWindows === "#") {
+    throw new Error("Platform Windows dipilih, tapi link download Windows belum diisi.");
+  }
+
+  if (platform.includes("Android") && downloadAndroid === "#") {
+    throw new Error("Platform Android dipilih, tapi link download Android belum diisi.");
+  }
+
+  return {
+    id: `${category}-${String(sameCategory.length + 1).padStart(3, "0")}`,
+    slug,
+    title,
+    category,
+    genres,
+    platform,
+    version: String(data.get("version") || "").trim() || "v1.0",
+    size: String(data.get("size") || "").trim() || "-",
+    language: String(data.get("language") || "").trim() || "English",
+    status: String(data.get("status") || "").trim() || "Updated",
+    emoji: String(data.get("emoji") || "").trim() || "🎮",
+    image: String(data.get("image") || "").trim(),
+    description: String(data.get("description") || "").trim(),
+    detailUrl:
+      String(data.get("detailUrl") || "").trim() ||
+      `./posts/${category}/${slug}.html`,
+    downloadUrls: {
+      Windows: downloadWindows,
+      Android: downloadAndroid
+    },
+    createdAt: new Date().toISOString().slice(0, 10)
+  };
+}
+
+function exportJson() {
+  const blob = new Blob([JSON.stringify(localGames, null, 2)], {
+    type: "application/json"
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "games.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadLocal();
+
+  document.getElementById("loadCurrentData")?.addEventListener("click", async () => {
+    try {
+      await loadSiteData();
+    } catch (e) {
+      alert("Gagal load data situs: " + e.message);
+    }
+  });
+
+  document.getElementById("exportJson")?.addEventListener("click", exportJson);
+
+  document.getElementById("clearLocal")?.addEventListener("click", () => {
+    if (!confirm("Hapus local cache admin?")) return;
+    localGames = [];
+    lastEntry = null;
+    saveLocal();
+    renderPreview();
+  });
+
+  document.getElementById("copyEntry")?.addEventListener("click", async () => {
+    if (!lastEntry) {
+      return alert("Belum ada entry baru.");
+    }
+    await navigator.clipboard.writeText(JSON.stringify(lastEntry, null, 2));
+    alert("Entry terakhir berhasil dicopy.");
+  });
+
+  document.getElementById("importJson")?.addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if (!Array.isArray(data)) {
+      return alert("File JSON tidak valid.");
+    }
+    localGames = data.map(normalizeGameDownloads);
+    saveLocal();
+    renderPreview();
+    alert("games.json berhasil diimport.");
+  });
+
+  document.getElementById("gameForm")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    try {
+      const entry = buildEntry(e.currentTarget);
+      localGames.unshift(entry);
+      lastEntry = entry;
+      saveLocal();
+      renderPreview();
+      e.currentTarget.reset();
+      alert("Game baru masuk ke data lokal. Export games.json untuk menyimpan hasilnya.");
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+});

@@ -60,3 +60,10 @@ Tambahan baru:
 - Search, filter, tag klik, dan katalog tetap dipertahankan
 
 - Pagination default sudah aktif untuk katalog tanpa filter maupun saat filter/search dipakai
+
+
+Tambahan update:
+- Download sekarang mendukung dua URL terpisah: Windows dan Android
+- Admin Lokal punya field Download Windows dan Download Android
+- Termux add_game.py menanyakan link download per platform
+- tools/sheets_to_json.py membaca kolom downloadWindows dan downloadAndroid
