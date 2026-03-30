@@ -123,3 +123,30 @@ button,input,select,textarea{font:inherit}
 .page-btn:disabled{opacity:.45;cursor:not-allowed}
 .page-dots{color:var(--muted);padding:0 4px;font-size:18px}
 .empty-state{grid-column:1/-1;padding:26px;border:1px dashed var(--line-strong);border-radius:20px;background:rgba(255,255,255,.03);color:var(--muted);text-align:center}
+/* ===== KECILKAN TOMBOL MENU DI HP ===== */
+@media (max-width: 768px) {
+  .main-nav {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .main-nav a {
+    padding: 8px 12px;
+    font-size: 13px;
+    border-radius: 10px;
+    line-height: 1.15;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-nav {
+    gap: 7px;
+  }
+
+  .main-nav a {
+    padding: 7px 10px;
+    font-size: 12px;
+    border-radius: 10px;
+    flex: 0 0 auto;
+  }
+}
