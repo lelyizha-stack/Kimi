@@ -734,7 +734,7 @@ select:-webkit-autofill{
 
 @media (max-width:768px){
   .header-inner{
-    align-items:flex-start;
+    align-items:center;
   }
 
   .nav-toggle{
