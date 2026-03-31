@@ -28,85 +28,71 @@
     }
   },
   {
-    "id": "renpy-002",
-    "slug": "crimson-summer",
-    "title": "Crimson Summer",
-    "category": "renpy",
-    "genres": [
-      "Comedy",
-      "Slice of Life",
-      "Visual Novel"
-    ],
-    "platform": [
-      "Android"
-    ],
-    "version": "v1.0",
-    "size": "412 MB",
-    "language": "English",
-    "status": "Completed",
-    "emoji": "🌙",
-    "image": "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=1200&q=80",
-    "description": "Story game ringan dengan nuansa santai, karakter kuat, dan cabang pilihan yang jelas.",
-    "createdAt": "2026-03-28",
-    "detailUrl": "./posts/renpy/crimson-summer.html",
-    "downloadUrls": {
-      "Windows": "",
-      "Android": "#"
-    }
+  "id": "renpy-002",
+  "slug": "distortium-v023",
+  "title": "Distortium [v0.2.3]",
+  "category": "renpy",
+  "genres": [
+    "3DCG",
+    "Animated",
+    "Male protagonist",
+    "Romance",
+    "School setting",
+    "Voyeurism",
+    "Visual Novel"
+  ],
+  "platform": [
+    "Windows",
+    "Android"
+  ],
+  "version": "v0.2.3",
+  "size": "1 GB",
+  "language": "TL Indo",
+  "status": "Ongoing",
+  "emoji": "❤️‍🔥",
+  "image": "images/distortium.webp",
+  "description": "Masuki kehidupan seorang pemuda yang tinggal bersama pengasuhnya dan putri sang pengasuh. Setelah pindah ke tempat baru demi pekerjaan sang pengasuh, kamu mulai bersekolah di sekolah yang baru. Namun, apa yang awalnya merupakan kehidupan siswa yang biasa perlahan berkembang menjadi petualangan tak terlupakan melintasi berbagai Distortium.\n\nDi setiap Distortium, kamu harus menemukan artefak tersembunyi untuk membuka misteri mendalam yang belum diketahui.",
+  "detailUrl": "./posts/renpy/distortium-v023.html",
+  "downloadUrls": {
+    "Windows": "https://sfl.gl/Okeaf",
+    "Android": "https://sfl.gl/NosJs"
   },
+  "createdAt": "2026-03-31"
+},
   {
-    "id": "renpy-003",
-    "slug": "night-apartment",
-    "title": "Night Apartment",
-    "category": "renpy",
-    "genres": [
-      "Mystery",
-      "Horror",
-      "Visual Novel"
-    ],
-    "platform": [
-      "Windows"
-    ],
-    "version": "v0.8",
-    "size": "530 MB",
-    "language": "English",
-    "status": "Updated",
-    "emoji": "🕯️",
-    "image": "https://images.unsplash.com/photo-1520034475321-cbe63696469a?auto=format&fit=crop&w=1200&q=80",
-    "description": "Visual novel misteri untuk Windows dengan cerita gelap, event tersembunyi, dan suasana tegang.",
-    "createdAt": "2026-03-27",
-    "detailUrl": "./posts/renpy/night-apartment.html",
-    "downloadUrls": {
-      "Windows": "#",
-      "Android": ""
-    }
+  "id": "renpy-003",
+  "slug": "a-home-between-us",
+  "title": "A Home Between Us",
+  "category": "renpy",
+  "genres": [
+    "3DCG",
+    "Animated",
+    "Sandbox",
+    "Adventure",
+    "Simulator",
+    "Point & Click",
+    "PoV",
+    "Male protagonist",
+    "Mobile game",
+    "Visual Novel"
+  ],
+  "platform": [
+    "Windows",
+    "Android"
+  ],
+  "version": "v0.3.1",
+  "size": "2 GB",
+  "language": "TL Indo",
+  "status": "Ongoing",
+  "emoji": "❤️‍🔥",
+  "image": "images/a-home-bew-us.webp",
+  "description": "“Ini bukan tentang kesuksesan. Ini tentang bertahan hidup satu hari lagi.”\n\n*A Home Between Us* adalah visual novel slice-of-life yang mentah dan simulasi kehidupan tentang seseorang yang tidak lagi memiliki apa pun untuk dipertaruhkan karena ia sudah kehilangan semua yang berarti.\n\nKamu bermain sebagai Riku / Karakter Utama.\n\nOrang tua meninggal terlalu cepat. Menghabiskan seluruh masa muda untuk membesarkan adik perempuanmu. Kamu mengorbankan sekolah, teman, mimpi, dan masa depanmu sendiri hanya agar dia bisa memilikinya. Lalu dia tumbuh dewasa, pindah, dan tidak pernah menoleh ke belakang.\n\nSekarang hanya kamu sendirian di apartemen sempit yang sama. Lampu yang sama yang berkedip-kedip. Mi instan yang sama. Langit-langit yang sudah kamu hafal di luar kepala. Hari-hari berlalu tanpa terasa. Kalender sudah lama tidak berarti apa-apa.\n\nDan suatu malam saat berjalan pulang, kamu bertemu seorang NEET yang mengubah segalanya....",
+  "detailUrl": "./posts/renpy/a-home-between-us.html",
+  "downloadUrls": {
+    "Windows": "https://sfl.gl/d33QmO",
+    "Android": "https://sfl.gl/bK5uAOWD"
   },
-  {
-    "id": "rpgm-001",
-    "slug": "dungeon-legacy",
-    "title": "Dungeon Legacy",
-    "category": "rpgm",
-    "genres": [
-      "Fantasy",
-      "Adventure",
-      "RPG"
-    ],
-    "platform": [
-      "Windows"
-    ],
-    "version": "v1.03",
-    "size": "1.2 GB",
-    "language": "English",
-    "status": "Completed",
-    "emoji": "🗺️",
-    "image": "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80",
-    "description": "RPG Maker fantasy adventure dengan exploration, dungeon crawl, dan quest-style gameplay.",
-    "createdAt": "2026-03-26",
-    "detailUrl": "./posts/rpgm/dungeon-legacy.html",
-    "downloadUrls": {
-      "Windows": "#",
-      "Android": ""
-    }
+  "createdAt": "2026-03-31"
   },
   {
     "id": "rpgm-002",
