@@ -602,3 +602,32 @@ select:-webkit-autofill{
     width:100%;
   }
 }
+
+.section-divider{
+  width:min(1150px,92%);
+  margin:28px auto 8px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.section-divider::before,
+.section-divider::after{
+  content:"";
+  display:block;
+  height:2px;
+  border-radius:999px;
+}
+
+.section-divider::before{
+  background:linear-gradient(90deg, transparent, rgba(255,95,178,.85), transparent);
+}
+
+.section-divider::after{
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.20), transparent);
+}
+
+.section-latest{
+  padding-top:18px;
+  scroll-margin-top:90px;
+}
