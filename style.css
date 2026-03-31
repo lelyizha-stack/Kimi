@@ -631,3 +631,54 @@ select:-webkit-autofill{
   padding-top:18px;
   scroll-margin-top:90px;
 }
+
+/* PAGINATION BASE */
+.pagination-wrap{
+  margin-top:20px;
+}
+
+.pagination{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:center;
+  align-items:center;
+}
+
+.page-btn{
+  min-width:46px;
+  height:46px;
+  padding:0 14px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.04);
+  color:var(--text);
+  font:inherit;
+  font-weight:700;
+  cursor:pointer;
+  transition:.2s ease;
+}
+
+.page-btn:hover:not(:disabled){
+  transform:translateY(-2px);
+  border-color:rgba(255,79,163,.45);
+  background:rgba(255,79,163,.16);
+}
+
+.page-btn.active{
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));
+  border-color:transparent;
+  color:#fff;
+  box-shadow:0 14px 28px rgba(255,79,163,.25);
+}
+
+.page-btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.page-dots{
+  color:var(--muted);
+  padding:0 4px;
+  font-size:18px;
+}
