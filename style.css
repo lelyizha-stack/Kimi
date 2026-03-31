@@ -291,41 +291,23 @@ button,input,select,textarea{font:inherit}
 .money-log{min-height:180px}
 
 /* Footer */
-.site-footer{border-top:1px solid var(--line);background:rgba(255,255,255,.02);margin-top:20px}
-.footer-social-only{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:30px 0}
-.footer-brand h3{margin:0 0 8px;font-size:24px}
-.footer-social-grid{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:12px;width:100%;max-width:620px}
-.social-box{
-  display:flex;align-items:center;justify-content:center;gap:10px;min-height:58px;padding:14px 16px;border-radius:16px;
-  font-weight:700;color:#fff;border:1px solid rgba(255,255,255,.08);box-shadow:0 12px 24px rgba(0,0,0,.18);transition:.2s ease
-}
-.social-box:hover{transform:translateY(-3px);filter:brightness(1.06)}
-.social-icon{
-  width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:50%;
-  background:rgba(255,255,255,.16);font-size:16px;font-weight:800
-}
-.social-box.facebook{background:linear-gradient(135deg,#1877f2,#0f5fd6)}
-.social-box.x{background:linear-gradient(135deg,#111,#2b2b2b)}
-.social-box.instagram{background:linear-gradient(135deg,#fd1d1d,#c13584,#833ab4)}
-.social-box.youtube{background:linear-gradient(135deg,#ff0033,#cc0000)}
-.footer-bottom{padding:0 0 28px;color:var(--muted);font-size:13px;text-align:center}
-
-/* Pagination */
-.pagination-wrap{margin-top:20px}
-.pagination{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center}
-.page-btn{
-  min-width:46px;height:46px;padding:0 14px;border-radius:14px;border:1px solid var(--line);
-  background:rgba(255,255,255,.04);color:var(--text);font:inherit;font-weight:700;cursor:pointer;transition:.2s ease
-}
-.page-btn:hover:not(:disabled){
-  transform:translateY(-2px);border-color:rgba(255,79,163,.45);background:rgba(255,79,163,.16)
-}
 .page-btn.active{
-  background:linear-gradient(135deg,var(--primary),var(--primary-2));border-color:transparent;color:#fff;
-  box-shadow:0 14px 28px rgba(255,79,163,.25)
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));
+  border-color:transparent;
+  color:#fff;
+  box-shadow:0 14px 28px rgba(255,79,163,.25);
 }
-.page-btn:disabled{opacity:.45;cursor:not-allowed}
-.page-dots{color:var(--muted);padding:0 4px;font-size:18px}
+
+.page-btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.page-dots{
+  color:var(--muted);
+  padding:0 4px;
+  font-size:18px;
+}
 
 @media (max-width:1100px){
   .filter-grid,.filter-grid-home{grid-template-columns:1fr 1fr}
