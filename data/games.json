@@ -59,30 +59,6 @@
     "createdAt": "2026-03-31"
   },
   {
-    "id": "cheat-004",
-    "slug": "agent17-cheat",
-    "title": "Agent17 Cheat",
-    "category": "cheat",
-    "genres": [
-      "Mod",
-      "Cheat"
-    ],
-    "platform": [
-      "Windows",
-      "Android"
-    ],
-    "version": "v0.2",
-    "size": "30kb",
-    "language": "Indonesian",
-    "status": "31-03-2026",
-    "emoji": "🎮",
-    "image": "images/agent17cheat.webp",
-    "description": "Cara pasang untuk JoiPlay: taruh di folder bernama game. Untuk Android: masuk ke folder data aplikasi lalu buat folder bernama game dan taruh cheat di situ. Cheat sudah cukup lengkap.",
-    "detailUrl": "./posts/cheat/agent17-cheat.html",
-    "downloadUrl": "https://tpi.li/Agent17cheat",
-    "createdAt": "2026-03-31"
-  },
-  {
     "id": "renpy-002",
     "slug": "distortium-v023",
     "title": "Distortium [v0.2.3]",
