@@ -213,7 +213,7 @@ function renderDownloadButtons(game) {
 }
 
 function renderCard(game) {
-  const detail = game.detailUrl || "#";
+  const detail = `./detail.html?slug=${encodeURIComponent(game.slug || "")}`;
   const downloadButtons = renderDownloadButtons(game);
 
   return `
