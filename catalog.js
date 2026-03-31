@@ -22,7 +22,7 @@ function escapeHTML(text) {
 }
 
 async function loadGames() {
-  const response = await fetch("./data/games.json");
+  const response = await fetch("https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMVCqdm-kXhbZ2NlEllCYe7CnbriUv7NbxKBur1iMSfaMiF3tm2-A5jJf2RuXR734zwqG0w-scWiMkbyTZ-nT_VGpr_ft6dOgeVkdmRsUKdKP8FvDtLujTU4B29zCYL0qNtbdkogGbkZf22cyTv4AwkGu5eHJ0zoFioctKSx3YH4aTam4f1w-8CIMLSXiRf0yr3D71MaQcyaopQfGcezNiGKcFz1nR01ngxRk-mUXaMqAJ_pSoLuCtHvRUuPdAWNnHnqbXD-hWgg9CgKDUNKz3GNMHuN5A&lib=M51hLTJXPQ14ZsjBvmZx8t4ZA7c56I8fg");
   if (!response.ok) throw new Error("Gagal memuat data katalog.");
   return response.json();
 }
