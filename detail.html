@@ -386,37 +386,82 @@
       `;
     }
 
-    <script>
-  const APPS_SCRIPT_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMVCqdm-kXhbZ2NlEllCYe7CnbriUv7NbxKBur1iMSfaMiF3tm2-A5jJf2RuXR734zwqG0w-scWiMkbyTZ-nT_VGpr_ft6dOgeVkdmRsUKdKP8FvDtLujTU4B29zCYL0qNtbdkogGbkZf22cyTv4AwkGu5eHJ0zoFioctKSx3YH4aTam4f1w-8CIMLSXiRf0yr3D71MaQcyaopQfGcezNiGKcFz1nR01ngxRk-mUXaMqAJ_pSoLuCtHvRUuPdAWNnHnqbXD-hWgg9CgKDUNKz3GNMHuN5A&lib=M51hLTJXPQ14ZsjBvmZx8t4ZA7c56I8fg";
+    const APPS_SCRIPT_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMVCqdm-kXhbZ2NlEllCYe7CnbriUv7NbxKBur1iMSfaMiF3tm2-A5jJf2RuXR734zwqG0w-scWiMkbyTZ-nT_VGpr_ft6dOgeVkdmRsUKdKP8FvDtLujTU4B29zCYL0qNtbdkogGbkZf22cyTv4AwkGu5eHJ0zoFioctKSx3YH4aTam4f1w-8CIMLSXiRf0yr3D71MaQcyaopQfGcezNiGKcFz1nR01ngxRk-mUXaMqAJ_pSoLuCtHvRUuPdAWNnHnqbXD-hWgg9CgKDUNKz3GNMHuN5A&lib=M51hLTJXPQ14ZsjBvmZx8t4ZA7c56I8fg";
 
-  async function initDetail() {
-    const app = document.getElementById("detailApp");
-    const params = new URLSearchParams(window.location.search);
-    const slug = params.get("slug") || "";
+    async function initDetail() {
+      const app = document.getElementById("detailApp");
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get("slug") || "";
 
-    if (!slug) {
-      renderNotFound(app, slug);
-      return;
-    }
-
-    try {
-      const res = await fetch(APPS_SCRIPT_URL);
-      if (!res.ok) throw new Error("Gagal memuat data katalog.");
-      const games = await res.json();
-      const game = Array.isArray(games)
-        ? games.find((item) => String(item.slug || "") === slug)
-        : null;
-
-      if (!game) {
+      if (!slug) {
         renderNotFound(app, slug);
         return;
       }
 
-      renderDetail(app, game, Array.isArray(games) ? games : []);
-    } catch (err) {
-      app.innerHTML = `<div class="not-found"><h1>Gagal memuat detail</h1><p class="muted">${escapeHTML(err.message)}</p></div>`;
+      try {
+        const res = await fetch(APPS_SCRIPT_URL);
+        if (!res.ok) throw new Error("Gagal memuat data katalog.");
+        const games = await res.json();
+        const game = Array.isArray(games)
+          ? games.find((item) => String(item.slug || "") === slug)
+          : null;
+
+        if (!game) {
+          renderNotFound(app, slug);
+          return;
+        }
+
+        renderDetail(app, game, Array.isArray(games) ? games : []);
+      } catch (err) {
+        app.innerHTML = `<div class="not-found"><h1>Gagal memuat detail</h1><p class="muted">${escapeHTML(err.message)}</p></div>`;
+      }
     }
-  }
-</script>
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const nav = document.getElementById("mainNav");
+      const toggle = document.getElementById("navToggle");
+
+      if (nav && toggle) {
+        const STORAGE_KEY = "kp-mobile-nav-collapsed";
+
+        function isMobile() {
+          return window.matchMedia("(max-width: 768px)").matches;
+        }
+
+        function setState(collapsed) {
+          nav.classList.toggle("is-collapsed", collapsed);
+          toggle.classList.toggle("is-active", !collapsed);
+          toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+        }
+
+        function loadState() {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved === null) return true;
+          return saved === "1";
+        }
+
+        function applyResponsiveState() {
+          if (isMobile()) {
+            setState(loadState());
+          } else {
+            nav.classList.remove("is-collapsed");
+            toggle.classList.remove("is-active");
+            toggle.setAttribute("aria-expanded", "true");
+          }
+        }
+
+        toggle.addEventListener("click", () => {
+          const collapsed = !nav.classList.contains("is-collapsed");
+          setState(collapsed);
+          localStorage.setItem(STORAGE_KEY, collapsed ? "1" : "0");
+        });
+
+        window.addEventListener("resize", applyResponsiveState);
+        applyResponsiveState();
+      }
+
+      initDetail();
+    });
+  </script>
 </body>
 </html>
