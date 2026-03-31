@@ -1,36 +1,38 @@
 [
-  { HEAD
-  "id": "renpy-004",
-  "slug": "the-coolest-boy",
-  "title": "The Coolest Boy",
-  "category": "renpy",
-  "genres": [
-    "3DCG",
-    "Male protagonist",
-    "Adventure",
-    "Humor",
-    "Mobile game",
-    "Romance",
-    "Visual Novel"
-  ],
-  "platform": [
-    "Windows",
-    "Android"
-  ],
-  "version": "v0.6",
-  "size": "800 MB",
-  "language": "TL Indo",
-  "status": "Ongoing",
-  "emoji": "👄",
-  "image": "images/the-coolest-boy!.webp",
-  "description": "Eugine (pemain) adalah anak miskin yang nggak bisa melanjutkan tahun kedua sekolah menengahnya. Ayahnya sudah lama meninggal, sekarang dia hanya tinggal bersama ibunya (Lena) dan adik perempuannya (Felicia). Tapi suatu hari, sahabat lama ibunya bernama (Suzy) ingin membantu Lena dengan membuat Eugine (pemain) bisa bersekolah lagi—namun di kotanya, Cherry Town. Dia membantu karena dulu dia berutang banyak pada Lena.\nDan dari situlah semuanya dimulai—Eugine (pemain) pergi ke Cherry Town untuk memulai hidup barunya di kota itu dan di sekolah barunya di sana.",
-  "detailUrl": "./posts/renpy/the-coolest-boy.html",
-  "downloadUrls": {
-    "Windows": "https://sfl.gl/5R2IksEg",
-    "Android": "https://sfl.gl/2g3EQ"
+  {
+    "id": "renpy-001",
+    "slug": "the-coolest-boy",
+    "title": "The Coolest Boy",
+    "category": "renpy",
+    "genres": [
+      "3DCG",
+      "Male protagonist",
+      "Adventure",
+      "Humor",
+      "Mobile game",
+      "Romance",
+      "Visual Novel"
+    ],
+    "platform": [
+      "Windows",
+      "Android"
+    ],
+    "version": "v0.6",
+    "size": "800 MB",
+    "language": "TL Indo",
+    "status": "Ongoing",
+    "emoji": "👄",
+    "image": "images/the-coolest-boy!.webp",
+    "description": "Eugine (pemain) adalah anak miskin yang nggak bisa melanjutkan tahun kedua sekolah menengahnya. Ayahnya sudah lama meninggal, sekarang dia hanya tinggal bersama ibunya (Lena) dan adik perempuannya (Felicia). Tapi suatu hari, sahabat lama ibunya bernama (Suzy) ingin membantu Lena dengan membuat Eugine (pemain) bisa bersekolah lagi—namun di kotanya, Cherry Town. Dia membantu karena dulu dia berutang banyak pada Lena.\nDan dari situlah semuanya dimulai—Eugine (pemain) pergi ke Cherry Town untuk memulai hidup barunya di kota itu dan di sekolah barunya di sana.",
+    "detailUrl": "./posts/renpy/the-coolest-boy.html",
+    "downloadUrls": {
+      "Windows": "https://sfl.gl/5R2IksEg",
+      "Android": "https://sfl.gl/2g3EQ"
+    },
+    "createdAt": "2026-03-31"
   },
-  "createdAt": "2026-03-31"
-},  "id": "cheat-006",
+  {
+    "id": "cheat-006",
     "slug": "agnet-17-cheat",
     "title": "Agnet 17 Cheat",
     "category": "cheat",
@@ -57,40 +59,13 @@
     "createdAt": "2026-03-31"
   },
   {
-    "id": "cheat-005",
-    "slug": "agent-17-cheat",
-    "title": "Agent 17 Cheat",
-    "category": "cheat",
-    "genres": [
-      "mod",
-      "cheat"
-    ],
-    "platform": [
-      "Windows",
-      "Android"
-    ],
-    "version": "0.6",
-    "size": "33kb",
-    "language": "Indonesian",
-    "status": "31-03-2026",
-    "emoji": "🎮",
-    "image": "images/agent17cheat.webp",
-    "description": "CHEAT AGENT17",
-    "detailUrl": "./posts/cheat/agent-17-cheat.html",
-    "downloadUrls": {
-      "Windows": "‎Cara pasang untuk Joiplay atau PC cukup masukan cheat ke dalam folder bernama game",
-      "Android": "‎"
-    },
-    "createdAt": "2026-03-31"
-  },
-  {
     "id": "cheat-004",
     "slug": "agent17-cheat",
     "title": "Agent17 Cheat",
     "category": "cheat",
     "genres": [
-      "mod",
-      "cheat"
+      "Mod",
+      "Cheat"
     ],
     "platform": [
       "Windows",
@@ -102,128 +77,77 @@
     "status": "31-03-2026",
     "emoji": "🎮",
     "image": "images/agent17cheat.webp",
-    "description": "Cara Pasang Untuk Joilay Taruh di folder bernama game , untuk di android androidd/data/com./files/   Nb; kemudian bikin sendiri fooldeer bernama game taruh cheat ke situ . cheat sudah cukup lengkap .",
+    "description": "Cara pasang untuk JoiPlay: taruh di folder bernama game. Untuk Android: masuk ke folder data aplikasi lalu buat folder bernama game dan taruh cheat di situ. Cheat sudah cukup lengkap.",
     "detailUrl": "./posts/cheat/agent17-cheat.html",
     "downloadUrl": "https://tpi.li/Agent17cheat",
     "createdAt": "2026-03-31"
   },
   {
-    "id": "renpy-004",
-    "slug": "bagas-femboy",
-    "title": "bagas femboy",
-    "category": "renpy",
-    "genres": [
-      "Ntr"
-    ],
-    "platform": [
-      "Windows"
-    ],
-    "version": "v0.9",
-    "size": "1.7gb",
-    "language": "Indonesian",
-    "status": "23-03-2026",
-    "emoji": ":)",
-    "image": "",
-    "description": "Paus id",
-    "detailUrl": "./posts/renpy/bagas-femboy.html",
-    "downloadUrl": "#",
-    "createdAt": "2026-03-31"
-  },
-  {
-    "id": "renpy-001",
-    "slug": "the-coolest-boy",
-    "title": "The Coolest Boy",
+    "id": "renpy-002",
+    "slug": "distortium-v023",
+    "title": "Distortium [v0.2.3]",
     "category": "renpy",
     "genres": [
       "3DCG",
+      "Animated",
       "Male protagonist",
-      "Adventure",
-      "Humor",
-      "Mobile game",
       "Romance",
+      "School setting",
+      "Voyeurism",
       "Visual Novel"
     ],
     "platform": [
       "Windows",
       "Android"
     ],
-    "version": "v0.6",
-    "size": "800 MB",
+    "version": "v0.2.3",
+    "size": "1 GB",
     "language": "TL Indo",
     "status": "Ongoing",
     "emoji": "❤️‍🔥",
-    "image": "",
-    "description": "Eugine (pemain) adalah anak miskin yang nggak bisa melanjutkan tahun kedua sekolah menengahnya. Ayahnya sudah lama meninggal, sekarang dia hanya tinggal bersama ibunya (Lena) dan adik perempuannya (Felicia). Tapi suatu hari, sahabat lama ibunya bernama (Suzy) ingin membantu Lena dengan membuat Eugine (pemain) bisa bersekolah lagi—namun di kotanya, Cherry Town. Dia membantu karena dulu dia berutang banyak pada Lena.\nDan dari situlah semuanya dimulai—Eugine (pemain) pergi ke Cherry Town untuk memulai hidup barunya di kota itu dan di sekolah barunya di sana.",
-    "detailUrl": "./posts/renpy/the-coolest-boy.html",
-    "downloadUrl": "https://sfl.gl/2g3EQ",
-    "createdAt": "2026-03-30"
+    "image": "images/distortium.webp",
+    "description": "Masuki kehidupan seorang pemuda yang tinggal bersama pengasuhnya dan putri sang pengasuh. Setelah pindah ke tempat baru demi pekerjaan sang pengasuh, kamu mulai bersekolah di sekolah yang baru. Namun, apa yang awalnya merupakan kehidupan siswa yang biasa perlahan berkembang menjadi petualangan tak terlupakan melintasi berbagai Distortium.\n\nDi setiap Distortium, kamu harus menemukan artefak tersembunyi untuk membuka misteri mendalam yang belum diketahui.",
+    "detailUrl": "./posts/renpy/distortium-v023.html",
+    "downloadUrls": {
+      "Windows": "https://sfl.gl/Okeaf",
+      "Android": "https://sfl.gl/NosJs"
+    },
+    "createdAt": "2026-03-31"
   },
-9f46e2a (Update agent17 cheat)  {
-  "id": "renpy-002",
-  "slug": "distortium-v023",
-  "title": "Distortium [v0.2.3]",
-  "category": "renpy",
-  "genres": [
-    "3DCG",
-    "Animated",
-    "Male protagonist",
-    "Romance",
-    "School setting",
-    "Voyeurism",
-    "Visual Novel"
-  ],
-  "platform": [
-    "Windows",
-    "Android"
-  ],
-  "version": "v0.2.3",
-  "size": "1 GB",
-  "language": "TL Indo",
-  "status": "Ongoing",
-  "emoji": "❤️‍🔥",
-  "image": "images/distortium.webp",
-  "description": "Masuki kehidupan seorang pemuda yang tinggal bersama pengasuhnya dan putri sang pengasuh. Setelah pindah ke tempat baru demi pekerjaan sang pengasuh, kamu mulai bersekolah di sekolah yang baru. Namun, apa yang awalnya merupakan kehidupan siswa yang biasa perlahan berkembang menjadi petualangan tak terlupakan melintasi berbagai Distortium.\n\nDi setiap Distortium, kamu harus menemukan artefak tersembunyi untuk membuka misteri mendalam yang belum diketahui.",
-  "detailUrl": "./posts/renpy/distortium-v023.html",
-  "downloadUrls": {
-    "Windows": "https://sfl.gl/Okeaf",
-    "Android": "https://sfl.gl/NosJs"
-  },
-  "createdAt": "2026-03-31"
-},
   {
-  "id": "renpy-003",
-  "slug": "a-home-between-us",
-  "title": "A Home Between Us",
-  "category": "renpy",
-  "genres": [
-    "3DCG",
-    "Animated",
-    "Sandbox",
-    "Adventure",
-    "Simulator",
-    "Point & Click",
-    "PoV",
-    "Male protagonist",
-    "Mobile game",
-    "Visual Novel"
-  ],
-  "platform": [
-    "Windows",
-    "Android"
-  ],
-  "version": "v0.3.1",
-  "size": "2 GB",
-  "language": "TL Indo",
-  "status": "Ongoing",
-  "emoji": "❤️‍🔥",
-  "image": "images/a-home-bew-us.webp",
-  "description": "“Ini bukan tentang kesuksesan. Ini tentang bertahan hidup satu hari lagi.”\n\n*A Home Between Us* adalah visual novel slice-of-life yang mentah dan simulasi kehidupan tentang seseorang yang tidak lagi memiliki apa pun untuk dipertaruhkan karena ia sudah kehilangan semua yang berarti.\n\nKamu bermain sebagai Riku / Karakter Utama.\n\nOrang tua meninggal terlalu cepat. Menghabiskan seluruh masa muda untuk membesarkan adik perempuanmu. Kamu mengorbankan sekolah, teman, mimpi, dan masa depanmu sendiri hanya agar dia bisa memilikinya. Lalu dia tumbuh dewasa, pindah, dan tidak pernah menoleh ke belakang.\n\nSekarang hanya kamu sendirian di apartemen sempit yang sama. Lampu yang sama yang berkedip-kedip. Mi instan yang sama. Langit-langit yang sudah kamu hafal di luar kepala. Hari-hari berlalu tanpa terasa. Kalender sudah lama tidak berarti apa-apa.\n\nDan suatu malam saat berjalan pulang, kamu bertemu seorang NEET yang mengubah segalanya....",
-  "detailUrl": "./posts/renpy/a-home-between-us.html",
-  "downloadUrls": {
-    "Windows": "https://sfl.gl/d33QmO",
-    "Android": "https://sfl.gl/bK5uAOWD"
-  },
-  "createdAt": "2026-03-31"
+    "id": "renpy-003",
+    "slug": "a-home-between-us",
+    "title": "A Home Between Us",
+    "category": "renpy",
+    "genres": [
+      "3DCG",
+      "Animated",
+      "Sandbox",
+      "Adventure",
+      "Simulator",
+      "Point & Click",
+      "PoV",
+      "Male protagonist",
+      "Mobile game",
+      "Visual Novel"
+    ],
+    "platform": [
+      "Windows",
+      "Android"
+    ],
+    "version": "v0.3.1",
+    "size": "2 GB",
+    "language": "TL Indo",
+    "status": "Ongoing",
+    "emoji": "❤️‍🔥",
+    "image": "images/a-home-bew-us.webp",
+    "description": "“Ini bukan tentang kesuksesan. Ini tentang bertahan hidup satu hari lagi.”\n\n*A Home Between Us* adalah visual novel slice-of-life yang mentah dan simulasi kehidupan tentang seseorang yang tidak lagi memiliki apa pun untuk dipertaruhkan karena ia sudah kehilangan semua yang berarti.\n\nKamu bermain sebagai Riku / Karakter Utama.\n\nOrang tua meninggal terlalu cepat. Menghabiskan seluruh masa muda untuk membesarkan adik perempuanmu. Kamu mengorbankan sekolah, teman, mimpi, dan masa depanmu sendiri hanya agar dia bisa memilikinya. Lalu dia tumbuh dewasa, pindah, dan tidak pernah menoleh ke belakang.\n\nSekarang hanya kamu sendirian di apartemen sempit yang sama. Lampu yang sama yang berkedip-kedip. Mi instan yang sama. Langit-langit yang sudah kamu hafal di luar kepala. Hari-hari berlalu tanpa terasa. Kalender sudah lama tidak berarti apa-apa.\n\nDan suatu malam saat berjalan pulang, kamu bertemu seorang NEET yang mengubah segalanya....",
+    "detailUrl": "./posts/renpy/a-home-between-us.html",
+    "downloadUrls": {
+      "Windows": "https://sfl.gl/d33QmO",
+      "Android": "https://sfl.gl/bK5uAOWD"
+    },
+    "createdAt": "2026-03-31"
   },
   {
     "id": "rpgm-002",
