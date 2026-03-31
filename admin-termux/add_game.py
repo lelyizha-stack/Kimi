@@ -6,9 +6,11 @@ import re
 from pathlib import Path
 from datetime import date
 
+
 ROOT = Path(__file__).resolve().parent.parent
 DATA_FILE = ROOT / "data" / "games.json"
 POSTS_DIR = ROOT / "posts"
+
 
 def slugify(text: str) -> str:
     text = text.strip().lower()
@@ -17,11 +19,13 @@ def slugify(text: str) -> str:
     text = re.sub(r"-+", "-", text)
     return text.strip("-")
 
-def ask(prompt, default=""):
+
+def ask(prompt: str, default: str = "") -> str:
     value = input(f"{prompt}" + (f" [{default}]" if default else "") + ": ").strip()
     return value or default
 
-def ask_category():
+
+def ask_category() -> str:
     allowed = ["renpy", "rpgm", "mod", "cheat"]
     while True:
         value = ask("Category (renpy/rpgm/mod/cheat)", "renpy").lower()
@@ -29,7 +33,8 @@ def ask_category():
             return value
         print("Category tidak valid.")
 
-def ask_platform():
+
+def ask_platform() -> list[str]:
     allowed = ["Windows", "Android"]
     while True:
         raw = ask("Platform pisahkan koma (Windows, Android)", "Windows")
@@ -39,7 +44,8 @@ def ask_platform():
             return list(dict.fromkeys(items))
         print("Pilih minimal satu platform: Windows atau Android.")
 
-def ask_genres():
+
+def ask_genres() -> list[str]:
     while True:
         raw = ask("Genre pisahkan koma", "Adventure")
         items = [item.strip() for item in raw.split(",") if item.strip()]
@@ -47,7 +53,8 @@ def ask_genres():
             return list(dict.fromkeys(items))
         print("Genre tidak boleh kosong.")
 
-def ask_download_urls(platforms):
+
+def ask_download_urls(platforms: list[str]) -> dict:
     urls = {
         "Windows": "#",
         "Android": "#"
@@ -61,47 +68,54 @@ def ask_download_urls(platforms):
 
     return urls
 
-def load_games():
+
+def load_games() -> list:
     if not DATA_FILE.exists():
         return []
     return json.loads(DATA_FILE.read_text(encoding="utf-8"))
 
-def save_games(games):
+
+def save_games(games: list) -> None:
     DATA_FILE.write_text(
         json.dumps(games, ensure_ascii=False, indent=2),
         encoding="utf-8"
     )
 
-def make_id(games, category):
+
+def make_id(games: list, category: str) -> str:
     count = sum(1 for g in games if g.get("category") == category) + 1
     return f"{category}-{count:03d}"
 
-def make_download_buttons(game):
+
+def make_download_buttons(game: dict) -> str:
     urls = game.get("downloadUrls") or {}
     buttons = []
 
     for platform in ["Windows", "Android"]:
-      if platform in (game.get("platform") or []):
-          url = urls.get(platform) or "#"
-          buttons.append(
-              f'<a href="{url}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Download {platform}</a>'
-          )
+        if platform in (game.get("platform") or []):
+            url = urls.get(platform) or "#"
+            buttons.append(
+                f'<a href="{url}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Download {platform}</a>'
+            )
 
     return "".join(buttons)
 
-def make_genre_chips(game):
+
+def make_genre_chips(game: dict) -> str:
     return "".join(
         f'<span class="chip">{genre}</span>'
         for genre in (game.get("genres") or [])[:6]
     )
 
-def make_platform_spans(game):
+
+def make_platform_spans(game: dict) -> str:
     return "".join(
         f'<span class="tag platform">{p}</span>'
         for p in (game.get("platform") or [])
     )
 
-def create_detail_page(game):
+
+def create_detail_page(game: dict) -> None:
     category_dir = POSTS_DIR / game["category"]
     category_dir.mkdir(parents=True, exist_ok=True)
 
@@ -204,7 +218,8 @@ def create_detail_page(game):
 
     target.write_text(html, encoding="utf-8")
 
-def main():
+
+def main() -> None:
     games = load_games()
 
     title = ask("Judul game")
@@ -250,6 +265,7 @@ def main():
     print("\nFile yang diupdate:")
     print("-", DATA_FILE)
     print("-", ROOT / "posts" / category / f"{slug}.html")
+
 
 if __name__ == "__main__":
     main()
