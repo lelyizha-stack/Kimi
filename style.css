@@ -1192,3 +1192,44 @@ button,input,select,textarea{font:inherit}
     height:40px
   }
 }
+
+/* PC FIX - GENRE FILTER AGAR TIDAK KEPOTONG */
+@media (min-width:981px){
+  /* halaman katalog kategori: search + genre + platform + sort */
+  .filter-grid{
+    grid-template-columns: 1.55fr 1.45fr 1fr 0.95fr;
+    align-items:start;
+  }
+
+  /* homepage: search + kategori + genre + platform + sort */
+  .filter-grid-home{
+    grid-template-columns: 1.7fr 1fr 1.45fr 1fr 0.95fr;
+    align-items:start;
+  }
+
+  /* kolom genre dibesarkan */
+  .genre-multi{
+    min-width:280px;
+  }
+
+  .multi-filter-box{
+    max-height:190px;
+    min-height:120px;
+  }
+
+  /* di PC bikin 1 kolom saja supaya teks genre tidak jadi S... */
+  .multi-filter-list{
+    grid-template-columns:1fr;
+  }
+
+  .multi-filter-item{
+    min-height:40px;
+    padding:10px 12px;
+  }
+
+  .multi-filter-item span{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+}
