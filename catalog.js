@@ -32,7 +32,7 @@ function getParams() {
   return {
     q: sp.get("q") || "",
     category: sp.get("category") || "all",
-    genre: sp.get("genre") || "",
+    genres: (sp.get("genres") || "").split(",").map(s => s.trim()).filter(Boolean),
     platform: sp.get("platform") || "",
     sort: sp.get("sort") || "latest",
     page: Math.max(1, parseInt(sp.get("page") || "1", 10) || 1)
@@ -46,7 +46,9 @@ function updateParams(state, fixedCategory) {
   if (!fixedCategory && state.category && state.category !== "all") {
     sp.set("category", state.category);
   }
-  if (state.genre) sp.set("genre", state.genre);
+  if (state.genres && state.genres.length) {
+    sp.set("genres", state.genres.join(","));
+  }
   if (state.platform) sp.set("platform", state.platform);
   if (state.sort && state.sort !== "latest") sp.set("sort", state.sort);
   if (state.page && state.page > 1) sp.set("page", String(state.page));
@@ -95,8 +97,11 @@ function filterGames(games, state, pageCategory) {
     });
   }
 
-  if (state.genre) {
-    result = result.filter((g) => (g.genres || []).includes(state.genre));
+  if (state.genres && state.genres.length) {
+    result = result.filter((g) => {
+      const gameGenres = g.genres || [];
+      return state.genres.every((genre) => gameGenres.includes(genre));
+    });
   }
 
   if (state.platform === "both") {
@@ -167,7 +172,7 @@ function filterLink(game, type, value) {
   const page = categoryPage(game.category);
   const sp = new URLSearchParams();
 
-  if (type === "genre") sp.set("genre", value);
+  if (type === "genre") sp.set("genres", value);
   if (type === "platform") sp.set("platform", value);
 
   return `${page}?${sp.toString()}`;
@@ -266,15 +271,28 @@ function renderList(target, games) {
   target.innerHTML = games.map(renderCard).join("");
 }
 
-function fillGenreSelect(select, games, category, selected = "") {
-  if (!select) return;
+function renderGenreFilter(container, games, category, selected = []) {
+  if (!container) return [];
 
   const genres = uniqueGenres(games, category);
-  select.innerHTML =
-    `<option value="">Semua Genre</option>` +
-    genres.map((genre) => `<option value="${escapeHTML(genre)}">${escapeHTML(genre)}</option>`).join("");
 
-  select.value = selected && genres.includes(selected) ? selected : "";
+  container.innerHTML = genres.map((genre) => {
+    const checked = selected.includes(genre) ? "checked" : "";
+    const active = selected.includes(genre) ? " active" : "";
+    return `
+      <label class="multi-filter-item${active}">
+        <input type="checkbox" name="genreMulti" value="${escapeHTML(genre)}" ${checked}>
+        <span>${escapeHTML(genre)}</span>
+      </label>
+    `;
+  }).join("");
+
+  return genres;
+}
+
+function getCheckedGenres(container) {
+  if (!container) return [];
+  return [...container.querySelectorAll('input[name="genreMulti"]:checked')].map((el) => el.value);
 }
 
 function pageButton(label, page, disabled = false, active = false) {
@@ -335,7 +353,7 @@ function bindCatalogPage(allGames) {
 
   const searchInput = document.getElementById("searchInput");
   const categoryFilter = document.getElementById("categoryFilter");
-  const genreFilter = document.getElementById("genreFilter");
+  const genreFilterList = document.getElementById("genreFilterList");
   const platformFilter = document.getElementById("platformFilter");
   const sortFilter = document.getElementById("sortFilter");
   const resetBtn = document.getElementById("resetFilters");
@@ -357,7 +375,7 @@ function bindCatalogPage(allGames) {
   const state = {
     q: params.q,
     category: params.category,
-    genre: params.genre,
+    genres: params.genres,
     platform: params.platform,
     sort: params.sort,
     page: params.page
@@ -371,12 +389,13 @@ function bindCatalogPage(allGames) {
   function rerender(resetPage = false) {
     state.q = searchInput ? searchInput.value : "";
     state.category = categoryFilter ? categoryFilter.value : state.category;
-    state.genre = genreFilter ? genreFilter.value : state.genre;
     state.platform = platformFilter ? platformFilter.value : state.platform;
     state.sort = sortFilter ? sortFilter.value : state.sort;
 
     const currentCategory = activeCategory(pageCategory, state.category);
-    fillGenreSelect(genreFilter, allGames, currentCategory, state.genre);
+    const availableGenres = renderGenreFilter(genreFilterList, allGames, currentCategory, state.genres);
+
+    state.genres = state.genres.filter((genre) => availableGenres.includes(genre));
 
     if (resetPage) state.page = 1;
 
@@ -397,20 +416,24 @@ function bindCatalogPage(allGames) {
     updateParams(state, pageCategory !== "all");
   }
 
-  const resetAndRender = () => rerender(true);
-
-  if (searchInput) searchInput.addEventListener("input", resetAndRender);
+  if (searchInput) searchInput.addEventListener("input", () => rerender(true));
 
   if (categoryFilter) {
     categoryFilter.addEventListener("change", () => {
-      state.genre = "";
+      state.genres = [];
       rerender(true);
     });
   }
 
-  if (genreFilter) genreFilter.addEventListener("change", resetAndRender);
-  if (platformFilter) platformFilter.addEventListener("change", resetAndRender);
-  if (sortFilter) sortFilter.addEventListener("change", resetAndRender);
+  if (genreFilterList) {
+    genreFilterList.addEventListener("change", () => {
+      state.genres = getCheckedGenres(genreFilterList);
+      rerender(true);
+    });
+  }
+
+  if (platformFilter) platformFilter.addEventListener("change", () => rerender(true));
+  if (sortFilter) sortFilter.addEventListener("change", () => rerender(true));
 
   if (resetBtn) {
     resetBtn.addEventListener("click", () => {
@@ -420,7 +443,7 @@ function bindCatalogPage(allGames) {
       if (sortFilter) sortFilter.value = "latest";
 
       state.q = "";
-      state.genre = "";
+      state.genres = [];
       state.platform = "";
       state.sort = "latest";
       state.category = "all";
