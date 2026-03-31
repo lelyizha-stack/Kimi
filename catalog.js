@@ -235,7 +235,6 @@ function renderCard(game) {
         </div>
 
         <h3>${escapeHTML(game.title)}</h3>
-        <p>${escapeHTML(game.description)}</p>
 
         <div class="genre-wrap">
           ${(game.genres || []).map((genre) => `
