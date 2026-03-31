@@ -682,3 +682,78 @@ select:-webkit-autofill{
   padding:0 4px;
   font-size:18px;
 }
+
+/* MOBILE NAV TOGGLE - HAMBURGER / X */
+.nav-toggle{
+  display:none;
+  width:44px;
+  height:44px;
+  margin-left:auto;
+  padding:0;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:rgba(255,255,255,.04);
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition:.2s ease;
+  position:relative;
+}
+
+.nav-toggle:hover{
+  border-color:rgba(255,79,163,.45);
+  background:rgba(255,79,163,.16);
+}
+
+.nav-toggle span{
+  position:absolute;
+  width:18px;
+  height:2px;
+  border-radius:999px;
+  background:var(--text);
+  transition:transform .25s ease, opacity .2s ease, top .25s ease;
+}
+
+.nav-toggle span:nth-child(1){ top:14px; }
+.nav-toggle span:nth-child(2){ top:21px; }
+.nav-toggle span:nth-child(3){ top:28px; }
+
+.nav-toggle.is-active span:nth-child(1){
+  top:21px;
+  transform:rotate(45deg);
+}
+
+.nav-toggle.is-active span:nth-child(2){
+  opacity:0;
+}
+
+.nav-toggle.is-active span:nth-child(3){
+  top:21px;
+  transform:rotate(-45deg);
+}
+
+@media (max-width:768px){
+  .header-inner{
+    align-items:flex-start;
+  }
+
+  .nav-toggle{
+    display:flex;
+  }
+
+  .main-nav{
+    width:100%;
+    overflow:hidden;
+    max-height:260px;
+    opacity:1;
+    margin-top:8px;
+    transition:max-height .28s ease, opacity .22s ease, margin-top .22s ease;
+  }
+
+  .main-nav.is-collapsed{
+    max-height:0;
+    opacity:0;
+    margin-top:0;
+    pointer-events:none;
+  }
+}
