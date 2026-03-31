@@ -757,3 +757,36 @@ select:-webkit-autofill{
     pointer-events:none;
   }
 }
+
+@media (max-width:768px){
+  .header-inner{
+    display:flex;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:space-between;
+    gap:12px;
+    min-height:74px;
+  }
+
+  .logo-wrap{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex:1 1 auto;
+    min-width:0;
+  }
+
+  .nav-toggle{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-left:auto;
+    flex:0 0 44px;
+    align-self:center;
+  }
+
+  .main-nav{
+    width:100%;
+    margin-top:10px;
+  }
+}
