@@ -16,7 +16,7 @@
   const MONEY_RE = /(gold|money|cash|coin|coins|credit|credits|wallet|funds|balance|bank|saldo|uang)/i;
   const VXACE_MARSHAL_URL = "https://esm.sh/@hyrious/marshal";
   const ZIP_JS_URL = "https://esm.sh/@zip.js/zip.js";
-  const RENPY_RULES_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMUAbh1fLqJpESWCx4uSzXnwE6oBcQ0DNZGAQAHQA0PY_jPOY_9ofw1MHOTd6ooOPPLwIEC72l3mDhhq98pBawxvjRVP0oPfF_V10eT-c7Xw9lLrNva08yABQKH6u3htaq_YJYOpe-0a4dCubvR54Zsi9Lt8SLZkQxyAVotUYQEg5gNxQ2ahv1a-Rum9qHgiaOfWZ4dm7a-0HgFjMEiZxrZLoloCX5UHbEVon4FeLhuWsIyNFm8MQTl9_XOM-Q&lib=Meg5McTAkQuavGyxxGXZfsCJpJ2hEOFKR";
+  const RENPY_RULES_URL = "./data/renpy-rules.json";
 
   const state = {
     fileName: "",
