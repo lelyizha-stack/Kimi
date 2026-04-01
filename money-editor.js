@@ -129,35 +129,55 @@
   }
 
   async function loadRenpyRules() {
-    if (state.renpyRulesBySlug) return state.renpyRulesBySlug;
+  if (state.renpyRulesBySlug) return state.renpyRulesBySlug;
 
-    const res = await fetch(RENPY_RULES_URL);
-    if (!res.ok) {
-      throw new Error("Gagal memuat rules Ren'Py dari Google Sheet.");
-    }
+  console.log("FETCH RENPY RULES:", RENPY_RULES_URL);
 
-    const data = await res.json();
-    const rows = Array.isArray(data.rows) ? data.rows : [];
-    const grouped = {};
-
-    rows.forEach((row) => {
-      const slug = String(row.gameSlug || "").trim();
-      const moneyPath = String(row.moneyPath || "").trim();
-      const label = String(row.label || moneyPath).trim();
-      const enabled = normalizeBool(row.enabled);
-
-      if (!enabled || !slug || !moneyPath) return;
-
-      if (!grouped[slug]) grouped[slug] = [];
-      grouped[slug].push({
-        path: moneyPath,
-        label
-      });
+  let res;
+  try {
+    res = await fetch(RENPY_RULES_URL, {
+      method: "GET",
+      cache: "no-store"
     });
-
-    state.renpyRulesBySlug = grouped;
-    return grouped;
+  } catch (err) {
+    throw new Error("Gagal fetch rules Ren'Py. Cek URL Apps Script / akses public / CORS.");
   }
+
+  if (!res.ok) {
+    throw new Error(`Gagal memuat rules Ren'Py. HTTP ${res.status}`);
+  }
+
+  const data = await res.json();
+  console.log("RENPY RULES RAW:", data);
+
+  const rows = Array.isArray(data)
+    ? data
+    : Array.isArray(data.rows)
+      ? data.rows
+      : [];
+
+  const grouped = {};
+
+  rows.forEach((row) => {
+    const slug = String(row.gameSlug || "").trim().toLowerCase();
+    const moneyPath = String(row.moneyPath || "").trim();
+    const label = String(row.label || moneyPath).trim();
+    const enabled = normalizeBool(row.enabled);
+
+    if (!enabled || !slug || !moneyPath) return;
+
+    if (!grouped[slug]) grouped[slug] = [];
+    grouped[slug].push({
+      path: moneyPath,
+      label
+    });
+  });
+
+  console.log("RENPY RULES GROUPED:", grouped);
+
+  state.renpyRulesBySlug = grouped;
+  return grouped;
+}
 
   function getCurrentGameSlug() {
     return String(gameSlugInput?.value || "").trim();
