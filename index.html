@@ -65,11 +65,21 @@
 
 <section class="section section-latest" id="update-terbaru">
   <div class="container">
-    <div class="section-head">
-      <h2>Update Terbaru</h2>
-      <p>Bagian ini ikut terisi otomatis dari data terbaru <b>Saat Ada Update</b>.</p>
+    <div class="section-head updates-head">
+      <div>
+        <h2>Update Terbaru</h2>
+        <p>Bagian ini ikut terisi otomatis dari data terbaru <b>Saat Ada Update</b>.</p>
+      </div>
+
+      <div class="featured-nav-wrap">
+        <button type="button" class="featured-nav-btn" id="featuredPrev" aria-label="Geser ke kiri">‹</button>
+        <button type="button" class="featured-nav-btn" id="featuredNext" aria-label="Geser ke kanan">›</button>
+      </div>
     </div>
-    <div id="featuredList" class="download-grid"></div>
+
+    <div class="featured-slider-shell">
+      <div id="featuredList" class="featured-scroll"></div>
+    </div>
   </div>
 </section>
 <section class="section"><div class="container"><div class="cta-panel"><div><h2 style="margin:0 0 8px;font-size:28px">Tambah game baru dan tool lebih gampang</h2><p class="muted">Pakai <b>Pencarian</b>, <b>Mempermudah Anda untuk menemukan game</b>, atau <b>masuk ke Ren'py, Rpgm, Mod, Cheat</b> untuk menemukan kebutuhan mu lebih cepat. Money Editor RPGM juga sudah disiapkan terpisah.</p></div><div class="download-actions"><a href="./admin-local.html" class="btn btn-primary">Buka Admin Lokal</a><a href="./donasi.html" class="btn btn-secondary">Donasi</a></div></div></div></section></main><footer class="site-footer"><div class="container footer-social-only"><div class="footer-brand"><h3>Karbit Prime</h3><p>©Kimi谢谢, Web Update 2026</p></div><div class="footer-social-grid"><a class="social-box facebook" href="https://www.facebook.com/share/1Aq9ENw3yA/" target="_blank" rel="noopener noreferrer"><span class="social-icon"><i class="fab fa-facebook-f"></i></span><span>Facebook</span></a><a class="social-box x" href="https://x.com/Clariss41005513" target="_blank" rel="noopener noreferrer"><span class="social-icon"><i class="fa-brands fa-x-twitter"></i></span><span>X</span></a><a class="social-box whatsapp" href="https://wa.me/6285385932565" target="_blank" rel="noopener noreferrer"><span class="social-icon"><i class="fab fa-whatsapp"></i></span><span>WhatsApp</span></a><a class="social-box youtube" href="https://youtube.com/@izhaahzahra1900?si=OPztW_j4sUsoCDlW" target="_blank" rel="noopener noreferrer"><span class="social-icon"><i class="fab fa-youtube"></i></span><span>YouTube</span></a></div></div></footer><script src="./catalog.js"></script><script>
@@ -157,5 +167,35 @@ document.addEventListener("DOMContentLoaded", () => {
   popup.addEventListener("click", (e) => {
     if (e.target === popup) hidePopup();
   });
+});
+</script><script>
+document.addEventListener("DOMContentLoaded", () => {
+  const list = document.getElementById("featuredList");
+  const prev = document.getElementById("featuredPrev");
+  const next = document.getElementById("featuredNext");
+  if (!list || !prev || !next) return;
+
+  function scrollAmount() {
+    return Math.min(list.clientWidth * 0.9, 420);
+  }
+
+  function updateButtons() {
+    const maxScroll = list.scrollWidth - list.clientWidth - 4;
+    prev.disabled = list.scrollLeft <= 4;
+    next.disabled = list.scrollLeft >= maxScroll;
+  }
+
+  prev.addEventListener("click", () => {
+    list.scrollBy({ left: -scrollAmount(), behavior: "smooth" });
+  });
+
+  next.addEventListener("click", () => {
+    list.scrollBy({ left: scrollAmount(), behavior: "smooth" });
+  });
+
+  list.addEventListener("scroll", updateButtons);
+  window.addEventListener("resize", updateButtons);
+
+  setTimeout(updateButtons, 800);
 });
 </script></body></html>

@@ -214,7 +214,6 @@ function renderDownloadButtons(game) {
 
 function renderCard(game) {
   const detail = `./detail.html?slug=${encodeURIComponent(game.slug || "")}`;
-  const downloadButtons = renderDownloadButtons(game);
 
   return `
     <article class="download-card minimal-card">
@@ -224,7 +223,6 @@ function renderCard(game) {
 
         <div class="download-actions">
           <a href="${escapeHTML(detail)}" class="btn btn-secondary">Detail</a>
-          ${downloadButtons}
         </div>
       </div>
     </article>
