@@ -1,92 +1,226 @@
 (() => {
-  const fileInput = document.getElementById('saveFile');
-  const fileNameInput = document.getElementById('fileName');
-  const detectModeInput = document.getElementById('detectMode');
-  const candidateList = document.getElementById('candidateList');
-  const selectedPathInput = document.getElementById('selectedPath');
-  const currentMoneyInput = document.getElementById('currentMoney');
-  const newMoneyInput = document.getElementById('newMoney');
-  const applyBtn = document.getElementById('applyMoney');
-  const downloadBtn = document.getElementById('downloadSave');
-  const resetBtn = document.getElementById('resetEditor');
-  const editorStatus = document.getElementById('editorStatus');
-  const editorLog = document.getElementById('editorLog');
+  const fileInput = document.getElementById("saveFile");
+  const fileNameInput = document.getElementById("fileName");
+  const detectModeInput = document.getElementById("detectMode");
+  const candidateList = document.getElementById("candidateList");
+  const selectedPathInput = document.getElementById("selectedPath");
+  const currentMoneyInput = document.getElementById("currentMoney");
+  const newMoneyInput = document.getElementById("newMoney");
+  const applyBtn = document.getElementById("applyMoney");
+  const downloadBtn = document.getElementById("downloadSave");
+  const resetBtn = document.getElementById("resetEditor");
+  const editorStatus = document.getElementById("editorStatus");
+  const editorLog = document.getElementById("editorLog");
+  const gameSlugInput = document.getElementById("gameSlug");
 
-  const MONEY_RE = /(gold|money|cash|coin|coins|credit|credits)/i;
+  const MONEY_RE = /(gold|money|cash|coin|coins|credit|credits|wallet|funds|balance|bank|saldo|uang)/i;
+  const VXACE_MARSHAL_URL = "https://esm.sh/@hyrious/marshal";
+  const RENPY_RULES_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMVCqdm-kXhbZ2NlEllCYe7CnbriUv7NbxKBur1iMSfaMiF3tm2-A5jJf2RuXR734zwqG0w-scWiMkbyTZ-nT_VGpr_ft6dOgeVkdmRsUKdKP8FvDtLujTU4B29zCYL0qNtbdkogGbkZf22cyTv4AwkGu5eHJ0zoFioctKSx3YH4aTam4f1w-8CIMLSXiRf0yr3D71MaQcyaopQfGcezNiGKcFz1nR01ngxRk-mUXaMqAJ_pSoLuCtHvRUuPdAWNnHnqbXD-hWgg9CgKDUNKz3GNMHuN5A&lib=M51hLTJXPQ14ZsjBvmZx8t4ZA7c56I8fg&sheet=renpy_save_code";
 
   const state = {
-    fileName: '',
-    mode: '',
-    originalText: '',
+    fileName: "",
+    mode: "",
     parsed: null,
-    selectedPath: '',
-    candidates: []
+    selectedPathLabel: "",
+    selectedKeyChain: null,
+    candidates: [],
+    marshalApi: null,
+    originalBuffer: null,
+    renpyRulesBySlug: null
   };
 
   function setStatus(msg, isError = false) {
+    if (!editorStatus) return;
     editorStatus.textContent = msg;
-    editorStatus.style.color = isError ? '#ffd3dc' : '';
+    editorStatus.style.color = isError ? "#ffd3dc" : "";
   }
 
   function setLog(msg) {
+    if (!editorLog) return;
     editorLog.textContent = msg;
   }
 
   function escapeHTML(text) {
-    return String(text).replace(/[&<>"']/g, m => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
+    return String(text ?? "").replace(/[&<>"']/g, (m) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
     }[m]));
   }
 
-  function splitPath(path) {
-    return path ? path.split('.').filter(Boolean) : [];
+  function isObjectLike(value) {
+    return value !== null && typeof value === "object";
   }
 
-  function getAtPath(obj, path) {
-    return splitPath(path).reduce((acc, key) => acc && acc[key], obj);
+  function getExt(fileName) {
+    const name = String(fileName || "").toLowerCase();
+    const idx = name.lastIndexOf(".");
+    return idx >= 0 ? name.slice(idx) : "";
   }
 
-  function setAtPath(obj, path, value) {
-    const parts = splitPath(path);
-    const last = parts.pop();
-    if (!last) return false;
-    let ref = obj;
-    for (const part of parts) {
-      if (typeof ref !== 'object' || ref === null || !(part in ref)) return false;
-      ref = ref[part];
+  function decodeUtf8(buffer) {
+    return new TextDecoder("utf-8").decode(buffer);
+  }
+
+  function parseJsonText(text) {
+    const trimmed = String(text || "").trim();
+    if (!trimmed) throw new Error("File kosong.");
+    return JSON.parse(trimmed);
+  }
+
+  function keyToLabel(key) {
+    if (typeof key === "symbol") {
+      return Symbol.keyFor(key) || key.description || key.toString();
     }
+    return String(key);
+  }
+
+  function joinPathLabels(parts) {
+    return parts.join(".");
+  }
+
+  function getChildKeys(obj) {
+    if (!isObjectLike(obj) && !Array.isArray(obj)) return [];
+    return [
+      ...Object.keys(obj),
+      ...Object.getOwnPropertySymbols(obj)
+    ];
+  }
+
+  function getAtKeyChain(obj, keyChain) {
+    if (!Array.isArray(keyChain)) return undefined;
+    let ref = obj;
+    for (const key of keyChain) {
+      if (!isObjectLike(ref) && !Array.isArray(ref)) return undefined;
+      ref = ref[key];
+    }
+    return ref;
+  }
+
+  function setAtKeyChain(obj, keyChain, value) {
+    if (!Array.isArray(keyChain) || !keyChain.length) return false;
+    let ref = obj;
+    for (let i = 0; i < keyChain.length - 1; i += 1) {
+      const key = keyChain[i];
+      if (!isObjectLike(ref) && !Array.isArray(ref)) return false;
+      if (!(key in ref)) return false;
+      ref = ref[key];
+    }
+    const last = keyChain[keyChain.length - 1];
+    if (!isObjectLike(ref) && !Array.isArray(ref)) return false;
     ref[last] = value;
     return true;
   }
 
-  function walk(obj, basePath = '', bucket = []) {
-    if (typeof obj !== 'object' || obj === null) return bucket;
+  function pathToKeyChain(path) {
+    return String(path || "")
+      .split(".")
+      .map((part) => /^\d+$/.test(part) ? Number(part) : part)
+      .filter((part) => part !== "");
+  }
+
+  function normalizeBool(value) {
+    const v = String(value ?? "").trim().toLowerCase();
+    return !(v === "false" || v === "0" || v === "no" || v === "off");
+  }
+
+  async function loadRenpyRules() {
+    if (state.renpyRulesBySlug) return state.renpyRulesBySlug;
+
+    const res = await fetch(RENPY_RULES_URL);
+    if (!res.ok) {
+      throw new Error("Gagal memuat rules Ren'Py dari Google Sheet.");
+    }
+
+    const data = await res.json();
+    const rows = Array.isArray(data.rows) ? data.rows : [];
+    const grouped = {};
+
+    rows.forEach((row) => {
+      const slug = String(row.gameSlug || "").trim();
+      const moneyPath = String(row.moneyPath || "").trim();
+      const label = String(row.label || moneyPath).trim();
+      const enabled = normalizeBool(row.enabled);
+
+      if (!enabled || !slug || !moneyPath) return;
+
+      if (!grouped[slug]) grouped[slug] = [];
+      grouped[slug].push({
+        path: moneyPath,
+        label
+      });
+    });
+
+    state.renpyRulesBySlug = grouped;
+    return grouped;
+  }
+
+  function getCurrentGameSlug() {
+    return String(gameSlugInput?.value || "").trim();
+  }
+
+  function collectRenpyCandidatesFromRules(parsed, gameSlug, rulesBySlug) {
+    const rules = rulesBySlug?.[gameSlug] || [];
+    const bucket = [];
+
+    for (const rule of rules) {
+      const keyChain = pathToKeyChain(rule.path);
+      const value = getAtKeyChain(parsed, keyChain);
+
+      if (typeof value === "number" && Number.isFinite(value)) {
+        bucket.push({
+          pathLabel: rule.path,
+          keyChain,
+          key: rule.label || rule.path,
+          value,
+          source: "renpy-rule"
+        });
+      }
+    }
+
+    return bucket;
+  }
+
+  function walk(obj, pathLabels = [], keyChain = [], bucket = []) {
+    if (!isObjectLike(obj) && !Array.isArray(obj)) return bucket;
+
     if (Array.isArray(obj)) {
-      obj.forEach((item, index) => walk(item, `${basePath}${basePath ? '.' : ''}${index}`, bucket));
+      obj.forEach((item, index) => {
+        walk(item, [...pathLabels, String(index)], [...keyChain, index], bucket);
+      });
       return bucket;
     }
 
-    Object.keys(obj).forEach(key => {
+    for (const key of getChildKeys(obj)) {
       const value = obj[key];
-      const path = `${basePath}${basePath ? '.' : ''}${key}`;
-      if (typeof value === 'number' && Number.isFinite(value) && MONEY_RE.test(`${key} ${path}`)) {
-        bucket.push({ path, key, value });
+      const label = keyToLabel(key);
+      const nextLabels = [...pathLabels, label];
+      const nextKeyChain = [...keyChain, key];
+      const pathLabel = joinPathLabels(nextLabels);
+
+      if (typeof value === "number" && Number.isFinite(value) && MONEY_RE.test(`${label} ${pathLabel}`)) {
+        bucket.push({
+          pathLabel,
+          keyChain: nextKeyChain,
+          key: label,
+          value
+        });
       }
-      if (typeof value === 'object' && value !== null) {
-        walk(value, path, bucket);
+
+      if (isObjectLike(value) || Array.isArray(value)) {
+        walk(value, nextLabels, nextKeyChain, bucket);
       }
-    });
+    }
+
     return bucket;
   }
 
   function uniqueCandidates(items) {
     const seen = new Set();
-    return items.filter(item => {
-      const sig = `${item.path}:${item.value}`;
+    return items.filter((item) => {
+      const sig = `${item.pathLabel}:${item.value}`;
       if (seen.has(sig)) return false;
       seen.add(sig);
       return true;
@@ -95,181 +229,363 @@
 
   function rankCandidates(items) {
     return [...items].sort((a, b) => {
-      const score = item => {
-        const path = item.path.toLowerCase();
-        if (path.includes('gameparty._gold')) return 0;
-        if (path.endsWith('._gold')) return 1;
-        if (path.endsWith('.gold')) return 2;
-        if (path.includes('gold')) return 3;
-        if (path.includes('money')) return 4;
-        if (path.includes('cash')) return 5;
-        if (path.includes('credit')) return 6;
-        return 10;
+      const score = (item) => {
+        const path = String(item.pathLabel || "").toLowerCase();
+        if (path.includes("gameparty._gold")) return 0;
+        if (path.includes("@gold")) return 1;
+        if (path.endsWith("._gold")) return 2;
+        if (path.endsWith(".gold")) return 3;
+        if (path.includes("gold")) return 4;
+        if (path.includes("money")) return 5;
+        if (path.includes("cash")) return 6;
+        if (path.includes("credit")) return 7;
+        if (path.includes("wallet")) return 8;
+        if (path.includes("funds")) return 9;
+        if (path.includes("balance")) return 10;
+        return 20;
       };
       return score(a) - score(b);
     });
   }
 
   function renderCandidates() {
+    if (!candidateList) return;
+
     if (!state.candidates.length) {
       candidateList.innerHTML = '<div class="empty-state">Tidak ada kandidat uang yang ditemukan pada save ini.</div>';
       return;
     }
 
-    candidateList.innerHTML = state.candidates.map(item => {
-      const active = item.path === state.selectedPath ? 'active' : '';
-      return `<button type="button" class="candidate-chip ${active}" data-path="${escapeHTML(item.path)}"><span>${escapeHTML(item.path)}</span><strong>${escapeHTML(item.value)}</strong></button>`;
-    }).join('');
+    candidateList.innerHTML = state.candidates.map((item) => {
+      const active = item.pathLabel === state.selectedPathLabel ? "active" : "";
+      return `
+        <button type="button" class="candidate-chip ${active}" data-path="${escapeHTML(item.pathLabel)}">
+          <span>${escapeHTML(item.pathLabel)}</span>
+          <strong>${escapeHTML(item.value)}</strong>
+        </button>
+      `;
+    }).join("");
 
-    candidateList.querySelectorAll('.candidate-chip').forEach(btn => {
-      btn.addEventListener('click', () => selectPath(btn.dataset.path));
+    candidateList.querySelectorAll(".candidate-chip").forEach((btn) => {
+      btn.addEventListener("click", () => selectPath(btn.dataset.path));
     });
   }
 
-  function selectPath(path) {
-    state.selectedPath = path;
-    const value = getAtPath(state.parsed, path);
-    selectedPathInput.value = path;
-    currentMoneyInput.value = value;
-    newMoneyInput.value = value;
+  function selectPath(pathLabel) {
+    const item = state.candidates.find((c) => c.pathLabel === pathLabel);
+    if (!item) return;
+
+    state.selectedPathLabel = item.pathLabel;
+    state.selectedKeyChain = item.keyChain;
+
+    if (selectedPathInput) selectedPathInput.value = item.pathLabel;
+
+    const value = getAtKeyChain(state.parsed, item.keyChain);
+    if (currentMoneyInput) currentMoneyInput.value = value ?? "";
+    if (newMoneyInput) newMoneyInput.value = value ?? "";
+
     renderCandidates();
-    setStatus(`Candidate dipilih: ${path}`);
+    setStatus(`Candidate dipilih: ${item.pathLabel}`);
   }
 
-  function tryParse(text) {
-    const trimmed = text.trim();
+  async function getMarshalApi() {
+    if (state.marshalApi) return state.marshalApi;
 
-    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-      return { mode: 'json', parsed: JSON.parse(trimmed) };
+    try {
+      const mod = await import(VXACE_MARSHAL_URL);
+      if (!mod || typeof mod.load !== "function" || typeof mod.dump !== "function") {
+        throw new Error("Library Ruby Marshal tidak punya API load/dump yang diharapkan.");
+      }
+      state.marshalApi = mod;
+      return mod;
+    } catch (error) {
+      throw new Error("Gagal memuat library VX Ace dari CDN. Cek koneksi atau coba lagi.");
+    }
+  }
+
+  async function tryParseRenpySave(buffer) {
+    try {
+      const text = decodeUtf8(buffer).trim();
+      if (text.startsWith("{") || text.startsWith("[")) {
+        return {
+          mode: "renpy-json-export",
+          parsed: JSON.parse(text)
+        };
+      }
+    } catch (_) {}
+
+    throw new Error(
+      "File .save Ren'Py terdeteksi, tetapi parser pickle/browser belum dipasang. " +
+      "Mode rules Ren'Py sudah siap, tapi direct bongkar .save masih perlu parser khusus."
+    );
+  }
+
+  async function tryParse(buffer, fileName) {
+    const ext = getExt(fileName);
+
+    if (ext === ".save") {
+      return await tryParseRenpySave(buffer);
     }
 
-    if (window.LZString && typeof window.LZString.decompressFromBase64 === 'function') {
-      const decompressed = window.LZString.decompressFromBase64(trimmed);
-      if (decompressed && (decompressed.trim().startsWith('{') || decompressed.trim().startsWith('['))) {
-        return { mode: 'rpgsave-base64-lzstring', parsed: JSON.parse(decompressed), rawJson: decompressed };
+    if (ext === ".json" || ext === ".txt") {
+      const text = decodeUtf8(buffer);
+      return { mode: "json", parsed: parseJsonText(text) };
+    }
+
+    if (ext === ".rpgsave") {
+      const text = decodeUtf8(buffer).trim();
+
+      if (text.startsWith("{") || text.startsWith("[")) {
+        return { mode: "json", parsed: JSON.parse(text) };
+      }
+
+      if (window.LZString && typeof window.LZString.decompressFromBase64 === "function") {
+        const decompressed = window.LZString.decompressFromBase64(text);
+        if (decompressed && (decompressed.trim().startsWith("{") || decompressed.trim().startsWith("["))) {
+          return {
+            mode: "mv-rpgsave-lzstring",
+            parsed: JSON.parse(decompressed)
+          };
+        }
+      }
+
+      throw new Error("Format .rpgsave tidak terbaca sebagai MV umum.");
+    }
+
+    if (ext === ".rmmzsave") {
+      const bytes = new Uint8Array(buffer);
+
+      try {
+        const text = decodeUtf8(buffer).trim();
+        if (text.startsWith("{") || text.startsWith("[")) {
+          return { mode: "json", parsed: JSON.parse(text) };
+        }
+      } catch (_) {}
+
+      if (window.pako && typeof window.pako.inflate === "function") {
+        try {
+          const jsonText = window.pako.inflate(bytes, { to: "string" });
+          if (jsonText && (jsonText.trim().startsWith("{") || jsonText.trim().startsWith("["))) {
+            return {
+              mode: "mz-rmmzsave-gzip",
+              parsed: JSON.parse(jsonText)
+            };
+          }
+        } catch (_) {}
+      }
+
+      throw new Error("Format .rmmzsave tidak terbaca sebagai MZ umum.");
+    }
+
+    if (ext === ".rvdata2") {
+      const marshal = await getMarshalApi();
+      try {
+        const parsed = marshal.load(buffer);
+        return {
+          mode: "vxace-rvdata2-marshal",
+          parsed
+        };
+      } catch (error) {
+        throw new Error("Format .rvdata2 tidak terbaca sebagai VX Ace umum.");
       }
     }
 
-    throw new Error('Format save belum bisa dibaca. Coba file .rpgsave umum atau JSON hasil decode.');
+    throw new Error("Format save belum didukung. Untuk saat ini pakai .save, .rpgsave, .rmmzsave, atau .rvdata2.");
   }
 
   function resetEditor() {
-    state.fileName = '';
-    state.mode = '';
-    state.originalText = '';
+    state.fileName = "";
+    state.mode = "";
     state.parsed = null;
-    state.selectedPath = '';
+    state.selectedPathLabel = "";
+    state.selectedKeyChain = null;
     state.candidates = [];
-    fileInput.value = '';
-    fileNameInput.value = '';
-    detectModeInput.value = '';
-    selectedPathInput.value = '';
-    currentMoneyInput.value = '';
-    newMoneyInput.value = '';
-    candidateList.innerHTML = '<div class="empty-state">Belum ada data. Upload save dulu.</div>';
-    setStatus('Menunggu file save.');
-    setLog('Belum ada proses.');
+    state.originalBuffer = null;
+
+    if (fileInput) fileInput.value = "";
+    if (fileNameInput) fileNameInput.value = "";
+    if (detectModeInput) detectModeInput.value = "";
+    if (selectedPathInput) selectedPathInput.value = "";
+    if (currentMoneyInput) currentMoneyInput.value = "";
+    if (newMoneyInput) newMoneyInput.value = "";
+
+    if (candidateList) {
+      candidateList.innerHTML = '<div class="empty-state">Belum ada data. Upload save dulu.</div>';
+    }
+
+    setStatus("Menunggu file save.");
+    setLog("Belum ada proses.");
   }
 
-  fileInput.addEventListener('change', async (event) => {
-    const file = event.target.files && event.target.files[0];
-    if (!file) return;
+  if (fileInput) {
+    fileInput.addEventListener("change", async (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
 
-    try {
-      const text = await file.text();
-      state.fileName = file.name;
-      state.originalText = text;
-      fileNameInput.value = file.name;
-      setStatus('Membaca file save...');
+      try {
+        const buffer = await file.arrayBuffer();
+        state.originalBuffer = buffer;
+        state.fileName = file.name;
+        if (fileNameInput) fileNameInput.value = file.name;
 
-      const parsedResult = tryParse(text);
-      state.mode = parsedResult.mode;
-      state.parsed = parsedResult.parsed;
-      detectModeInput.value = parsedResult.mode;
+        setStatus("Membaca file save...");
 
-      const found = rankCandidates(uniqueCandidates(walk(state.parsed)));
-      state.candidates = found;
-      setLog(JSON.stringify(found.slice(0, 12), null, 2) || '[]');
+        const parsedResult = await tryParse(buffer, file.name);
+        state.mode = parsedResult.mode;
+        state.parsed = parsedResult.parsed;
+        if (detectModeInput) detectModeInput.value = parsedResult.mode;
 
-      if (!found.length) {
+        let found = [];
+
+        if (String(parsedResult.mode).startsWith("renpy")) {
+          const slug = getCurrentGameSlug();
+
+          if (!slug) {
+            throw new Error("Isi Game Slug Ren'Py dulu sebelum upload save Ren'Py.");
+          }
+
+          const rulesBySlug = await loadRenpyRules();
+          const byRules = collectRenpyCandidatesFromRules(state.parsed, slug, rulesBySlug);
+          const autoScan = rankCandidates(uniqueCandidates(walk(state.parsed)));
+
+          found = byRules.length ? byRules : autoScan;
+
+          if (!byRules.length) {
+            setStatus("Rules Ren'Py tidak menemukan path yang cocok. Dipakai auto scan.", true);
+          }
+        } else {
+          found = rankCandidates(uniqueCandidates(walk(state.parsed)));
+        }
+
+        state.candidates = found;
+
+        setLog(JSON.stringify(
+          found.slice(0, 12).map((item) => ({
+            path: item.pathLabel,
+            value: item.value
+          })),
+          null,
+          2
+        ));
+
+        if (!found.length) {
+          renderCandidates();
+          setStatus("Save berhasil dibaca, tapi candidate uang tidak ditemukan.", true);
+          return;
+        }
+
+        selectPath(found[0].pathLabel);
         renderCandidates();
-        setStatus('Save berhasil dibaca, tapi candidate uang tidak ditemukan.', true);
+        setStatus(`Save berhasil dibaca. Ditemukan ${found.length} candidate.`);
+      } catch (error) {
+        resetEditor();
+        if (fileNameInput) fileNameInput.value = file.name || "";
+        setStatus(error.message || "Gagal membaca save.", true);
+        setLog(String(error.stack || error));
+      }
+    });
+  }
+
+  if (applyBtn) {
+    applyBtn.addEventListener("click", () => {
+      if (!state.parsed || !state.selectedKeyChain) {
+        setStatus("Upload save dan pilih candidate uang dulu.", true);
         return;
       }
 
-      selectPath(found[0].path);
-      renderCandidates();
-      setStatus(`Save berhasil dibaca. Ditemukan ${found.length} candidate.`);
-    } catch (error) {
-      resetEditor();
-      fileNameInput.value = file.name || '';
-      setStatus(error.message || 'Gagal membaca save.', true);
-      setLog(String(error.stack || error));
-    }
-  });
-
-  applyBtn.addEventListener('click', () => {
-    if (!state.parsed || !state.selectedPath) {
-      setStatus('Upload save dan pilih candidate uang dulu.', true);
-      return;
-    }
-
-    const nextValue = Number(newMoneyInput.value);
-    if (!Number.isFinite(nextValue) || nextValue < 0) {
-      setStatus('Masukkan nilai uang yang valid.', true);
-      return;
-    }
-
-    const ok = setAtPath(state.parsed, state.selectedPath, nextValue);
-    if (!ok) {
-      setStatus('Gagal menyimpan nilai baru ke path terpilih.', true);
-      return;
-    }
-
-    currentMoneyInput.value = String(nextValue);
-    state.candidates = rankCandidates(uniqueCandidates(walk(state.parsed)));
-    renderCandidates();
-    setStatus(`Nilai uang diubah menjadi ${nextValue}. Sekarang kamu bisa download save baru.`);
-    setLog(JSON.stringify(state.candidates.slice(0, 12), null, 2));
-  });
-
-  downloadBtn.addEventListener('click', () => {
-    if (!state.parsed || !state.mode) {
-      setStatus('Belum ada save yang siap didownload.', true);
-      return;
-    }
-
-    try {
-      const json = JSON.stringify(state.parsed);
-      let output = json;
-      let outName = state.fileName || 'edited-save.rpgsave';
-
-      if (state.mode === 'rpgsave-base64-lzstring') {
-        if (!window.LZString || typeof window.LZString.compressToBase64 !== 'function') {
-          throw new Error('Library LZString tidak termuat, jadi save .rpgsave tidak bisa dibuat ulang.');
-        }
-        output = window.LZString.compressToBase64(json);
-        if (!outName.endsWith('.rpgsave')) outName += '.rpgsave';
-      } else if (state.mode === 'json') {
-        if (!outName.endsWith('.json')) outName += '.json';
+      const nextValue = Number(newMoneyInput?.value);
+      if (!Number.isFinite(nextValue) || nextValue < 0) {
+        setStatus("Masukkan nilai uang yang valid.", true);
+        return;
       }
 
-      const blob = new Blob([output], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = outName.replace(/(\.rpgsave|\.json)?$/, '-money-edited$1');
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      setStatus('Save baru berhasil dibuat dan diunduh.');
-    } catch (error) {
-      setStatus(error.message || 'Gagal membuat save baru.', true);
-      setLog(String(error.stack || error));
-    }
-  });
+      const ok = setAtKeyChain(state.parsed, state.selectedKeyChain, nextValue);
+      if (!ok) {
+        setStatus("Gagal menyimpan nilai baru ke path terpilih.", true);
+        return;
+      }
 
-  resetBtn.addEventListener('click', resetEditor);
+      if (currentMoneyInput) currentMoneyInput.value = String(nextValue);
+
+      state.candidates = rankCandidates(uniqueCandidates(walk(state.parsed)));
+      renderCandidates();
+
+      setStatus(`Nilai uang diubah menjadi ${nextValue}. Sekarang kamu bisa download save baru.`);
+      setLog(JSON.stringify(
+        state.candidates.slice(0, 12).map((item) => ({
+          path: item.pathLabel,
+          value: item.value
+        })),
+        null,
+        2
+      ));
+    });
+  }
+
+  if (downloadBtn) {
+    downloadBtn.addEventListener("click", async () => {
+      if (!state.parsed || !state.mode) {
+        setStatus("Belum ada save yang siap didownload.", true);
+        return;
+      }
+
+      if (String(state.mode).startsWith("renpy")) {
+        setStatus(
+          "Mode Ren'Py rules sudah aktif, tapi repack .save Ren'Py belum dipasang.",
+          true
+        );
+        return;
+      }
+
+      try {
+        const json = JSON.stringify(state.parsed);
+        let blob;
+        let outName = state.fileName || "edited-save";
+
+        if (state.mode === "mv-rpgsave-lzstring") {
+          if (!window.LZString || typeof window.LZString.compressToBase64 !== "function") {
+            throw new Error("Library LZString tidak termuat.");
+          }
+          const output = window.LZString.compressToBase64(json);
+          if (!outName.endsWith(".rpgsave")) outName += ".rpgsave";
+          blob = new Blob([output], { type: "text/plain;charset=utf-8" });
+        } else if (state.mode === "mz-rmmzsave-gzip") {
+          if (!window.pako || typeof window.pako.gzip !== "function") {
+            throw new Error("Library pako tidak termuat.");
+          }
+          const gz = window.pako.gzip(json);
+          if (!outName.endsWith(".rmmzsave")) outName += ".rmmzsave";
+          blob = new Blob([gz], { type: "application/octet-stream" });
+        } else if (state.mode === "vxace-rvdata2-marshal") {
+          const marshal = await getMarshalApi();
+          const dumped = marshal.dump(state.parsed);
+          if (!outName.endsWith(".rvdata2")) outName += ".rvdata2";
+          blob = new Blob([dumped], { type: "application/octet-stream" });
+        } else {
+          if (!outName.endsWith(".json")) outName += ".json";
+          blob = new Blob([json], { type: "application/json;charset=utf-8" });
+        }
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = outName.replace(/(\.rpgsave|\.rmmzsave|\.rvdata2|\.json)?$/, "-money-edited$1");
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+
+        setStatus("Save baru berhasil dibuat dan diunduh.");
+      } catch (error) {
+        setStatus(error.message || "Gagal membuat save baru.", true);
+        setLog(String(error.stack || error));
+      }
+    });
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener("click", resetEditor);
+  }
+
   resetEditor();
 })();
