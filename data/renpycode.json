@@ -1,1 +1,37 @@
-
+[
+  {
+    "gameSlug": "money",
+    "title": "money",
+    "moneyPath": "money",
+    "label": "money",
+    "enabled": true
+  },
+  {
+    "gameSlug": "insight-for-u-sam",
+    "title": "insight for u sam",
+    "moneyPath": "s_work",
+    "label": "work",
+    "enabled": true
+  },
+  {
+    "gameSlug": "insight-for-u-en",
+    "title": "insight for u en",
+    "moneyPath": "en_work",
+    "label": "work",
+    "enabled": true
+  },
+  {
+    "gameSlug": "west-bank",
+    "title": "west bank",
+    "moneyPath": "store.energy",
+    "label": "money",
+    "enabled": true
+  },
+  {
+    "gameSlug": "ex",
+    "title": "ex",
+    "moneyPath": "store.money",
+    "label": "money",
+    "enabled": true
+  }
+]
