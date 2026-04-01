@@ -29,10 +29,13 @@ async function loadGames() {
   if (!response.ok) throw new Error("Gagal memuat data katalog.");
 
   const data = await response.json();
-
   console.log("DATA APPS SCRIPT:", data);
 
-  const rows = Array.isArray(data.rows) ? data.rows : [];
+  const rows = Array.isArray(data)
+    ? data
+    : Array.isArray(data.rows)
+      ? data.rows
+      : [];
 
   return rows.map((row) => ({
     ...row,
