@@ -115,4 +115,47 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("resize", applyResponsiveState);
   applyResponsiveState();
 });
+</script><div id="waImagePopup" class="wa-image-popup-overlay">
+  <div class="wa-image-popup-card">
+    <button id="waImagePopupClose" class="wa-image-popup-close" type="button" aria-label="Tutup popup">×</button>
+
+    <a
+      href="https://whatsapp.com/channel/0029Vb6o4llD38CZm9ksDi1D"
+      target="_blank"
+      rel="noopener noreferrer"
+      id="waImagePopupLink"
+      class="wa-image-popup-link"
+    >
+      <img src="images/saluran (1).webp" alt="Gabung Grup WhatsApp Karbit Prime">
+    </a>
+  </div>
+</div><script>
+document.addEventListener("DOMContentLoaded", () => {
+  const popup = document.getElementById("waImagePopup");
+  const closeBtn = document.getElementById("waImagePopupClose");
+  const popupLink = document.getElementById("waImagePopupLink");
+  if (!popup || !closeBtn || !popupLink) return;
+
+  const STORAGE_KEY = "karbit-prime-wa-popup-session";
+
+  function hidePopup() {
+    popup.classList.remove("show");
+    sessionStorage.setItem(STORAGE_KEY, "1");
+  }
+
+  const alreadyClosed = sessionStorage.getItem(STORAGE_KEY) === "1";
+
+  if (!alreadyClosed) {
+    setTimeout(() => {
+      popup.classList.add("show");
+    }, 700);
+  }
+
+  closeBtn.addEventListener("click", hidePopup);
+  popupLink.addEventListener("click", hidePopup);
+
+  popup.addEventListener("click", (e) => {
+    if (e.target === popup) hidePopup();
+  });
+});
 </script></body></html>

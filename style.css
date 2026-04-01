@@ -1233,3 +1233,140 @@ button,input,select,textarea{font:inherit}
     text-overflow:ellipsis;
   }
 }
+
+/* POPUP GAMBAR WHATSAPP */
+.wa-image-popup-overlay{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.58);
+  z-index:9999;
+}
+
+.wa-image-popup-overlay.show{
+  display:flex;
+}
+
+.wa-image-popup-card{
+  position:relative;
+  width:min(100%,420px);
+  animation:waPopupFade .25s ease;
+}
+
+.wa-image-popup-link{
+  display:block;
+  border-radius:26px;
+  overflow:hidden;
+  box-shadow:0 22px 48px rgba(0,0,0,.35);
+}
+
+.wa-image-popup-link img{
+  display:block;
+  width:100%;
+  height:auto;
+  border-radius:26px;
+}
+
+.wa-image-popup-close{
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:46px;
+  height:46px;
+  border:none;
+  border-radius:999px;
+  background:#ff6b6b;
+  color:#fff;
+  font-size:28px;
+  line-height:1;
+  cursor:pointer;
+  z-index:2;
+  box-shadow:0 10px 22px rgba(0,0,0,.22);
+}
+
+.wa-image-popup-close:hover{
+  transform:scale(1.05);
+}
+
+@keyframes waPopupFade{
+  from{
+    opacity:0;
+    transform:translateY(10px) scale(.96);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
+
+@media (max-width:640px){
+  .wa-image-popup-card{
+    width:min(100%,360px);
+  }
+
+  .wa-image-popup-close{
+    width:42px;
+    height:42px;
+    font-size:24px;
+    top:8px;
+    right:8px;
+  }
+}
+
+/* EFEK SILAU DOWNLOAD BUTTON */
+.download-actions .btn-primary{
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.download-actions .btn-primary::before{
+  content: "";
+  position: absolute;
+  top: -20%;
+  left: -75%;
+  width: 42%;
+  height: 140%;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.08) 30%,
+    rgba(255,255,255,0.42) 50%,
+    rgba(255,255,255,0.08) 70%,
+    rgba(255,255,255,0) 100%
+  );
+  transform: skewX(-22deg);
+  animation: downloadShine 2.6s ease-in-out infinite;
+}
+
+.download-actions .btn-primary span,
+.download-actions .btn-primary{
+  z-index: 2;
+}
+
+@keyframes downloadShine{
+  0%{
+    left: -75%;
+    opacity: 0;
+  }
+  8%{
+    opacity: 1;
+  }
+  45%{
+    left: 135%;
+    opacity: 1;
+  }
+  60%{
+    left: 135%;
+    opacity: 0;
+  }
+  100%{
+    left: 135%;
+    opacity: 0;
+  }
+}
