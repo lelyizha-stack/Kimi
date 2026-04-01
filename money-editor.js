@@ -425,45 +425,61 @@
     }
 
     if (ext === ".rmmzsave") {
-      const bytes = new Uint8Array(buffer);
+  const rawBytes = new Uint8Array(buffer);
 
-      try {
-        const text = decodeUtf8(buffer).trim();
-        if (text.startsWith("{") || text.startsWith("[")) {
-          return { mode: "json", parsed: JSON.parse(text) };
-        }
-      } catch (_) {}
-
-      if (window.pako && typeof window.pako.inflate === "function") {
-        try {
-          const jsonText = window.pako.inflate(bytes, { to: "string" });
-          if (jsonText && (jsonText.trim().startsWith("{") || jsonText.trim().startsWith("["))) {
-            return {
-              mode: "mz-rmmzsave-gzip",
-              parsed: JSON.parse(jsonText)
-            };
-          }
-        } catch (_) {}
-      }
-
-      throw new Error("Format .rmmzsave tidak terbaca sebagai MZ umum.");
+  try {
+    const text = decodeUtf8(buffer).trim();
+    if (text.startsWith("{") || text.startsWith("[")) {
+      return { mode: "json", parsed: JSON.parse(text) };
     }
+  } catch (_) {}
 
-    if (ext === ".rvdata2") {
-      const marshal = await getMarshalApi();
-      try {
-        const parsed = marshal.load(buffer);
-        return {
-          mode: "vxace-rvdata2-marshal",
-          parsed
-        };
-      } catch (error) {
-        throw new Error("Format .rvdata2 tidak terbaca sebagai VX Ace umum.");
-      }
-    }
-
-    throw new Error("Format save belum didukung. Untuk saat ini pakai .save, .rpgsave, .rmmzsave, atau .rvdata2.");
+  if (!window.pako || typeof window.pako.inflate !== "function") {
+    throw new Error("Library pako tidak termuat.");
   }
+
+  try {
+    const jsonText = window.pako.inflate(rawBytes, { to: "string" });
+    if (jsonText && (jsonText.trim().startsWith("{") || jsonText.trim().startsWith("["))) {
+      return {
+        mode: "mz-rmmzsave-gzip",
+        parsed: JSON.parse(jsonText)
+      };
+    }
+  } catch (_) {}
+
+  try {
+    const zipText = decodeUtf8(buffer);
+    const zipBytes = Uint8Array.from(zipText, ch => ch.charCodeAt(0) & 0xff);
+    const jsonText = window.pako.inflate(zipBytes, { to: "string" });
+
+    if (jsonText && (jsonText.trim().startsWith("{") || jsonText.trim().startsWith("["))) {
+      return {
+        mode: "mz-rmmzsave-gzip",
+        parsed: JSON.parse(jsonText)
+      };
+    }
+  } catch (_) {}
+
+  try {
+    const base64Text = decodeUtf8(buffer).trim();
+    const binary = atob(base64Text);
+    const zipBytes = Uint8Array.from(binary, ch => ch.charCodeAt(0));
+    const jsonText = window.pako.inflate(zipBytes, { to: "string" });
+
+    if (jsonText && (jsonText.trim().startsWith("{") || jsonText.trim().startsWith("["))) {
+      return {
+        mode: "mz-rmmzsave-gzip-base64",
+        parsed: JSON.parse(jsonText)
+      };
+    }
+  } catch (_) {}
+
+  throw new Error("Format .rmmzsave tidak terbaca sebagai MZ umum.");
+}
+
+throw new Error("Format save belum didukung. Untuk saat ini pakai .save, .rpgsave, .rmmzsave, atau .rvdata2.");
+}
 
   function resetEditor() {
     state.fileName = "";
