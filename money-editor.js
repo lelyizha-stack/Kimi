@@ -16,7 +16,7 @@
   const MONEY_RE = /(gold|money|cash|coin|coins|credit|credits|wallet|funds|balance|bank|saldo|uang)/i;
   const VXACE_MARSHAL_URL = "https://esm.sh/@hyrious/marshal";
   const ZIP_JS_URL = "https://esm.sh/@zip.js/zip.js";
-  const RENPY_RULES_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMVCqdm-kXhbZ2NlEllCYe7CnbriUv7NbxKBur1iMSfaMiF3tm2-A5jJf2RuXR734zwqG0w-scWiMkbyTZ-nT_VGpr_ft6dOgeVkdmRsUKdKP8FvDtLujTU4B29zCYL0qNtbdkogGbkZf22cyTv4AwkGu5eHJ0zoFioctKSx3YH4aTam4f1w-8CIMLSXiRf0yr3D71MaQcyaopQfGcezNiGKcFz1nR01ngxRk-mUXaMqAJ_pSoLuCtHvRUuPdAWNnHnqbXD-hWgg9CgKDUNKz3GNMHuN5A&lib=M51hLTJXPQ14ZsjBvmZx8t4ZA7c56I8fg&sheet=renpy_save_code";
+  const RENPY_RULES_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMXHNtyMVhZPoPzAi3HdV5tP-hHEUo1-8LBMtsVC3UWyLP7tiQZnGgDOBa-nPq7bQgP5dZKmRHfeRm6UBXYVMOu5_wLkQBLtgsDhvm5OOAHYBx4zprTYn8kR04rG5g3rVCReDwZ206O21OgNmdbu_gooFq5iM4IzJycepa2WjgK5NmwTtx7BzTJApHFkFDxGUcYZDaE9EmeZUyvLys8AQcWVa9uWNFbzXRBmswlh2-Ot2AsXNOrzxtLTzwAAVQ&lib=Meg5McTAkQuavGyxxGXZfsCJpJ2hEOFKR&sheet=Sheet1";
 
   const state = {
     fileName: "",
