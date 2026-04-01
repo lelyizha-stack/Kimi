@@ -16,7 +16,7 @@
   const MONEY_RE = /(gold|money|cash|coin|coins|credit|credits|wallet|funds|balance|bank|saldo|uang)/i;
   const VXACE_MARSHAL_URL = "https://esm.sh/@hyrious/marshal";
   const ZIP_JS_URL = "https://esm.sh/@zip.js/zip.js";
-  const RENPY_RULES_URL = "./data/renpycode.json";
+  const RENPY_RULES_URL = "data/renpycode.json";
 
   const state = {
     fileName: "",
