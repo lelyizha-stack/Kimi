@@ -29,7 +29,28 @@ async function loadGames() {
   if (!response.ok) throw new Error("Gagal memuat data katalog.");
 
   const data = await response.json();
-  return Array.isArray(data.rows) ? data.rows : [];
+
+  console.log("DATA APPS SCRIPT:", data);
+
+  const rows = Array.isArray(data.rows) ? data.rows : [];
+
+  return rows.map((row) => ({
+    ...row,
+    category: String(row.category || "").trim().toLowerCase(),
+    genres: Array.isArray(row.genres)
+      ? row.genres
+      : String(row.genres || "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
+    platform: Array.isArray(row.platform)
+      ? row.platform
+      : String(row.platform || "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
+    createdAt: String(row.createdAt || "").trim()
+  }));
 }
 
 function getParams() {
