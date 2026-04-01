@@ -26,7 +26,7 @@
     selectedKeyChain: null,
     candidates: [],
     marshalApi: null,
-    zipApi: null,
+    zipApi: null
     originalBuffer: null,
     renpyRulesBySlug: null
   };
@@ -290,107 +290,78 @@
     setStatus(`Candidate dipilih: ${item.pathLabel}`);
   }
 
-  async function getMarshalApi() {
-    if (state.marshalApi) return state.marshalApi;
-
-    try {
-      const mod = await import(VXACE_MARSHAL_URL);
-      if (!mod || typeof mod.load !== "function" || typeof mod.dump !== "function") {
-        throw new Error("Library Ruby Marshal tidak punya API load/dump yang diharapkan.");
-      }
-      state.marshalApi = mod;
-      return mod;
-    } catch (error) {
-      throw new Error("Gagal memuat library VX Ace dari CDN. Cek koneksi atau coba lagi.");
-    }
-  }
-
-  async function getZipApi() {
-    if (state.zipApi) return state.zipApi;
-
-    try {
-      const mod = await import(ZIP_JS_URL);
-      if (!mod || typeof mod.ZipReader !== "function" || typeof mod.BlobReader !== "function") {
-        throw new Error("zip.js tidak punya API yang diharapkan.");
-      }
-      state.zipApi = mod;
-      return mod;
-    } catch (error) {
-      throw new Error("Gagal memuat zip.js dari CDN.");
-    }
-  }
-
   async function tryParseRenpySave(buffer) {
-    const zip = await getZipApi();
-    const blob = new Blob([buffer], { type: "application/octet-stream" });
+  const zip = await getZipApi();
+  const blob = new Blob([buffer], { type: "application/octet-stream" });
 
-    let zipReader;
+  let zipReader;
 
-    try {
-      zipReader = new zip.ZipReader(new zip.BlobReader(blob));
-      const entries = await zipReader.getEntries();
+  try {
+    zipReader = new zip.ZipReader(new zip.BlobReader(blob));
+    const entries = await zipReader.getEntries();
 
-      if (!entries || !entries.length) {
-        throw new Error("File .save Ren'Py terbuka sebagai ZIP, tetapi tidak punya isi.");
-      }
-
-      const names = entries.map((entry) => entry.filename || entry.name || "");
-
-      const logEntry = entries.find((entry) => {
-        const name = String(entry.filename || entry.name || "");
-        return name === "log";
-      });
-
-      const jsonEntry = entries.find((entry) => {
-        const name = String(entry.filename || entry.name || "");
-        return name === "json";
-      });
-
-      let metaJson = null;
-      if (jsonEntry) {
-        try {
-          const jsonText = await jsonEntry.getData(new zip.TextWriter());
-          metaJson = JSON.parse(jsonText);
-        } catch (_) {}
-      }
-
-      let logBuffer = null;
-      if (logEntry) {
-        try {
-          const logBlob = await logEntry.getData(new zip.BlobWriter());
-          logBuffer = await logBlob.arrayBuffer();
-        } catch (_) {}
-      }
-
-      await zipReader.close();
-
-      return {
-        mode: "renpy-save-zip",
-        parsed: {
-          __renpyArchive: true,
-          entries: names,
-          metaJson,
-          logBuffer
-        }
-      };
-    } catch (error) {
-      try {
-        if (zipReader) await zipReader.close();
-      } catch (_) {}
-
-      try {
-        const text = decodeUtf8(buffer).trim();
-        if (text.startsWith("{") || text.startsWith("[")) {
-          return {
-            mode: "renpy-json-export",
-            parsed: JSON.parse(text)
-          };
-        }
-      } catch (_) {}
-
-      throw new Error("File .save tidak terbaca sebagai ZIP Ren'Py yang valid.");
+    if (!entries || !entries.length) {
+      throw new Error("File .save Ren'Py terbuka sebagai ZIP, tetapi tidak punya isi.");
     }
+
+    const names = entries.map((entry) => entry.filename || entry.name || "");
+
+    const logEntry = entries.find((entry) => {
+      const name = String(entry.filename || entry.name || "");
+      return name === "log";
+    });
+
+    const jsonEntry = entries.find((entry) => {
+      const name = String(entry.filename || entry.name || "");
+      return name === "json";
+    });
+
+    let metaJson = null;
+    if (jsonEntry) {
+      try {
+        const jsonText = await jsonEntry.getData(new zip.TextWriter());
+        metaJson = JSON.parse(jsonText);
+      } catch (_) {}
+    }
+
+    let logBuffer = null;
+    if (logEntry) {
+      try {
+        const logBlob = await logEntry.getData(new zip.BlobWriter());
+        logBuffer = await logBlob.arrayBuffer();
+      } catch (_) {}
+    }
+
+    await zipReader.close();
+
+    return {
+      mode: "renpy-save-zip",
+      parsed: {
+        __renpyArchive: true,
+        entries: names,
+        metaJson,
+        logBuffer
+      }
+    };
+  } catch (error) {
+    try {
+      if (zipReader) await zipReader.close();
+    } catch (_) {}
+
+    // fallback: kalau ternyata file ini JSON/debug export
+    try {
+      const text = decodeUtf8(buffer).trim();
+      if (text.startsWith("{") || text.startsWith("[")) {
+        return {
+          mode: "renpy-json-export",
+          parsed: JSON.parse(text)
+        };
+      }
+    } catch (_) {}
+
+    throw new Error("File .save tidak terbaca sebagai ZIP Ren'Py yang valid.");
   }
+}
 
   async function tryParse(buffer, fileName) {
     const ext = getExt(fileName);
@@ -505,8 +476,6 @@
         const parsedResult = await tryParse(buffer, file.name);
         state.mode = parsedResult.mode;
         state.parsed = parsedResult.parsed;
-        if (detectModeInput) detectModeInput.value = parsedResult.mode;
-
         if (parsedResult.mode === "renpy-save-zip") {
   const info = {
     entries: parsedResult.parsed.entries || [],
@@ -514,74 +483,16 @@
     hasLog: !!parsedResult.parsed.logBuffer
   };
 
-  if (!parsedResult.parsed.logBuffer) {
-    state.candidates = [];
-    renderCandidates();
-    setLog(JSON.stringify(info, null, 2));
-    setStatus("Arsip .save Ren'Py terbuka, tetapi entry log tidak ditemukan.", true);
-    return;
-  }
+  setLog(JSON.stringify(info, null, 2));
+  setStatus("Arsip .save Ren'Py berhasil dibuka. Entry ZIP berhasil dibaca.");
 
-  let renpyState;
-  try {
-    if (!window.renpyPickle || typeof window.renpyPickle.parseLogBuffer !== "function") {
-      throw new Error("renpy-pickle.js belum termuat.");
-    }
-
-    renpyState = window.renpyPickle.parseLogBuffer(parsedResult.parsed.logBuffer);
-  } catch (err) {
-    state.candidates = [];
-    renderCandidates();
-    setLog(JSON.stringify(info, null, 2));
-    setStatus(`ZIP Ren'Py terbuka, tetapi pickle log gagal diparse: ${err.message}`, true);
-    return;
-  }
-
-  state.mode = "renpy-save-pickle-read";
-  state.parsed = renpyState;
-  if (detectModeInput) detectModeInput.value = state.mode;
-
-  const slug = getCurrentGameSlug();
-  if (!slug) {
-    setLog(JSON.stringify({
-      ...info,
-      parsedType: window.renpyPickle.safeDescribe(renpyState)
-    }, null, 2));
-    setStatus("ZIP dan pickle Ren'Py berhasil dibaca. Isi Game Slug untuk mencocokkan rules.", true);
-    return;
-  }
-
-  const rulesBySlug = await loadRenpyRules();
-  const byRules = collectRenpyCandidatesFromRules(state.parsed, slug, rulesBySlug);
-  const autoScan = rankCandidates(uniqueCandidates(walk(state.parsed)));
-
-  const found = byRules.length ? byRules : autoScan;
-  state.candidates = found;
-
-  setLog(JSON.stringify(
-    {
-      ...info,
-      parsedType: window.renpyPickle.safeDescribe(renpyState),
-      candidates: found.slice(0, 12).map((item) => ({
-        path: item.pathLabel,
-        value: item.value
-      }))
-    },
-    null,
-    2
-  ));
-
-  if (!found.length) {
-    renderCandidates();
-    setStatus("ZIP dan pickle Ren'Py berhasil dibaca, tetapi candidate uang belum ditemukan.", true);
-    return;
-  }
-
-  selectPath(found[0].pathLabel);
+  // sementara berhenti dulu di sini, sebelum parser pickle dipasang
+  state.candidates = [];
   renderCandidates();
-  setStatus(`Ren'Py berhasil dibaca. Ditemukan ${found.length} candidate.`);
   return;
 }
+        
+        if (detectModeInput) detectModeInput.value = parsedResult.mode;
 
         let found = [];
 
