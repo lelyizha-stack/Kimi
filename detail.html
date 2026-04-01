@@ -419,7 +419,13 @@ async function initDetail() {
     if (!res.ok) throw new Error("Gagal memuat data katalog.");
 
     const data = await res.json();
-    const games = Array.isArray(data.rows) ? data.rows : [];
+
+    const games = Array.isArray(data)
+      ? data
+      : Array.isArray(data.rows)
+        ? data.rows
+        : [];
+
     const game = games.find((item) => String(item.slug || "") === slug);
 
     if (!game) {
