@@ -131,30 +131,17 @@
   async function loadRenpyRules() {
   if (state.renpyRulesBySlug) return state.renpyRulesBySlug;
 
-  console.log("FETCH RENPY RULES:", RENPY_RULES_URL);
-
-  let res;
-  try {
-    res = await fetch(RENPY_RULES_URL, {
-      method: "GET",
-      cache: "no-store"
-    });
-  } catch (err) {
-    throw new Error("Gagal fetch rules Ren'Py. Cek URL Apps Script / akses public / CORS.");
-  }
+  const res = await fetch(RENPY_RULES_URL, {
+    method: "GET",
+    cache: "no-store"
+  });
 
   if (!res.ok) {
     throw new Error(`Gagal memuat rules Ren'Py. HTTP ${res.status}`);
   }
 
   const data = await res.json();
-  console.log("RENPY RULES RAW:", data);
-
-  const rows = Array.isArray(data)
-    ? data
-    : Array.isArray(data.rows)
-      ? data.rows
-      : [];
+  const rows = Array.isArray(data) ? data : [];
 
   const grouped = {};
 
@@ -172,8 +159,6 @@
       label
     });
   });
-
-  console.log("RENPY RULES GROUPED:", grouped);
 
   state.renpyRulesBySlug = grouped;
   return grouped;
