@@ -300,10 +300,27 @@
 
     function renderDetail(app, game, allGames) {
       const categoryHref = categoryPage(game.category);
-      const related = allGames
-        .filter((item) => item.slug !== game.slug)
-        .filter((item) => item.category === game.category || (item.genres || []).some((genre) => (game.genres || []).includes(genre)))
-        .slice(0, 3);
+      const currentSlug = String(game.slug || "").trim().toLowerCase();
+const currentTitle = String(game.title || "").trim().toLowerCase();
+const currentId = String(game.id || "").trim().toLowerCase();
+
+const related = allGames
+  .filter((item) => {
+    const itemSlug = String(item.slug || "").trim().toLowerCase();
+    const itemTitle = String(item.title || "").trim().toLowerCase();
+    const itemId = String(item.id || "").trim().toLowerCase();
+
+    if (itemSlug && currentSlug && itemSlug === currentSlug) return false;
+    if (itemId && currentId && itemId === currentId) return false;
+    if (itemTitle && currentTitle && itemTitle === currentTitle) return false;
+
+    return true;
+  })
+  .filter((item) =>
+    item.category === game.category ||
+    (item.genres || []).some((genre) => (game.genres || []).includes(genre))
+  )
+  .slice(0, 3);
 
       document.title = `${game.title} - Karbit Prime`;
 
