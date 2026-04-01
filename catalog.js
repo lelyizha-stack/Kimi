@@ -217,38 +217,10 @@ function renderCard(game) {
   const downloadButtons = renderDownloadButtons(game);
 
   return `
-    <article class="download-card">
+    <article class="download-card minimal-card">
       ${renderImage(game)}
       <div class="download-body">
-        <div class="post-meta">
-          <a class="tag ${escapeHTML(game.category)} clickable" href="${escapeHTML(categoryPage(game.category))}">
-            ${escapeHTML(String(game.category || "").toUpperCase())}
-          </a>
-
-          ${(game.platform || []).map((item) => `
-            <a class="tag platform clickable" href="${escapeHTML(filterLink(game, "platform", item))}">
-              ${escapeHTML(item)}
-            </a>
-          `).join("")}
-
-          <span class="tag status">${escapeHTML(game.status || "Updated")}</span>
-        </div>
-
         <h3>${escapeHTML(game.title)}</h3>
-
-        <div class="genre-wrap">
-          ${(game.genres || []).map((genre) => `
-            <a class="genre-chip clickable" href="${escapeHTML(filterLink(game, "genre", genre))}">
-              ${escapeHTML(genre)}
-            </a>
-          `).join("")}
-        </div>
-
-        <div class="download-meta">
-          <div><strong>${escapeHTML(game.version || "-")}</strong><span>Versi</span></div>
-          <div><strong>${escapeHTML(game.size || "-")}</strong><span>Ukuran</span></div>
-          <div><strong>${escapeHTML(game.language || "-")}</strong><span>Bahasa</span></div>
-        </div>
 
         <div class="download-actions">
           <a href="${escapeHTML(detail)}" class="btn btn-secondary">Detail</a>

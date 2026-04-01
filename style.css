@@ -1374,3 +1374,76 @@ button,input,select,textarea{font:inherit}
     opacity: 0;
   }
 }
+
+/* UPDATE TERBARU JADI GESER KANAN-KIRI */
+#featuredList{
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:minmax(280px, 360px);
+  gap:18px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  padding:4px 4px 14px;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(255,95,178,.45) rgba(255,255,255,.05);
+}
+
+#featuredList::-webkit-scrollbar{
+  height:10px;
+}
+
+#featuredList::-webkit-scrollbar-track{
+  background:rgba(255,255,255,.05);
+  border-radius:999px;
+}
+
+#featuredList::-webkit-scrollbar-thumb{
+  background:linear-gradient(90deg, rgba(255,95,178,.55), rgba(255,135,197,.45));
+  border-radius:999px;
+}
+
+#featuredList > .download-card{
+  scroll-snap-align:start;
+  height:100%;
+}
+
+#featuredList > .download-card .catalog-cover{
+  height:210px;
+}
+
+@media (max-width:640px){
+  #featuredList{
+    grid-auto-columns:minmax(250px, 88vw);
+    gap:14px;
+    padding-bottom:12px;
+  }
+}
+
+/* KARTU MINIMAL */
+.minimal-card .download-body{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.minimal-card h3{
+  margin:0;
+  font-size:22px;
+  line-height:1.35;
+}
+
+.minimal-card .download-actions{
+  margin-top:0;
+}
+
+.minimal-card .download-actions .btn{
+  flex:1 1 auto;
+}
+
+@media (max-width:640px){
+  .minimal-card h3{
+    font-size:20px;
+  }
+}
