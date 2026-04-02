@@ -149,6 +149,10 @@
       color: rgba(255,255,255,0.42);
     }
 
+    select.admin-input option {
+      color: #111;
+    }
+
     .helper-box,
     .status-box,
     .log-box {
@@ -402,7 +406,7 @@
             Halaman ini dibuat untuk editor save universal Karbit Prime.
             Sistem akan mencoba mendeteksi engine save otomatis lalu mencari candidate uang seperti
             <b>money</b>, <b>gold</b>, <b>cash</b>, <b>coin</b>, <b>credits</b>, dan sejenisnya.
-            Untuk Ren'Py, kamu bisa isi <b>Game Slug</b> agar path manual dari Google Sheet / Apps Script bisa dipakai.
+            Untuk Ren'Py, kamu bisa memilih <b>judul game</b>, dan sistem akan mengirim <b>slug</b> ke backend agar mencari path yang paling tepat.
           </p>
 
           <div class="save-chip-row">
@@ -442,21 +446,17 @@
               >
             </label>
 
-            <label class="field full" id="gameSlugWrap" style="display:none;">
-              <span class="field-label">Game Slug Ren'Py</span>
-              <input
-                type="text"
-                id="gameSlug"
-                class="admin-input"
-                placeholder="contoh: summer-memories"
-              >
+            <label class="field full" id="gameSlugWrap">
+              <span class="field-label">Pilih Game Ren'Py</span>
+              <select id="gameSlug" class="admin-input">
+                <option value="">Memuat daftar game...</option>
+              </select>
             </label>
 
             <div class="field full">
               <div class="helper-box">
-                Editor ini mencoba membaca save dari beberapa engine berbeda. Untuk Ren'Py,
-                <b>Game Slug</b> dipakai untuk mencocokkan path manual dari data rules.
-                Kalau slug kosong atau rules tidak cocok, sistem akan pakai scan otomatis.
+                Untuk Ren'Py, daftar game diambil dari Google Sheet / Apps Script. Yang tampil adalah <b>judul game</b>,
+                tetapi yang dikirim ke backend tetap <b>slug</b> agar bisa mencari path uang yang paling tepat.
               </div>
             </div>
 
@@ -494,6 +494,7 @@
 
             <div class="field full">
               <div class="button-row">
+                <button id="inspectBtn" class="btn btn-secondary" type="button">Inspect Save</button>
                 <button id="applyMoney" class="btn btn-primary" type="button">Simpan Nilai Uang</button>
                 <button id="downloadSave" class="btn btn-secondary" type="button">Download Save Baru</button>
                 <button id="resetEditor" class="btn btn-secondary" type="button">Reset</button>
@@ -518,7 +519,7 @@
             <div class="supported-grid">
               <div class="support-card">
                 <strong>Ren'Py</strong>
-                <span>.save — baca ZIP + log pickle, candidate uang bisa pakai slug manual.</span>
+                <span>.save — baca ZIP + log pickle, candidate uang bisa diprioritaskan lewat slug game.</span>
               </div>
               <div class="support-card">
                 <strong>RPG Maker MV</strong>
@@ -540,8 +541,9 @@
             <ul class="spec-list">
               <li><strong>Backup dulu</strong><br>Simpan file save asli sebelum diedit.</li>
               <li><strong>Pilih candidate dengan benar</strong><br>Beberapa game punya lebih dari satu field angka yang mirip uang.</li>
+              <li><strong>Slug hanya untuk Ren'Py</strong><br>Slug dipakai untuk membantu backend memprioritaskan path dari rules Google Sheet.</li>
               <li><strong>Tidak semua game 100% standar</strong><br>Plugin save custom bisa membuat parse gagal.</li>
-              <li><strong>Ren'Py belum repack penuh</strong><br>Jika serialize Ren'Py belum aktif, download save baru memang akan ditolak dulu.</li>
+              <li><strong>Ren'Py signature</strong><br>Beberapa game Ren'Py bisa menolak save hasil edit jika signature ikut diverifikasi.</li>
             </ul>
           </section>
         </aside>
