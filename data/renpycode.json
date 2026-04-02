@@ -30,7 +30,7 @@
   {
     "gameSlug": "ex",
     "title": "ex",
-    "moneyPath": "store.money",
+    "moneyPath": "0.store.money",
     "label": "money",
     "enabled": true
   }
