@@ -5,7 +5,7 @@ const ZIP_JS_URL = "https://esm.sh/@zip.js/zip.js";
   Kalau gagal fetch, engine akan fallback ke data/renpycode.json
 */
 const RENPY_RULES_URLS = [
-  "https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMVA7Fun4IeJeszgEJRpGmc5wEguzo3gr9irNTrOoHuE8ud4dfCBTNXTpGvaV0R-B9nw4rAr3Q-jGaI6qzLyN00Crj6LWpY9KcXHbMMGXEOEm4hUgikf0pdX02HRtzxz4VukzjU8jZlSZrTlA9zI8jYK3EkPfypqDi525kgAJcEdOU0AD8XBeKwgHaGRSTRvNLzWwzafwSPmH3032J9srwFiHQ7t9bSp7vovm53yluuA49ZEv7Vu4d75nZX_WA&lib=Meg5McTAkQuavGyxxGXZfsCJpJ2hEOFKR",
+  "https://script.google.com/macros/s/AKfycbzeCFEGNVwhnwYrdp6JlIh8sJOa0zYSe8w8TneyRQ-2swWwd7WoukEUb95n_3SzRy-dqg/exec",
   "data/renpycode.json"
 ];
 
