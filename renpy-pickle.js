@@ -54,6 +54,13 @@
     if (Array.isArray(value)) return `Array(${value.length})`;
     if (value instanceof Map) return `Map(${value.size})`;
     if (value instanceof Set) return `Set(${value.size})`;
+    if (typeof value === "object") {
+      try {
+        return value.constructor?.name || "object";
+      } catch (_) {
+        return "object";
+      }
+    }
     return typeof value;
   }
 
