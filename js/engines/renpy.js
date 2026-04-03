@@ -3,11 +3,9 @@ const BACKEND = "https://Kimi810.pythonanywhere.com";
 function base64ToBlob(base64String) {
   const binary = atob(base64String);
   const bytes = new Uint8Array(binary.length);
-
   for (let i = 0; i < binary.length; i++) {
     bytes[i] = binary.charCodeAt(i);
   }
-
   return new Blob([bytes], { type: "application/octet-stream" });
 }
 
@@ -27,7 +25,7 @@ async function postRenpy(endpoint, file, extra = {}) {
   form.append("file", file);
 
   Object.entries(extra).forEach(([key, value]) => {
-    if (value === undefined || value === null) return;
+    if (value === undefined || value === null || value === "") return;
     form.append(key, String(value));
   });
 
@@ -37,11 +35,9 @@ async function postRenpy(endpoint, file, extra = {}) {
   });
 
   const data = await res.json();
-
   if (!res.ok) {
     throw new Error(data?.detail || data?.error || `HTTP ${res.status}`);
   }
-
   return data;
 }
 
@@ -53,9 +49,12 @@ export const RENPY_ENGINE = {
     return file.name.toLowerCase().endsWith(".save");
   },
 
-  async read(file, { slug }) {
-    const data = await postRenpy("/api/renpy/find-candidates", file, { slug });
+  async inspect(file) {
+    return await postRenpy("/api/renpy/inspect", file);
+  },
 
+  async read(file) {
+    const data = await postRenpy("/api/renpy/find-candidates", file);
     return {
       parsed: null,
       candidates: data.candidates || [],
@@ -63,9 +62,8 @@ export const RENPY_ENGINE = {
     };
   },
 
-  async applyMoney({ file, path, value, slug }) {
+  async applyMoney({ file, path, value }) {
     const data = await postRenpy("/api/renpy/edit-money", file, {
-      slug,
       path,
       value
     });
@@ -77,9 +75,8 @@ export const RENPY_ENGINE = {
     };
   },
 
-  async download({ file, path, value, slug }) {
+  async download({ file, path, value }) {
     const data = await postRenpy("/api/renpy/edit-money", file, {
-      slug,
       path,
       value
     });
@@ -90,7 +87,6 @@ export const RENPY_ENGINE = {
 
     const blob = base64ToBlob(data.edited_save_base64);
     downloadBlob(blob, data.edited_filename || "edited.save");
-
     return data;
   }
 };
