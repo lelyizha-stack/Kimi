@@ -4,14 +4,11 @@ import { RPGMVX_ENGINE } from "./engines/rpgmvx.js";
 import { RENPY_ENGINE } from "./engines/renpy.js";
 
 const LOCAL_ENGINES = [RPGMV_ENGINE, RPGMZ_ENGINE, RPGMVX_ENGINE];
-const RENPY_RULES_URL = "https://script.google.com/macros/s/AKfycbzeCFEGNVwhnwYrdp6JlIh8sJOa0zYSe8w8TneyRQ-2swWwd7WoukEUb95n_3SzRy-dqg/exec";
 
 const el = {
   saveFile: document.getElementById("saveFile"),
   fileName: document.getElementById("fileName"),
   detectMode: document.getElementById("detectMode"),
-  gameSlug: document.getElementById("gameSlug"),
-  gameSlugWrap: document.getElementById("gameSlugWrap"),
   candidateList: document.getElementById("candidateList"),
   candidateSelect: document.getElementById("candidateSelect"),
   selectedPath: document.getElementById("selectedPath"),
@@ -49,10 +46,6 @@ function escapeHtml(text) {
   }[m]));
 }
 
-function getSlug() {
-  return String(el.gameSlug?.value || "").trim().toLowerCase();
-}
-
 function setStatus(msg, isError = false) {
   if (!el.statusBox) return;
   el.statusBox.textContent = msg;
@@ -68,88 +61,6 @@ function setLog(data) {
   }
 }
 
-function updateSlugVisibility() {
-  if (!el.gameSlugWrap) return;
-
-  // Sebelum upload file, dropdown slug tetap tampil
-  if (!state.engine) {
-    el.gameSlugWrap.style.display = "";
-    return;
-  }
-
-  // Kalau sudah upload file:
-  // - Ren'Py: tampil
-  // - RPGM: sembunyikan
-  el.gameSlugWrap.style.display = state.engine.id === "renpy" ? "" : "none";
-}
-
-async function loadRenpyGameList() {
-  if (!el.gameSlug) return;
-
-  try {
-    el.gameSlug.innerHTML = `<option value="">Memuat daftar game...</option>`;
-
-    const res = await fetch(RENPY_RULES_URL, {
-      method: "GET",
-      cache: "no-store"
-    });
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const raw = await res.json();
-
-    let rows = [];
-    if (Array.isArray(raw)) {
-      rows = raw;
-    } else if (Array.isArray(raw.rows)) {
-      rows = raw.rows;
-    } else if (Array.isArray(raw.data)) {
-      rows = raw.data;
-    } else if (Array.isArray(raw.games)) {
-      rows = raw.games;
-    }
-
-    const items = rows
-      .map((row) => {
-        const enabled = String(row.enabled ?? "true").trim().toLowerCase();
-        const slug = String(row.gameSlug || row.slug || "").trim();
-        const title = String(
-          row.title ||
-          row.gameTitle ||
-          row.name ||
-          row.label ||
-          row.gameSlug ||
-          row.slug ||
-          ""
-        ).trim();
-
-        return {
-          enabled: !["false", "0", "no", "off"].includes(enabled),
-          slug,
-          title
-        };
-      })
-      .filter((item) => item.enabled && item.slug && item.title);
-
-    items.sort((a, b) => a.title.localeCompare(b.title));
-
-    if (!items.length) {
-      el.gameSlug.innerHTML = `<option value="">Tidak ada game tersedia</option>`;
-      return;
-    }
-
-    el.gameSlug.innerHTML = `
-      <option value="">Pilih game...</option>
-      ${items.map((item) => `
-        <option value="${escapeHtml(item.slug)}">${escapeHtml(item.title)}</option>
-      `).join("")}
-    `;
-  } catch (error) {
-    console.error("Gagal memuat daftar game Ren'Py:", error);
-    el.gameSlug.innerHTML = `<option value="">Gagal memuat daftar game</option>`;
-  }
-}
-
 function decodeText(buffer) {
   return new TextDecoder("utf-8").decode(buffer);
 }
@@ -161,12 +72,10 @@ function extOf(fileName) {
 
 function candidateScore(path) {
   const p = String(path || "").toLowerCase();
-
   if (p === "party._gold") return -20;
   if (p.endsWith("party._gold")) return -19;
   if (p === "_gold") return -18;
   if (p.endsWith("._gold")) return -17;
-
   if (p === "store.money" || p.endsWith(".money")) return 0;
   if (p.includes("money")) return 1;
   if (p === "store.gold" || p.endsWith(".gold")) return 2;
@@ -179,7 +88,6 @@ function candidateScore(path) {
   if (p.includes("balance")) return 9;
   if (p.includes("เงิน") || p.includes("uang") || p.includes("duit")) return 10;
   if (p.includes("ทอง") || p.includes("emas")) return 11;
-
   return 50;
 }
 
@@ -192,8 +100,7 @@ function isObjectLike(value) {
 }
 
 function isNumericValue(value) {
-  return (typeof value === "number" && Number.isFinite(value)) ||
-    (typeof value === "bigint");
+  return (typeof value === "number" && Number.isFinite(value)) || (typeof value === "bigint");
 }
 
 function defaultScanCandidates(root) {
@@ -217,20 +124,15 @@ function defaultScanCandidates(root) {
     if (depth > 8) return;
     if (!isObjectLike(node)) return;
 
-    const id = node;
-    if (seen.has(id)) return;
-    seen.add(id);
+    if (seen.has(node)) return;
+    seen.add(node);
 
     if (Array.isArray(node)) {
       node.forEach((value, index) => {
         const nextKeyChain = [...keyChain, index];
         const path = pathFromKeyChain(nextKeyChain);
-
         pushCandidate(nextKeyChain, path, value);
-
-        if (isObjectLike(value)) {
-          walk(value, nextKeyChain, depth + 1);
-        }
+        if (isObjectLike(value)) walk(value, nextKeyChain, depth + 1);
       });
       return;
     }
@@ -239,12 +141,8 @@ function defaultScanCandidates(root) {
       for (const [key, value] of node.entries()) {
         const nextKeyChain = [...keyChain, key];
         const path = pathFromKeyChain(nextKeyChain);
-
         pushCandidate(nextKeyChain, path, value);
-
-        if (isObjectLike(value)) {
-          walk(value, nextKeyChain, depth + 1);
-        }
+        if (isObjectLike(value)) walk(value, nextKeyChain, depth + 1);
       }
       return;
     }
@@ -252,12 +150,8 @@ function defaultScanCandidates(root) {
     Object.entries(node).forEach(([key, value]) => {
       const nextKeyChain = [...keyChain, key];
       const path = pathFromKeyChain(nextKeyChain);
-
       pushCandidate(nextKeyChain, path, value);
-
-      if (isObjectLike(value)) {
-        walk(value, nextKeyChain, depth + 1);
-      }
+      if (isObjectLike(value)) walk(value, nextKeyChain, depth + 1);
     });
   }
 
@@ -266,14 +160,12 @@ function defaultScanCandidates(root) {
   const unique = [];
   const used = new Set();
 
-  out
-    .sort((a, b) => (a.score - b.score) || a.path.localeCompare(b.path))
-    .forEach((item) => {
-      const sig = `${item.path}::${item.value}`;
-      if (used.has(sig)) return;
-      used.add(sig);
-      unique.push(item);
-    });
+  out.sort((a, b) => (a.score - b.score) || a.path.localeCompare(b.path)).forEach((item) => {
+    const sig = `${item.path}::${item.value}`;
+    if (used.has(sig)) return;
+    used.add(sig);
+    unique.push(item);
+  });
 
   return unique;
 }
@@ -287,7 +179,6 @@ function setAtKeyChain(root, keyChain, value) {
 
   for (let i = 0; i < keyChain.length - 1; i += 1) {
     const key = keyChain[i];
-
     if (Array.isArray(ref)) {
       ref = ref[key];
     } else if (ref instanceof Map) {
@@ -300,22 +191,18 @@ function setAtKeyChain(root, keyChain, value) {
   }
 
   const last = keyChain[keyChain.length - 1];
-
   if (Array.isArray(ref)) {
     ref[last] = value;
     return true;
   }
-
   if (ref instanceof Map) {
     ref.set(last, value);
     return true;
   }
-
   if (isObjectLike(ref)) {
     ref[last] = value;
     return true;
   }
-
   throw new Error("Gagal menyimpan nilai pada candidate.");
 }
 
@@ -344,13 +231,10 @@ function renderCandidates() {
     } else {
       el.candidateList.innerHTML = state.candidates.map((item) => {
         const active = item.path === state.selectedCandidate?.path ? "active" : "";
+        const tag = item.title || item.label ? `<em style="display:block;font-size:11px;color:#ffd7e7;">${escapeHtml(item.title || item.label)}</em>` : "";
         return `
-          <button
-            type="button"
-            class="candidate-chip ${active}"
-            data-path="${escapeHtml(item.path)}"
-            data-value="${escapeHtml(item.value)}"
-          >
+          <button type="button" class="candidate-chip ${active}" data-path="${escapeHtml(item.path)}" data-value="${escapeHtml(item.value)}">
+            ${tag}
             <span>${escapeHtml(item.path)}</span>
             <strong>${escapeHtml(item.value)}</strong>
           </button>
@@ -366,12 +250,9 @@ function renderCandidates() {
       el.candidateSelect.innerHTML = `
         <option value="">Pilih candidate manual...</option>
         ${state.candidates.map((item) => `
-          <option value="${escapeHtml(item.path)}">
-            ${escapeHtml(item.path)} — ${escapeHtml(item.value)}
-          </option>
+          <option value="${escapeHtml(item.path)}">${escapeHtml(item.path)} — ${escapeHtml(item.value)}</option>
         `).join("")}
       `;
-
       if (state.selectedCandidate?.path) {
         el.candidateSelect.value = state.selectedCandidate.path;
       }
@@ -381,38 +262,26 @@ function renderCandidates() {
 
 function selectCandidate(candidate) {
   if (!candidate) return;
-
   state.selectedCandidate = candidate;
-
   if (el.selectedPath) el.selectedPath.value = candidate.path || "";
   if (el.currentMoney) el.currentMoney.value = String(candidate.value ?? "");
   if (el.newMoney) el.newMoney.value = String(candidate.value ?? "");
   if (el.candidateSelect) el.candidateSelect.value = candidate.path || "";
-
   renderCandidates();
   setStatus(`Candidate dipilih: ${candidate.path}`);
 }
 
 function selectCandidateByPath(path) {
   const candidate = state.candidates.find((item) => item.path === path);
-  if (!candidate) return;
-  selectCandidate(candidate);
+  if (candidate) selectCandidate(candidate);
 }
 
 async function detectEngine(file, buffer) {
-  if (RENPY_ENGINE && typeof RENPY_ENGINE.match === "function" && RENPY_ENGINE.match(file)) {
-    return RENPY_ENGINE;
-  }
-
+  if (RENPY_ENGINE?.match?.(file)) return RENPY_ENGINE;
   const ext = extOf(file.name);
-
   for (const engine of LOCAL_ENGINES) {
     if (!engine) continue;
-
-    if (Array.isArray(engine.extensions) && !engine.extensions.includes(ext)) {
-      continue;
-    }
-
+    if (Array.isArray(engine.extensions) && !engine.extensions.includes(ext)) continue;
     if (typeof engine.detect === "function") {
       try {
         const ok = await engine.detect({ ext, buffer, helpers });
@@ -422,7 +291,6 @@ async function detectEngine(file, buffer) {
       return engine;
     }
   }
-
   return null;
 }
 
@@ -442,13 +310,9 @@ function resetEditor() {
   if (el.selectedPath) el.selectedPath.value = "";
   if (el.currentMoney) el.currentMoney.value = "";
   if (el.newMoney) el.newMoney.value = "";
-
-  if (el.candidateSelect) {
-    el.candidateSelect.innerHTML = `<option value="">Pilih candidate dulu...</option>`;
-  }
+  if (el.candidateSelect) el.candidateSelect.innerHTML = `<option value="">Pilih candidate dulu...</option>`;
 
   renderCandidates();
-  updateSlugVisibility();
   setStatus("Menunggu file save.");
   setLog("Belum ada proses.");
 }
@@ -457,9 +321,7 @@ if (el.candidateList) {
   el.candidateList.addEventListener("click", (event) => {
     const btn = event.target.closest(".candidate-chip");
     if (!btn) return;
-
-    const path = btn.dataset.path || "";
-    selectCandidateByPath(path);
+    selectCandidateByPath(btn.dataset.path || "");
   });
 }
 
@@ -481,41 +343,29 @@ if (el.saveFile) {
       state.buffer = await file.arrayBuffer();
       state.engine = await detectEngine(file, state.buffer);
 
-      if (!state.engine) {
-        throw new Error("Format file belum didukung.");
-      }
+      if (!state.engine) throw new Error("Format file belum didukung.");
 
       if (el.fileName) el.fileName.value = file.name;
       if (el.detectMode) el.detectMode.value = state.engine.label || state.engine.id || "Unknown";
 
-      updateSlugVisibility();
       setStatus(`Membaca save dengan engine ${state.engine.label}...`);
 
       if (state.engine.id === "renpy") {
-        const result = await state.engine.read(file, { slug: getSlug() });
-
+        const result = await state.engine.read(file);
         state.parsed = null;
         state.mode = "renpy-backend";
         state.meta = result.meta || null;
         state.candidates = Array.isArray(result.candidates) ? result.candidates : [];
       } else {
-        const parsedResult = await state.engine.parse({
-          buffer: state.buffer,
-          helpers
-        });
-
+        const parsedResult = await state.engine.parse({ buffer: state.buffer, helpers });
         state.parsed = parsedResult.parsed;
         state.mode = parsedResult.mode || "";
         state.meta = parsedResult.meta || null;
 
         let candidates = [];
         if (typeof state.engine.findCandidates === "function") {
-          candidates = await state.engine.findCandidates({
-            parsed: state.parsed,
-            helpers
-          });
+          candidates = await state.engine.findCandidates({ parsed: state.parsed, helpers });
         }
-
         if (!Array.isArray(candidates) || !candidates.length) {
           candidates = defaultScanCandidates(state.parsed);
         }
@@ -523,12 +373,13 @@ if (el.saveFile) {
         state.candidates = candidates.map((item) => ({
           keyChain: item.keyChain,
           path: item.path || pathFromKeyChain(item.keyChain || []),
-          value: Number(item.value ?? 0)
+          value: Number(item.value ?? 0),
+          title: item.title,
+          label: item.label
         }));
       }
 
       state.selectedCandidate = null;
-
       if (el.selectedPath) el.selectedPath.value = "";
       if (el.currentMoney) el.currentMoney.value = "";
       if (el.newMoney) el.newMoney.value = "";
@@ -562,25 +413,12 @@ if (el.inspectBtn) {
   el.inspectBtn.addEventListener("click", async () => {
     try {
       if (!state.engine) throw new Error("Upload save dulu.");
-
       if (state.engine.id === "renpy") {
-        if (typeof state.engine.inspect === "function") {
-          const result = await state.engine.inspect(state.file, { slug: getSlug() });
-          setStatus("Inspect berhasil.");
-          setLog(result);
-          return;
-        }
-
-        setStatus("Inspect backend Ren'Py belum disediakan.");
-        setLog({
-          engine: "renpy",
-          slug: getSlug(),
-          candidate_count: state.candidates.length,
-          meta: state.meta
-        });
+        const result = await state.engine.inspect(state.file);
+        setStatus("Inspect berhasil.");
+        setLog(result);
         return;
       }
-
       setStatus("Inspect berhasil.");
       setLog({
         engine: state.engine.id,
@@ -604,9 +442,7 @@ if (el.applyBtn) {
       if (!state.selectedCandidate) throw new Error("Pilih candidate dulu.");
 
       const newValue = Number(el.newMoney?.value);
-      if (!Number.isFinite(newValue) || newValue < 0) {
-        throw new Error("Nilai uang baru tidak valid.");
-      }
+      if (!Number.isFinite(newValue) || newValue < 0) throw new Error("Nilai uang baru tidak valid.");
 
       setStatus("Menyimpan nilai uang...");
 
@@ -615,10 +451,8 @@ if (el.applyBtn) {
           file: state.file,
           parsed: null,
           path: state.selectedCandidate.path,
-          value: newValue,
-          slug: getSlug()
+          value: newValue
         });
-
         state.meta = result.meta || state.meta;
         state.selectedCandidate.value = newValue;
       } else {
@@ -628,35 +462,23 @@ if (el.applyBtn) {
           value: newValue,
           helpers
         });
-
         state.candidates = defaultScanCandidates(state.parsed).map((item) => ({
           keyChain: item.keyChain,
           path: item.path,
           value: Number(item.value ?? 0)
         }));
-
         const updated = state.candidates.find((c) => c.path === state.selectedCandidate.path) || state.candidates[0];
-        if (updated) {
-          state.selectedCandidate = updated;
-        }
+        if (updated) state.selectedCandidate = updated;
       }
 
       if (el.currentMoney) el.currentMoney.value = String(newValue);
-
       renderCandidates();
-      if (state.selectedCandidate) {
-        selectCandidate(state.selectedCandidate);
-      }
+      if (state.selectedCandidate) selectCandidate(state.selectedCandidate);
 
-      setStatus("Nilai uang berhasil diubah.");
-      setLog({
-        ok: true,
-        engine: state.engine.id,
-        selected_path: state.selectedCandidate?.path || "",
-        new_value: newValue
-      });
+      setStatus("Nilai berhasil diubah.");
+      setLog({ ok: true, engine: state.engine.id, selected_path: state.selectedCandidate?.path || "", new_value: newValue });
     } catch (error) {
-      setStatus(error.message || "Gagal mengubah uang.", true);
+      setStatus(error.message || "Gagal mengubah nilai.", true);
       setLog(String(error.stack || error));
     }
   });
@@ -666,9 +488,7 @@ if (el.downloadBtn) {
   el.downloadBtn.addEventListener("click", async () => {
     try {
       if (!state.engine) throw new Error("Upload save dulu.");
-      if (!state.selectedCandidate && state.engine.id !== "renpy") {
-        throw new Error("Pilih candidate dulu.");
-      }
+      if (!state.selectedCandidate) throw new Error("Pilih candidate dulu.");
 
       setStatus("Membuat file save baru...");
 
@@ -676,11 +496,9 @@ if (el.downloadBtn) {
         const result = await state.engine.download({
           file: state.file,
           parsed: null,
-          slug: getSlug(),
-          path: state.selectedCandidate?.path || "",
+          path: state.selectedCandidate.path,
           value: Number(el.newMoney?.value || state.selectedCandidate?.value || 0)
         });
-
         setStatus("Save baru berhasil dibuat.");
         setLog(result || "Download berhasil.");
         return;
@@ -693,17 +511,10 @@ if (el.downloadBtn) {
         helpers
       });
 
-      if (!serialized || !serialized.blob) {
-        throw new Error("Serialize gagal membuat blob.");
-      }
-
+      if (!serialized || !serialized.blob) throw new Error("Serialize gagal membuat blob.");
       downloadBlob(serialized.blob, serialized.fileName || state.file.name);
       setStatus("Save baru berhasil dibuat.");
-      setLog({
-        ok: true,
-        engine: state.engine.id,
-        fileName: serialized.fileName
-      });
+      setLog({ ok: true, engine: state.engine.id, fileName: serialized.fileName });
     } catch (error) {
       setStatus(error.message || "Gagal download save.", true);
       setLog(String(error.stack || error));
@@ -715,5 +526,4 @@ if (el.resetBtn) {
   el.resetBtn.addEventListener("click", resetEditor);
 }
 
-loadRenpyGameList();
 resetEditor();
