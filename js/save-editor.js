@@ -70,8 +70,17 @@ function setLog(data) {
 
 function updateSlugVisibility() {
   if (!el.gameSlugWrap) return;
-  const show = state.engine?.id === "renpy";
-  el.gameSlugWrap.style.display = show ? "" : "none";
+
+  // Sebelum upload file, dropdown slug tetap tampil
+  if (!state.engine) {
+    el.gameSlugWrap.style.display = "";
+    return;
+  }
+
+  // Kalau sudah upload file:
+  // - Ren'Py: tampil
+  // - RPGM: sembunyikan
+  el.gameSlugWrap.style.display = state.engine.id === "renpy" ? "" : "none";
 }
 
 async function loadRenpyGameList() {
