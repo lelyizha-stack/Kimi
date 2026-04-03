@@ -13,6 +13,7 @@ const el = {
   gameSlug: document.getElementById("gameSlug"),
   gameSlugWrap: document.getElementById("gameSlugWrap"),
   candidateList: document.getElementById("candidateList"),
+  candidateSelect: document.getElementById("candidateSelect"),
   selectedPath: document.getElementById("selectedPath"),
   currentMoney: document.getElementById("currentMoney"),
   newMoney: document.getElementById("newMoney"),
@@ -36,6 +37,7 @@ const state = {
 };
 
 const MONEY_RE = /(gold|money|cash|coin|coins|credit|credits|wallet|funds|balance|bank|saldo|uang|duit|emas|เงิน|ทอง|เหรียญ|เครดิต)/i;
+const BAD_GOLD_STAT_RE = /(usedgold|spentgold|costgold|requiregold|needgold|consumegold|paygold|stsgold|_stsusedgold)/i;
 
 function escapeHtml(text) {
   return String(text ?? "").replace(/[&<>"']/g, (m) => ({
@@ -150,6 +152,12 @@ function extOf(fileName) {
 
 function candidateScore(path) {
   const p = String(path || "").toLowerCase();
+
+  if (p === "party._gold") return -20;
+  if (p.endsWith("party._gold")) return -19;
+  if (p === "_gold") return -18;
+  if (p.endsWith("._gold")) return -17;
+
   if (p === "store.money" || p.endsWith(".money")) return 0;
   if (p.includes("money")) return 1;
   if (p === "store.gold" || p.endsWith(".gold")) return 2;
@@ -162,6 +170,7 @@ function candidateScore(path) {
   if (p.includes("balance")) return 9;
   if (p.includes("เงิน") || p.includes("uang") || p.includes("duit")) return 10;
   if (p.includes("ทอง") || p.includes("emas")) return 11;
+
   return 50;
 }
 
@@ -182,6 +191,19 @@ function defaultScanCandidates(root) {
   const out = [];
   const seen = new Set();
 
+  function pushCandidate(nextKeyChain, path, value) {
+    if (!isNumericValue(value)) return;
+    if (!MONEY_RE.test(path)) return;
+    if (BAD_GOLD_STAT_RE.test(path)) return;
+
+    out.push({
+      keyChain: nextKeyChain,
+      path,
+      value: Number(value),
+      score: candidateScore(path)
+    });
+  }
+
   function walk(node, keyChain = [], depth = 0) {
     if (depth > 8) return;
     if (!isObjectLike(node)) return;
@@ -195,14 +217,7 @@ function defaultScanCandidates(root) {
         const nextKeyChain = [...keyChain, index];
         const path = pathFromKeyChain(nextKeyChain);
 
-        if (isNumericValue(value) && MONEY_RE.test(path)) {
-          out.push({
-            keyChain: nextKeyChain,
-            path,
-            value: Number(value),
-            score: candidateScore(path)
-          });
-        }
+        pushCandidate(nextKeyChain, path, value);
 
         if (isObjectLike(value)) {
           walk(value, nextKeyChain, depth + 1);
@@ -216,14 +231,7 @@ function defaultScanCandidates(root) {
         const nextKeyChain = [...keyChain, key];
         const path = pathFromKeyChain(nextKeyChain);
 
-        if (isNumericValue(value) && MONEY_RE.test(path)) {
-          out.push({
-            keyChain: nextKeyChain,
-            path,
-            value: Number(value),
-            score: candidateScore(path)
-          });
-        }
+        pushCandidate(nextKeyChain, path, value);
 
         if (isObjectLike(value)) {
           walk(value, nextKeyChain, depth + 1);
@@ -236,14 +244,7 @@ function defaultScanCandidates(root) {
       const nextKeyChain = [...keyChain, key];
       const path = pathFromKeyChain(nextKeyChain);
 
-      if (isNumericValue(value) && MONEY_RE.test(path)) {
-        out.push({
-          keyChain: nextKeyChain,
-          path,
-          value: Number(value),
-          score: candidateScore(path)
-        });
-      }
+      pushCandidate(nextKeyChain, path, value);
 
       if (isObjectLike(value)) {
         walk(value, nextKeyChain, depth + 1);
@@ -328,27 +329,45 @@ const helpers = {
 };
 
 function renderCandidates() {
-  if (!el.candidateList) return;
-
-  if (!state.candidates.length) {
-    el.candidateList.innerHTML = `<div class="empty-state">Belum ada candidate. Upload save dulu.</div>`;
-    return;
+  if (el.candidateList) {
+    if (!state.candidates.length) {
+      el.candidateList.innerHTML = `<div class="empty-state">Belum ada candidate. Upload save dulu.</div>`;
+    } else {
+      el.candidateList.innerHTML = state.candidates.map((item) => {
+        const active = item.path === state.selectedCandidate?.path ? "active" : "";
+        return `
+          <button
+            type="button"
+            class="candidate-chip ${active}"
+            data-path="${escapeHtml(item.path)}"
+            data-value="${escapeHtml(item.value)}"
+          >
+            <span>${escapeHtml(item.path)}</span>
+            <strong>${escapeHtml(item.value)}</strong>
+          </button>
+        `;
+      }).join("");
+    }
   }
 
-  el.candidateList.innerHTML = state.candidates.map((item) => {
-    const active = item.path === state.selectedCandidate?.path ? "active" : "";
-    return `
-      <button
-        type="button"
-        class="candidate-chip ${active}"
-        data-path="${escapeHtml(item.path)}"
-        data-value="${escapeHtml(item.value)}"
-      >
-        <span>${escapeHtml(item.path)}</span>
-        <strong>${escapeHtml(item.value)}</strong>
-      </button>
-    `;
-  }).join("");
+  if (el.candidateSelect) {
+    if (!state.candidates.length) {
+      el.candidateSelect.innerHTML = `<option value="">Pilih candidate dulu...</option>`;
+    } else {
+      el.candidateSelect.innerHTML = `
+        <option value="">Pilih candidate manual...</option>
+        ${state.candidates.map((item) => `
+          <option value="${escapeHtml(item.path)}">
+            ${escapeHtml(item.path)} — ${escapeHtml(item.value)}
+          </option>
+        `).join("")}
+      `;
+
+      if (state.selectedCandidate?.path) {
+        el.candidateSelect.value = state.selectedCandidate.path;
+      }
+    }
+  }
 }
 
 function selectCandidate(candidate) {
@@ -359,9 +378,16 @@ function selectCandidate(candidate) {
   if (el.selectedPath) el.selectedPath.value = candidate.path || "";
   if (el.currentMoney) el.currentMoney.value = String(candidate.value ?? "");
   if (el.newMoney) el.newMoney.value = String(candidate.value ?? "");
+  if (el.candidateSelect) el.candidateSelect.value = candidate.path || "";
 
   renderCandidates();
   setStatus(`Candidate dipilih: ${candidate.path}`);
+}
+
+function selectCandidateByPath(path) {
+  const candidate = state.candidates.find((item) => item.path === path);
+  if (!candidate) return;
+  selectCandidate(candidate);
 }
 
 async function detectEngine(file, buffer) {
@@ -408,6 +434,10 @@ function resetEditor() {
   if (el.currentMoney) el.currentMoney.value = "";
   if (el.newMoney) el.newMoney.value = "";
 
+  if (el.candidateSelect) {
+    el.candidateSelect.innerHTML = `<option value="">Pilih candidate dulu...</option>`;
+  }
+
   renderCandidates();
   updateSlugVisibility();
   setStatus("Menunggu file save.");
@@ -420,10 +450,15 @@ if (el.candidateList) {
     if (!btn) return;
 
     const path = btn.dataset.path || "";
-    const candidate = state.candidates.find((item) => item.path === path);
-    if (!candidate) return;
+    selectCandidateByPath(path);
+  });
+}
 
-    selectCandidate(candidate);
+if (el.candidateSelect) {
+  el.candidateSelect.addEventListener("change", (event) => {
+    const path = event.target.value || "";
+    if (!path) return;
+    selectCandidateByPath(path);
   });
 }
 
@@ -483,13 +518,23 @@ if (el.saveFile) {
         }));
       }
 
+      state.selectedCandidate = null;
+
+      if (el.selectedPath) el.selectedPath.value = "";
+      if (el.currentMoney) el.currentMoney.value = "";
+      if (el.newMoney) el.newMoney.value = "";
+
       renderCandidates();
 
-      if (state.candidates.length) {
+      if (state.candidates.length === 1) {
         selectCandidate(state.candidates[0]);
+        setStatus("Hanya 1 candidate ditemukan. Dipilih otomatis.");
+      } else if (state.candidates.length > 1) {
+        setStatus(`Ditemukan ${state.candidates.length} candidate. Pilih manual salah satu dulu.`);
+      } else {
+        setStatus(`Save berhasil dibaca dengan ${state.engine.label}, tapi tidak ada candidate ditemukan.`, true);
       }
 
-      setStatus(`Save berhasil dibaca dengan ${state.engine.label}.`);
       setLog({
         engine: state.engine.id,
         mode: state.mode,
@@ -612,6 +657,9 @@ if (el.downloadBtn) {
   el.downloadBtn.addEventListener("click", async () => {
     try {
       if (!state.engine) throw new Error("Upload save dulu.");
+      if (!state.selectedCandidate && state.engine.id !== "renpy") {
+        throw new Error("Pilih candidate dulu.");
+      }
 
       setStatus("Membuat file save baru...");
 
