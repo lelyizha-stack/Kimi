@@ -23,7 +23,7 @@ function escapeHTML(text) {
 }
 
 async function loadGames() {
-  const baseUrl = "hconst baseUrl = "https://script.google.com/macros/s/AKfycbztLMozkgeZGqk028p9sB0396enUJ3w8CwuE3eTZ9xJkX5wAGEKGYlU7bG7VRYLEaec/exec";
+  const baseUrl = "hconst baseUrl = "https://script.google.com/macros/s/AKfycbyWrwUpmdLpMM-u0yHxbIFw_SEkFiXiXF52BBahIXz178xX-IaywLaowEGPXYq0heKN/exec";
   const sheetName = "sheet1";
 
   const response = await fetch(`${baseUrl}&sheet=${encodeURIComponent(sheetName)}`);
