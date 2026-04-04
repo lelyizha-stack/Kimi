@@ -67,16 +67,23 @@
         </div>
       </a>
 
-      <nav class="main-nav">
-        <a href="./">Home</a>
-        <a href="./donasi.html" class="active">Donasi</a>
-        <a href="./renpy.html">Ren'Py</a>
-        <a href="./rpgm.html">RPGM</a>
-        <a href="./mod.html">Mod</a>
-        <a href="./cheat.html">Cheat</a>
-        <a href="./save-editor.html">Money Editor</a>
-        <a href="./admin-local.html">Admin</a>
-      </nav>
+      <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mainNav" aria-label="Toggle navigation">
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
+
+<nav class="main-nav" id="mainNav">
+  <a href="./">Home</a>
+  <a href="./donasi.html">Donasi</a>
+  <a href="./renpy.html">Ren'Py</a>
+  <a href="./rpgm.html">RPGM</a>
+  <a href="./mod.html">Mod</a>
+  <a href="./cheat.html">Cheat</a>
+  <a href="./save-editor.html" class="active">Save Editor</a>
+  <a href="./admin-local.html">Admin</a>
+  <a href="./vip.html">VIP</a>
+</nav>
     </div>
   </header>
 
@@ -184,5 +191,48 @@
       </div>
     </div>
   </footer>
-</body>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const nav = document.getElementById("mainNav");
+  const toggle = document.getElementById("navToggle");
+  if (!nav || !toggle) return;
+
+  const STORAGE_KEY = "kp-mobile-nav-collapsed";
+
+  function isMobile() {
+    return window.matchMedia("(max-width: 768px)").matches;
+  }
+
+  function setState(collapsed) {
+    nav.classList.toggle("is-collapsed", collapsed);
+    toggle.classList.toggle("is-active", !collapsed);
+    toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+  }
+
+  function loadState() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === null) return true;
+    return saved === "1";
+  }
+
+  function applyResponsiveState() {
+    if (isMobile()) {
+      setState(loadState());
+    } else {
+      nav.classList.remove("is-collapsed");
+      toggle.classList.remove("is-active");
+      toggle.setAttribute("aria-expanded", "true");
+    }
+  }
+
+  toggle.addEventListener("click", () => {
+    const collapsed = !nav.classList.contains("is-collapsed");
+    setState(collapsed);
+    localStorage.setItem(STORAGE_KEY, collapsed ? "1" : "0");
+  });
+
+  window.addEventListener("resize", applyResponsiveState);
+  applyResponsiveState();
+});
+</script></body>
 </html>

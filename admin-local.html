@@ -1,58 +1,520 @@
-<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin Lokal - Karbit Prime</title><link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"></head><body><header class="site-header"><div class="container header-inner"><a href="./" class="logo-wrap"><div class="logo-mark">KP</div><div class="logo-text"><span class="logo-title">Karbit Prime</span><span class="logo-sub">TL Indo • Mod • Cheat</span></div></a><button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mainNav" aria-label="Toggle navigation">
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin / Login VIP - Karbit Prime</title>
+  <meta name="description" content="Halaman login member, buat member baru, dan aktivasi key VIP Karbit Prime.">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <style>
+    .member-shell{
+      padding: 32px 0 60px;
+    }
+
+    .member-hero{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:22px;
+      align-items:center;
+      padding:28px;
+      border-radius:24px;
+      background:
+        radial-gradient(circle at top right, rgba(255, 95, 162, 0.18), transparent 32%),
+        linear-gradient(135deg, rgba(20, 24, 38, 0.98), rgba(13, 17, 28, 0.98));
+      border:1px solid rgba(255,255,255,0.07);
+      box-shadow:0 20px 50px rgba(0,0,0,0.28);
+      margin-bottom:24px;
+    }
+
+    .member-hero h1{
+      margin:0 0 14px;
+      font-size:clamp(28px,4vw,42px);
+      line-height:1.12;
+      color:#fff;
+    }
+
+    .member-hero h1 span{
+      color:#ff77b7;
+    }
+
+    .member-hero p{
+      margin:0;
+      color:rgba(255,255,255,0.82);
+      line-height:1.7;
+    }
+
+    .hero-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.08);
+      color:#ffd7e7;
+      font-size:14px;
+      font-weight:700;
+      margin-bottom:16px;
+    }
+
+    .member-hero-icon{
+      min-height:220px;
+      border-radius:22px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+      border:1px solid rgba(255,255,255,0.08);
+      font-size:clamp(54px, 10vw, 96px);
+    }
+
+    .member-chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .member-chip{
+      padding:9px 13px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.08);
+      color:#fff;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .member-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);
+      gap:22px;
+    }
+
+    .member-card{
+      background:rgba(15,20,32,0.98);
+      border:1px solid rgba(255,255,255,0.07);
+      border-radius:22px;
+      padding:22px;
+      box-shadow:0 14px 30px rgba(0,0,0,0.22);
+    }
+
+    .member-card h2,
+    .member-card h3{
+      margin:0 0 10px;
+      color:#fff;
+    }
+
+    .member-copy{
+      margin:0 0 18px;
+      color:rgba(255,255,255,0.76);
+      line-height:1.7;
+    }
+
+    .member-form-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:16px;
+    }
+
+    .full{
+      grid-column:1 / -1;
+    }
+
+    .field-label{
+      display:block;
+      font-size:13px;
+      font-weight:700;
+      margin-bottom:8px;
+      color:#ffd7e7;
+    }
+
+    .member-input{
+      width:100%;
+      min-height:48px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.04);
+      color:#fff;
+      outline:none;
+      box-sizing:border-box;
+    }
+
+    .member-input::placeholder{
+      color:rgba(255,255,255,0.42);
+    }
+
+    .member-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:8px;
+    }
+
+    .member-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:46px;
+      padding:0 16px;
+      border-radius:14px;
+      border:1px solid transparent;
+      cursor:pointer;
+      text-decoration:none;
+      font-weight:700;
+      transition:.2s ease;
+    }
+
+    .member-btn-primary{
+      background:linear-gradient(135deg, #ff5aa5, #ff7db7);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(255, 90, 165, 0.24);
+    }
+
+    .member-btn-primary:hover{
+      transform:translateY(-1px);
+      box-shadow:0 14px 26px rgba(255, 90, 165, 0.28);
+    }
+
+    .member-btn-secondary{
+      background:rgba(255,255,255,0.05);
+      color:#fff;
+      border-color:rgba(255,255,255,0.08);
+    }
+
+    .member-btn-secondary:hover{
+      background:rgba(255,255,255,0.08);
+      transform:translateY(-1px);
+    }
+
+    .member-divider{
+      height:1px;
+      background:rgba(255,255,255,0.08);
+      margin:22px 0;
+    }
+
+    .status-box{
+      padding:14px 16px;
+      border-radius:16px;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.07);
+      color:rgba(255,255,255,0.82);
+      line-height:1.7;
+    }
+
+    .status-box .mini-row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 0;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+
+    .status-box .mini-row:last-child{
+      border-bottom:0;
+    }
+
+    .status-box strong{
+      color:#fff;
+    }
+
+    .status-note{
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.03);
+      color:rgba(255,255,255,0.72);
+      line-height:1.65;
+    }
+
+    .footer-social-only{
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      padding-top:18px;
+      padding-bottom:28px;
+    }
+
+    .footer-brand h3,
+    .footer-brand p{
+      margin:0;
+      color:#fff;
+    }
+
+    .footer-brand p{
+      margin-top:6px;
+      color:rgba(255,255,255,0.7);
+    }
+
+    .footer-social-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0, 1fr));
+      gap:12px;
+    }
+
+    .social-box{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      min-height:52px;
+      border-radius:16px;
+      text-decoration:none;
+      color:#fff;
+      font-weight:700;
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.05);
+    }
+
+    .social-box.facebook{ background:rgba(24, 119, 242, 0.18); }
+    .social-box.x{ background:rgba(255,255,255,0.08); }
+    .social-box.instagram{ background:rgba(225, 48, 108, 0.18); }
+    .social-box.youtube{ background:rgba(255, 0, 0, 0.18); }
+
+    @media (max-width:980px){
+      .member-hero,
+      .member-layout{
+        grid-template-columns:1fr;
+      }
+
+      .footer-social-grid{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width:640px){
+      .member-form-grid{
+        grid-template-columns:1fr;
+      }
+
+      .member-actions{
+        flex-direction:column;
+      }
+
+      .member-btn{
+        width:100%;
+      }
+
+      .footer-social-grid{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="./" class="logo-wrap">
+        <div class="logo-mark">KP</div>
+        <div class="logo-text">
+          <span class="logo-title">Karbit Prime</span>
+          <span class="logo-sub">TL Indo • Mod • Cheat</span>
+        </div>
+      </a>
+
+      <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mainNav" aria-label="Toggle navigation">
   <span></span>
   <span></span>
   <span></span>
 </button>
 
-<nav class="main-nav" id="mainNav"><a href="./">Home</a><a href="./donasi.html">Donasi</a><a href="./renpy.html">Ren'Py</a><a href="./rpgm.html">RPGM</a><a href="./mod.html">Mod</a><a href="./cheat.html">Cheat</a><a href="./save-editor.html">Money Editor</a><a href="./admin-local.html" class="active">Admin</a></nav></div></header><main class="page-shell"><div class="container"><section class="page-hero"><div class="page-copy"><div class="hero-badge">🛠 Admin Lokal</div><h1>Tambah game baru lalu <span>export games.json</span></h1><p>Halaman ini tidak langsung menulis ke GitHub Pages, tapi bisa dipakai untuk input cepat lewat browser lalu export data baru. Cocok sebagai langkah sebelum web admin penuh.</p><div class="toolbar" style="margin-top:20px"><span class="chip">Import data</span><span class="chip">Tambah game</span><span class="chip">Export JSON</span></div></div><div class="page-icon">🛠</div></section><div class="admin-grid"><section class="admin-panel"><h2 style="margin-top:0">Form Game Baru</h2><p class="admin-help">Isi data di bawah. Category, genre, platform, link gambar, dan link download akan masuk ke katalog otomatis setelah file JSON diganti.</p><div class="admin-actions" style="margin:16px 0 20px"><label class="btn btn-secondary" for="importJson">Import games.json</label><input id="importJson" type="file" accept=".json" hidden><button id="loadCurrentData" class="btn btn-secondary" type="button">Load data situs sekarang</button><button id="exportJson" class="btn btn-primary" type="button">Export games.json</button></div><form id="gameForm" class="admin-form-grid"><label class="filter-control full"><span class="filter-label">Judul</span><input class="admin-input" name="title" required></label><label class="filter-control"><span class="filter-label">Category</span><select class="filter-select" name="category" required><option value="renpy">Ren'Py</option><option value="rpgm">RPGM</option><option value="mod">Mod</option><option value="cheat">Cheat</option></select></label><label class="filter-control"><span class="filter-label">Genre (pisahkan koma)</span><input class="admin-input" name="genres" placeholder="Adventure, Fantasy, Sci-Fi" required></label><div class="filter-control full"><span class="filter-label">Platform</span><div class="checkbox-row"><label><input type="checkbox" name="platform" value="Windows"> Windows</label><label><input type="checkbox" name="platform" value="Android"> Android</label></div></div><label class="filter-control"><span class="filter-label">Versi</span><input class="admin-input" name="version" placeholder="v1.0"></label><label class="filter-control"><span class="filter-label">Ukuran</span><input class="admin-input" name="size" placeholder="650 MB"></label><label class="filter-control"><span class="filter-label">Bahasa</span><input class="admin-input" name="language" placeholder="English / Multi / TL Indo"></label><label class="filter-control"><span class="filter-label">Status</span><input class="admin-input" name="status" placeholder="Updated / Ongoing / Completed"></label><label class="filter-control"><span class="filter-label">Emoji</span><input class="admin-input" name="emoji" placeholder="🎮"></label><label class="filter-control"><span class="filter-label">Link Gambar</span><input class="admin-input" name="image" placeholder="https://..."></label><label class="filter-control"><span class="filter-label">Link Detail (opsional)</span><input class="admin-input" name="detailUrl" placeholder="./posts/renpy/sample.html"></label><label class="filter-control">
-  <span class="filter-label">Download Windows</span>
-  <input class="admin-input" name="downloadWindows" placeholder="https://... / ./files/sample-win.zip">
-</label>
+<nav class="main-nav" id="mainNav">
+  <a href="./">Home</a>
+  <a href="./donasi.html">Donasi</a>
+  <a href="./renpy.html">Ren'Py</a>
+  <a href="./rpgm.html">RPGM</a>
+  <a href="./mod.html">Mod</a>
+  <a href="./cheat.html">Cheat</a>
+  <a href="./save-editor.html" class="active">Save Editor</a>
+  <a href="./admin-local.html">Admin</a>
+  <a href="./vip.html">VIP</a>
+</nav>
+    </div>
+  </header>
 
-<label class="filter-control">
-  <span class="filter-label">Download Android</span>
-  <input class="admin-input" name="downloadAndroid" placeholder="https://... / ./files/sample-android.apk">
-</label><label class="filter-control full"><span class="filter-label">Deskripsi</span><textarea class="admin-textarea" name="description" required></textarea></label><div class="admin-actions full"><button class="btn btn-primary" type="submit">Tambah ke daftar lokal</button><button class="btn btn-secondary" type="reset">Reset Form</button></div></form></section><aside class="admin-preview"><h2 style="margin-top:0">Preview Data</h2><p class="small-muted">Preview ini diambil dari data lokal di browser. Setelah cocok, export lalu timpa file <b>data/games.json</b> di repo.</p><div class="admin-actions" style="margin:16px 0"><button id="copyEntry" class="btn btn-secondary" type="button">Copy Entry Terakhir</button><button id="clearLocal" class="btn btn-secondary" type="button">Hapus Local Cache</button></div><div id="entryPreview" class="preview-json">{ "status": "Belum ada entry baru" }</div><h3 style="margin:22px 0 10px">Ringkasan Data Lokal</h3><div id="localSummary" class="admin-card-list"></div></aside></div></div></main><script src="./admin-local.js"></script><script>
-document.addEventListener("DOMContentLoaded", () => {
-  const nav = document.getElementById("mainNav");
-  const toggle = document.getElementById("navToggle");
-  if (!nav || !toggle) return;
+  <main class="member-shell">
+    <div class="container">
+      <section class="member-hero">
+        <div>
+          <div class="hero-badge">🪪 Member Center</div>
+          <h1>Login <span>ID Member</span>, buat member baru, dan aktifkan key VIP</h1>
+          <p>
+            Halaman ini dipakai untuk login member, membuat member baru, dan memasukkan key untuk
+            membuka atau memperpanjang durasi VIP.
+          </p>
 
-  const STORAGE_KEY = "kp-mobile-nav-collapsed";
+          <div class="member-chip-row">
+            <span class="member-chip">Login ID</span>
+            <span class="member-chip">Buat Member</span>
+            <span class="member-chip">Aktifkan Key</span>
+          </div>
+        </div>
 
-  function isMobile() {
-    return window.matchMedia("(max-width: 768px)").matches;
-  }
+        <div class="member-hero-icon">🪪</div>
+      </section>
 
-  function setState(collapsed) {
-    nav.classList.toggle("is-collapsed", collapsed);
-    toggle.classList.toggle("is-active", !collapsed);
-    toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
-  }
+      <section class="member-layout">
+        <section class="member-card">
+          <h2>Login Member</h2>
+          <p class="member-copy">Masuk dengan Member ID dan password. VIP hanya terbuka jika login benar dan durasi masih aktif.</p>
 
-  function loadState() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === null) return true;
-    return saved === "1";
-  }
+          <div class="member-form-grid">
+            <label class="full">
+              <span class="field-label">Member ID</span>
+              <input id="memberCode" class="member-input" type="text" placeholder="Contoh: VIP-3CCPA5">
+            </label>
 
-  function applyResponsiveState() {
-    if (isMobile()) {
-      setState(loadState());
-    } else {
-      nav.classList.remove("is-collapsed");
-      toggle.classList.remove("is-active");
-      toggle.setAttribute("aria-expanded", "true");
+            <label class="full">
+              <span class="field-label">Password</span>
+              <input id="memberPassword" class="member-input" type="password" placeholder="Masukkan password">
+            </label>
+          </div>
+
+          <div class="member-actions">
+            <button id="loginMemberBtn" class="member-btn member-btn-primary" type="button">Login</button>
+            <button id="logoutMemberBtn" class="member-btn member-btn-secondary" type="button">Logout</button>
+          </div>
+
+          <div class="member-divider"></div>
+
+          <h2>Buat Member Baru</h2>
+          <p class="member-copy">Buat member baru, lalu simpan ID yang keluar. Password dibuat sendiri oleh member.</p>
+
+          <div class="member-form-grid">
+            <label class="full">
+              <span class="field-label">Password Baru</span>
+              <input id="newMemberPassword" class="member-input" type="password" placeholder="Buat password baru">
+            </label>
+
+            <label class="full">
+              <span class="field-label">Ulangi Password</span>
+              <input id="newMemberPasswordConfirm" class="member-input" type="password" placeholder="Ulangi password baru">
+            </label>
+          </div>
+
+          <div class="member-actions">
+            <button id="createMemberBtn" class="member-btn member-btn-secondary" type="button">Buat Member Baru</button>
+          </div>
+
+          <div class="member-divider"></div>
+
+          <h2>Masukkan Key</h2>
+          <p class="member-copy">Masukkan key untuk mengaktifkan atau memperpanjang durasi VIP pada Member ID yang benar.</p>
+
+          <div class="member-form-grid">
+            <label class="full">
+              <span class="field-label">Member ID untuk Key</span>
+              <input id="redeemMemberCode" class="member-input" type="text" placeholder="Masukkan Member ID">
+            </label>
+
+            <label class="full">
+              <span class="field-label">Key VIP</span>
+              <input id="redeemKey" class="member-input" type="text" placeholder="Contoh: KPV-XXXX-XXXXXXXXXXXX-XX">
+            </label>
+          </div>
+
+          <div class="member-actions">
+            <button id="redeemKeyBtn" class="member-btn member-btn-primary" type="button">Aktifkan / Perpanjang</button>
+          </div>
+        </section>
+
+        <aside class="member-card">
+          <h3>Status Member</h3>
+          <div id="vipStatusBox" class="status-box">
+            <div class="mini-row"><span>Login</span><strong>Belum Login</strong></div>
+            <div class="mini-row"><span>Member ID</span><strong>-</strong></div>
+            <div class="mini-row"><span>Status VIP</span><strong>-</strong></div>
+            <div class="mini-row"><span>Expired At</span><strong>-</strong></div>
+          </div>
+
+          <div id="vipStatusNote" class="status-note">
+            Login berhasil tapi VIP masih expired tidak akan membuka halaman VIP. Gunakan key untuk unlock atau memperpanjang durasi.
+          </div>
+        </aside>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-social-only">
+      <div class="footer-brand">
+        <h3>Karbit Prime</h3>
+        <p>©Kimi谢谢, Web Update 2026</p>
+      </div>
+
+      <div class="footer-social-grid">
+        <a class="social-box facebook" href="https://www.facebook.com/share/1Aq9ENw3yA/" target="_blank" rel="noopener noreferrer">
+          <span class="social-icon"><i class="fab fa-facebook-f"></i></span>
+          <span>Facebook</span>
+        </a>
+
+        <a class="social-box x" href="https://x.com/Clariss41005513" target="_blank" rel="noopener noreferrer">
+          <span class="social-icon"><i class="fa-brands fa-x-twitter"></i></span>
+          <span>X</span>
+        </a>
+
+        <a class="social-box instagram" href="https://www.instagram.com/vil_ordx?igsh=eGtzeHVwbGpxNzJu" target="_blank" rel="noopener noreferrer">
+          <span class="social-icon"><i class="fab fa-instagram"></i></span>
+          <span>Instagram</span>
+        </a>
+
+        <a class="social-box youtube" href="https://youtube.com/@izhaahzahra1900?si=lcrSnjrDw92VorWi" target="_blank" rel="noopener noreferrer">
+          <span class="social-icon"><i class="fab fa-youtube"></i></span>
+          <span>YouTube</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const nav = document.getElementById("mainNav");
+    const toggle = document.getElementById("navToggle");
+    if (!nav || !toggle) return;
+
+    const STORAGE_KEY = "kp-mobile-nav-collapsed";
+
+    function isMobile() {
+      return window.matchMedia("(max-width: 768px)").matches;
     }
-  }
 
-  toggle.addEventListener("click", () => {
-    const collapsed = !nav.classList.contains("is-collapsed");
-    setState(collapsed);
-    localStorage.setItem(STORAGE_KEY, collapsed ? "1" : "0");
+    function setState(collapsed) {
+      nav.classList.toggle("is-collapsed", collapsed);
+      toggle.classList.toggle("is-active", !collapsed);
+      toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved === null) return true;
+      return saved === "1";
+    }
+
+    function applyResponsiveState() {
+      if (isMobile()) {
+        setState(loadState());
+      } else {
+        nav.classList.remove("is-collapsed");
+        toggle.classList.remove("is-active");
+        toggle.setAttribute("aria-expanded", "true");
+      }
+    }
+
+    toggle.addEventListener("click", () => {
+      const collapsed = !nav.classList.contains("is-collapsed");
+      setState(collapsed);
+      localStorage.setItem(STORAGE_KEY, collapsed ? "1" : "0");
+    });
+
+    window.addEventListener("resize", applyResponsiveState);
+    applyResponsiveState();
   });
+  </script>
 
-  window.addEventListener("resize", applyResponsiveState);
-  applyResponsiveState();
-});
-</script></body></html>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/admin-vip.js"></script>
+</body>
+</html>

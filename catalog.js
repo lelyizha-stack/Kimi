@@ -3,7 +3,8 @@ const CATEGORY_META = {
   renpy: { title: "Ren'Py", page: "./renpy.html" },
   rpgm: { title: "RPGM", page: "./rpgm.html" },
   mod: { title: "Mod", page: "./mod.html" },
-  cheat: { title: "Cheat", page: "./cheat.html" }
+  cheat: { title: "Cheat", page: "./cheat.html" },
+  vip: { title: "VIP", page: "./vip.html" }
 };
 
 const PAGE_SIZE = {
@@ -38,22 +39,23 @@ async function loadGames() {
       : [];
 
   return rows.map((row) => ({
-    ...row,
-    category: String(row.category || "").trim().toLowerCase(),
-    genres: Array.isArray(row.genres)
-      ? row.genres
-      : String(row.genres || "")
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-    platform: Array.isArray(row.platform)
-      ? row.platform
-      : String(row.platform || "")
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-    createdAt: String(row.createdAt || "").trim()
-  }));
+  ...row,
+  category: String(row.category || "").trim().toLowerCase(),
+  access: String(row.access || "public").trim().toLowerCase(),
+  genres: Array.isArray(row.genres)
+    ? row.genres
+    : String(row.genres || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+  platform: Array.isArray(row.platform)
+    ? row.platform
+    : String(row.platform || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+  createdAt: String(row.createdAt || "").trim()
+}));
 }
 
 function getParams() {
@@ -107,6 +109,12 @@ function filterGames(games, state, pageCategory) {
 
   if (category !== "all") {
     result = result.filter((g) => g.category === category);
+  }
+
+  if (pageCategory === "vip") {
+    result = result.filter((g) => g.access === "vip");
+  } else {
+    result = result.filter((g) => g.access !== "vip");
   }
 
   const q = state.q.trim().toLowerCase();
