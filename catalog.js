@@ -22,11 +22,37 @@ function escapeHTML(text) {
   }[m]));
 }
 
-async function loadGames() {
-  const baseUrl = "hconst baseUrl = "https://script.google.com/macros/s/AKfycbyWrwUpmdLpMM-u0yHxbIFw_SEkFiXiXF52BBahIXz178xX-IaywLaowEGPXYq0heKN/exec";
-  const sheetName = "sheet1";
+function normalizeCsvArray(value) {
+  if (Array.isArray(value)) {
+    return value.map((s) => String(s).trim()).filter(Boolean);
+  }
 
-  const response = await fetch(`${baseUrl}&sheet=${encodeURIComponent(sheetName)}`);
+  return String(value || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function normalizeString(value) {
+  return String(value || "").trim();
+}
+
+function isVipGame(game) {
+  return String(game.access || "public").trim().toLowerCase() === "vip";
+}
+
+function visibleForPage(game, pageCategory) {
+  if (pageCategory === "vip") {
+    return isVipGame(game);
+  }
+  return !isVipGame(game);
+}
+
+async function loadGames() {
+  const baseUrl = "https://script.google.com/macros/s/AKfycbyWrwUpmdLpMM-u0yHxbIFw_SEkFiXiXF52BBahIXz178xX-IaywLaowEGPXYq0heKN/exec";
+  const sheetName = "Sheet1";
+
+  const response = await fetch(`${baseUrl}?sheet=${encodeURIComponent(sheetName)}`);
   if (!response.ok) throw new Error("Gagal memuat data katalog.");
 
   const data = await response.json();
@@ -39,23 +65,26 @@ async function loadGames() {
       : [];
 
   return rows.map((row) => ({
-  ...row,
-  category: String(row.category || "").trim().toLowerCase(),
-  access: String(row.access || "public").trim().toLowerCase(),
-  genres: Array.isArray(row.genres)
-    ? row.genres
-    : String(row.genres || "")
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
-  platform: Array.isArray(row.platform)
-    ? row.platform
-    : String(row.platform || "")
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
-  createdAt: String(row.createdAt || "").trim()
-}));
+    ...row,
+    id: normalizeString(row.id),
+    slug: normalizeString(row.slug),
+    title: normalizeString(row.title || row.judul),
+    category: normalizeString(row.category || row.kategori).toLowerCase(),
+    access: normalizeString(row.access || row.akses || "public").toLowerCase(),
+    genres: normalizeCsvArray(row.genres || row.genre),
+    platform: normalizeCsvArray(row.platform),
+    version: normalizeString(row.version || row.versi),
+    size: normalizeString(row.size || row.ukuran),
+    language: normalizeString(row.language || row.bahasa),
+    status: normalizeString(row.status),
+    emoji: normalizeString(row.emoji),
+    image: normalizeString(row.image || row.gambar),
+    description: normalizeString(row.description || row.deskripsi),
+    detailUrl: normalizeString(row.detailUrl),
+    windowsUrl: normalizeString(row.windowsUrl),
+    androidUrl: normalizeString(row.androidUrl),
+    createdAt: normalizeString(row.createdAt || row.dibuatPada || row.dibuatpada)
+  }));
 }
 
 function getParams() {
@@ -63,7 +92,10 @@ function getParams() {
   return {
     q: sp.get("q") || "",
     category: sp.get("category") || "all",
-    genres: (sp.get("genres") || "").split(",").map(s => s.trim()).filter(Boolean),
+    genres: (sp.get("genres") || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
     platform: sp.get("platform") || "",
     sort: sp.get("sort") || "latest",
     page: Math.max(1, parseInt(sp.get("page") || "1", 10) || 1)
@@ -105,16 +137,10 @@ function uniqueGenres(games, category) {
 
 function filterGames(games, state, pageCategory) {
   const category = activeCategory(pageCategory, state.category);
-  let result = [...games];
+  let result = [...games].filter((g) => visibleForPage(g, pageCategory));
 
   if (category !== "all") {
     result = result.filter((g) => g.category === category);
-  }
-
-  if (pageCategory === "vip") {
-    result = result.filter((g) => g.access === "vip");
-  } else {
-    result = result.filter((g) => g.access !== "vip");
   }
 
   const q = state.q.trim().toLowerCase();
@@ -370,8 +396,10 @@ function bindCatalogPage(allGames) {
 
   if (featuredList) {
     const latest = [...allGames]
+      .filter((g) => visibleForPage(g, pageCategory))
       .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
       .slice(0, 6);
+
     renderList(featuredList, latest);
   }
 
@@ -399,7 +427,8 @@ function bindCatalogPage(allGames) {
     state.sort = sortFilter ? sortFilter.value : state.sort;
 
     const currentCategory = activeCategory(pageCategory, state.category);
-    const availableGenres = renderGenreFilter(genreFilterList, allGames, currentCategory, state.genres);
+    const visibleGames = allGames.filter((g) => visibleForPage(g, pageCategory));
+    const availableGenres = renderGenreFilter(genreFilterList, visibleGames, currentCategory, state.genres);
 
     state.genres = state.genres.filter((genre) => availableGenres.includes(genre));
 
