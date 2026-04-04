@@ -38,10 +38,17 @@ function escapeHtml(text) {
   }[m]));
 }
 
+function parseBool(value) {
+  return value === true || String(value).toLowerCase() === "true";
+}
+
 function formatWIB(isoString) {
   if (!isoString) return "-";
+
   const dt = new Date(isoString);
-  if (Number.isNaN(dt.getTime())) return isoString;
+  if (Number.isNaN(dt.getTime())) {
+    return String(isoString);
+  }
 
   return new Intl.DateTimeFormat("id-ID", {
     dateStyle: "medium",
@@ -218,10 +225,12 @@ async function loginMember() {
   }
 
   if (data?.login_ok) {
+    const isVipActive = parseBool(data.vip_active);
+
     saveSession({
       loggedIn: true,
       memberCode: data.member_code || memberCode,
-      vipActive: !!data.vip_active,
+      vipActive: isVipActive,
       expiresAt: data.expires_at || ""
     });
 
@@ -232,7 +241,7 @@ async function loginMember() {
     setStatusRows({
       loginText: "Sudah Login",
       memberCode: data.member_code || memberCode,
-      vipStatus: data.vip_active ? "Active" : "Expired / Terkunci",
+      vipStatus: isVipActive ? "Active" : "Expired / Terkunci",
       expiresAt: formatWIB(data.expires_at),
       note: data.message || "Login berhasil."
     });
@@ -240,6 +249,7 @@ async function loginMember() {
   }
 
   clearSession();
+
   setStatusRows({
     loginText: "Gagal",
     memberCode: memberCode || "-",
@@ -254,11 +264,13 @@ async function redeemKey() {
   const key = String(el.redeemKey?.value || "").trim();
 
   if (!memberCode || !key) {
+    const session = getSession();
+
     setStatusRows({
-      loginText: getSession().loggedIn ? "Sudah Login" : "Belum Login",
-      memberCode: memberCode || getSession().memberCode || "-",
-      vipStatus: getSession().vipActive ? "Active" : "Expired / Terkunci",
-      expiresAt: formatWIB(getSession().expiresAt),
+      loginText: session.loggedIn ? "Sudah Login" : "Belum Login",
+      memberCode: memberCode || session.memberCode || "-",
+      vipStatus: session.vipActive ? "Active" : "Expired / Terkunci",
+      expiresAt: formatWIB(session.expiresAt),
       note: "Member ID dan key wajib diisi."
     });
     return;
@@ -270,11 +282,13 @@ async function redeemKey() {
   });
 
   if (error) {
+    const session = getSession();
+
     setStatusRows({
-      loginText: getSession().loggedIn ? "Sudah Login" : "Belum Login",
+      loginText: session.loggedIn ? "Sudah Login" : "Belum Login",
       memberCode: memberCode || "-",
-      vipStatus: getSession().vipActive ? "Active" : "Expired / Terkunci",
-      expiresAt: formatWIB(getSession().expiresAt),
+      vipStatus: session.vipActive ? "Active" : "Expired / Terkunci",
+      expiresAt: formatWIB(session.expiresAt),
       note: error.message || "Gagal mengaktifkan key."
     });
     return;
@@ -283,26 +297,29 @@ async function redeemKey() {
   const session = getSession();
 
   if (data?.ok) {
-    if (session.loggedIn && session.memberCode === memberCode) {
-      saveSession({
-        loggedIn: true,
-        memberCode,
-        vipActive: true,
-        expiresAt: data.new_expires_at || session.expiresAt || ""
-      });
+    saveSession({
+      loggedIn: true,
+      memberCode,
+      vipActive: true,
+      expiresAt: data.new_expires_at || data.expires_at || session.expiresAt || ""
+    });
+
+    if (el.memberCode) {
+      el.memberCode.value = memberCode;
     }
 
     setStatusRows({
-      loginText: session.loggedIn && session.memberCode === memberCode ? "Sudah Login" : "Belum Login",
+      loginText: "Sudah Login",
       memberCode,
       vipStatus: "Active",
-      expiresAt: formatWIB(data.new_expires_at),
+      expiresAt: formatWIB(data.new_expires_at || data.expires_at),
       note: data.message || "Key berhasil dipakai."
     });
 
     if (el.redeemKey) {
       el.redeemKey.value = "";
     }
+
     return;
   }
 
