@@ -15,11 +15,10 @@
     };
   }
 
-  function isExpired(expiresAt) {
-    if (!expiresAt) return true;
-    const dt = new Date(expiresAt);
-    if (Number.isNaN(dt.getTime())) return true;
-    return dt.getTime() <= Date.now();
+  function parseDateSafe(value) {
+    if (!value) return null;
+    const dt = new Date(value);
+    return Number.isNaN(dt.getTime()) ? null : dt;
   }
 
   function showPopup(type) {
@@ -56,18 +55,30 @@
 
   document.addEventListener("DOMContentLoaded", () => {
     const session = getSession();
+    console.log("VIP SESSION:", session);
 
-    if (!session.loggedIn || !session.memberCode) {
+    // benar-benar belum login
+    if (!session.memberCode) {
       showPopup("locked");
       return;
     }
 
-    if (!session.vipActive || isExpired(session.expiresAt)) {
-      localStorage.setItem(STORAGE.vipActive, "false");
-      showPopup("expired");
+    // kalau status aktif = true, utamakan buka
+    if (session.vipActive) {
+      const expires = parseDateSafe(session.expiresAt);
+
+      // kalau tanggal valid dan memang sudah lewat, baru expired
+      if (expires && expires.getTime() <= Date.now()) {
+        localStorage.setItem(STORAGE.vipActive, "false");
+        showPopup("expired");
+        return;
+      }
+
+      showContent();
       return;
     }
 
-    showContent();
+    // punya member id tapi vip mati / expired
+    showPopup("expired");
   });
 })();
