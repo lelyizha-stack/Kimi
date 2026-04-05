@@ -430,6 +430,10 @@ textarea {
   gap: 14px;
 }
 
+.filter-grid.compact-grid {
+  grid-template-columns: 2fr repeat(2, minmax(0, 1fr));
+}
+
 .field {
   display: flex;
   flex-direction: column;
@@ -467,13 +471,46 @@ textarea {
 
 .genre-panel {
   margin-top: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.genre-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.genre-toggle {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.genre-toggle:hover {
+  border-color: rgba(124, 140, 255, 0.4);
+  background: rgba(124, 140, 255, 0.10);
+}
+
+.genre-panel-body {
+  margin-top: 12px;
+}
+
+.genre-panel-body[hidden] {
+  display: none !important;
 }
 
 .genre-list {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 12px;
+  margin-top: 0;
 }
 
 .genre-chip {
@@ -682,7 +719,8 @@ textarea {
   }
 
   .hero-grid,
-  .filter-grid {
+  .filter-grid,
+  .filter-grid.compact-grid {
     grid-template-columns: 1fr;
   }
 

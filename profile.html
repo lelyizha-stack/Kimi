@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil - Karbit Prime</title>
+  <meta name="description" content="Profil akun Karbit Prime untuk melihat status login, status VIP, dan akses admin/member.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="./style.css">
+  <style>
+    .profile-shell { padding: 48px 0 72px; }
+    .profile-grid { display:grid; gap:22px; }
+    .profile-hero,
+    .profile-card,
+    .profile-note,
+    .admin-tools,
+    .activity-card {
+      border:1px solid var(--line);
+      border-radius:28px;
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+      box-shadow:var(--shadow);
+    }
+    .profile-hero,
+    .profile-card,
+    .profile-note,
+    .admin-tools,
+    .activity-card { padding:26px; }
+    .profile-hero { display:grid; grid-template-columns:1.15fr .85fr; gap:24px; align-items:stretch; }
+    .profile-hero h1 { margin:18px 0 12px; font-size:clamp(2rem,4.8vw,3.5rem); line-height:1.03; letter-spacing:-.04em; }
+    .profile-hero h1 span { color:#d5dcff; }
+    .profile-hero p,
+    .profile-card p,
+    .profile-note p,
+    .activity-card p,
+    .quick-note,
+    .profile-list li { color:var(--muted); line-height:1.75; }
+    .hero-actions,
+    .profile-pills,
+    .profile-actions,
+    .admin-action-row { display:flex; flex-wrap:wrap; gap:12px; }
+    .profile-pills { margin-top:18px; }
+    .profile-pills span,
+    .status-pill,
+    .tiny-pill {
+      padding:9px 13px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:#dbe3f7;
+      font-size:.84rem;
+    }
+    .profile-side {
+      min-height:100%;
+      border-radius:24px;
+      display:grid;
+      place-items:center;
+      text-align:center;
+      padding:24px;
+      background:linear-gradient(180deg, rgba(124,140,255,.14), rgba(155,107,255,.08));
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .avatar-orb {
+      width:112px;
+      height:112px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      font-size:2rem;
+      font-weight:800;
+      letter-spacing:.04em;
+      background:linear-gradient(135deg, var(--primary), var(--primary-2));
+      color:#fff;
+      box-shadow:0 18px 34px rgba(124,140,255,.32);
+      margin:0 auto 16px;
+    }
+    .profile-side strong { display:block; font-size:1.15rem; margin-bottom:6px; }
+    .profile-layout { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr); gap:22px; }
+    .profile-main-stack, .profile-side-stack { display:grid; gap:22px; }
+    .profile-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .stat-box {
+      padding:18px;
+      border-radius:20px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+    }
+    .stat-box strong { display:block; font-size:1rem; margin-bottom:6px; }
+    .stat-box small { color:var(--muted); line-height:1.5; }
+    .info-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:18px; }
+    .info-item {
+      padding:16px 18px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+    }
+    .info-item span { display:block; font-size:.78rem; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:.05em; }
+    .info-item strong { display:block; font-size:1rem; word-break:break-word; }
+    .profile-list { margin:16px 0 0; padding-left:18px; }
+    .profile-list li + li { margin-top:12px; }
+    .admin-tools[hidden], .member-only[hidden], .guest-only[hidden], .vip-only[hidden] { display:none !important; }
+    .tool-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:18px; }
+    .tool-card {
+      padding:18px;
+      border-radius:20px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+    }
+    .tool-card strong { display:block; margin-bottom:8px; }
+    .tool-card p { margin:0 0 14px; }
+    .tool-card a {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      border-radius:14px;
+      background:rgba(255,255,255,.05);
+      border:1px solid var(--line);
+      color:var(--text);
+      font-weight:700;
+    }
+    .activity-card code {
+      display:block;
+      padding:16px;
+      margin-top:14px;
+      border-radius:18px;
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      color:#dbe3f7;
+      white-space:pre-wrap;
+      word-break:break-word;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size:.82rem;
+      line-height:1.7;
+    }
+    .btn[disabled] {
+      opacity:.55;
+      cursor:not-allowed;
+      pointer-events:none;
+    }
+    .logout-btn { background:rgba(255,255,255,.04); border:1px solid var(--line); color:var(--text); }
+    @media (max-width: 980px) {
+      .profile-hero, .profile-layout, .profile-stats, .tool-grid, .info-grid { grid-template-columns:1fr; }
+    }
+    @media (max-width: 640px) {
+      .hero-actions, .profile-actions, .admin-action-row { flex-direction:column; }
+      .hero-actions .btn, .profile-actions .btn, .admin-action-row .btn { width:100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="./index.html" class="brand" aria-label="Karbit Prime home">
+          <span class="brand-mark">KP</span>
+          <span class="brand-copy">
+            <strong>Karbit Prime</strong>
+            <small>TL Indo • Mod • Cheat</small>
+          </span>
+        </a>
+
+        <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="siteNav" aria-label="Buka menu navigasi">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <nav class="site-nav" id="siteNav">
+          <a href="./index.html">Home</a>
+          <a href="./renpy.html">Ren'Py</a>
+          <a href="./rpgm.html">RPGM</a>
+          <a href="./mod.html">Mod</a>
+          <a href="./cheat.html">Cheat</a>
+          <a href="./vip.html">VIP</a>
+          <a href="./save-editor.html">Save Editor</a>
+          <a href="./donasi.html">Donasi</a>
+          <a class="is-active" href="./profile.html">Profil</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="profile-shell">
+      <div class="container profile-grid">
+        <section class="profile-hero">
+          <div>
+            <span class="eyebrow">Account Center</span>
+            <h1>Satu halaman untuk <span>status akun</span>, VIP, dan akses admin.</h1>
+            <p>Profil dipakai sebagai pusat akun Karbit Prime. Dari sini pengunjung bisa melihat status login, masa aktif VIP, dan nanti dipakai juga untuk login Google/member saat sistem akun sudah dipasang penuh.</p>
+            <div class="profile-pills">
+              <span>Guest</span>
+              <span>Member</span>
+              <span>VIP</span>
+              <span>Admin</span>
+            </div>
+            <div class="hero-actions" style="margin-top:22px;">
+              <a href="./vip.html" class="btn btn-primary">Buka VIP</a>
+              <a href="./donasi.html" class="btn btn-secondary">Donasi</a>
+              <a href="./save-editor.html" class="btn btn-secondary">Save Editor</a>
+            </div>
+          </div>
+          <aside class="profile-side">
+            <div>
+              <div class="avatar-orb" id="profileAvatar">KP</div>
+              <strong id="profileDisplayName">Guest</strong>
+              <p class="quick-note" id="profileRoleLabel">Belum login • akses publik</p>
+            </div>
+          </aside>
+        </section>
+
+        <section class="profile-layout">
+          <div class="profile-main-stack">
+            <section class="profile-card">
+              <span class="eyebrow small">Ringkasan Akun</span>
+              <h2 style="margin:14px 0 10px;">Status saat ini</h2>
+              <p>Halaman ini membaca sesi browser yang tersimpan saat ini. Jadi kalau user login member, VIP, atau admin, statusnya bisa langsung diringkas di sini tanpa membuka halaman lain.</p>
+
+              <div class="profile-stats">
+                <div class="stat-box">
+                  <strong id="loginStatus">Belum login</strong>
+                  <small>Status sesi member pada browser ini.</small>
+                </div>
+                <div class="stat-box">
+                  <strong id="vipStatus">VIP tidak aktif</strong>
+                  <small>Otomatis membaca sesi VIP yang tersimpan.</small>
+                </div>
+                <div class="stat-box">
+                  <strong id="roleStatus">Guest</strong>
+                  <small>Role ditentukan dari sesi member/admin yang ada.</small>
+                </div>
+              </div>
+
+              <div class="info-grid">
+                <div class="info-item">
+                  <span>Member ID</span>
+                  <strong id="memberCodeValue">-</strong>
+                </div>
+                <div class="info-item">
+                  <span>Email</span>
+                  <strong id="memberEmailValue">Belum tersedia</strong>
+                </div>
+                <div class="info-item">
+                  <span>Masa aktif VIP</span>
+                  <strong id="vipExpiryValue">-</strong>
+                </div>
+                <div class="info-item">
+                  <span>Provider / sumber login</span>
+                  <strong id="providerValue">Browser session</strong>
+                </div>
+              </div>
+
+              <div class="profile-actions" style="margin-top:18px;">
+                <a href="./vip.html" class="btn btn-primary">Cek VIP</a>
+                <button id="logoutBtn" class="btn logout-btn" type="button">Logout browser session</button>
+                <button id="googleBtn" class="btn btn-secondary" type="button" disabled>Login Google (coming soon)</button>
+              </div>
+            </section>
+
+            <section class="profile-note guest-only" id="guestBlock">
+              <span class="eyebrow small">Guest View</span>
+              <h2 style="margin:14px 0 10px;">Belum login? Tidak masalah.</h2>
+              <p>Pengunjung biasa tetap bisa melihat Home, kategori Ren'Py, RPGM, Mod, Cheat, Donasi, dan Save Editor. Saat sistem akun Google siap, tombol login bisa dipusatkan di halaman ini.</p>
+              <ul class="profile-list">
+                <li>Halaman publik tetap terbuka untuk semua pengunjung.</li>
+                <li>VIP tetap dikunci sampai status member valid.</li>
+                <li>Nanti login Google/member bisa dipasang di sini sebagai pintu utama akun.</li>
+              </ul>
+            </section>
+
+            <section class="profile-note member-only" id="memberBlock" hidden>
+              <span class="eyebrow small">Member View</span>
+              <h2 style="margin:14px 0 10px;">Member aktif sudah terbaca.</h2>
+              <p>Kalau user sudah punya sesi member, halaman ini bisa dipakai untuk melihat ringkasan akun, status VIP, dan akses cepat ke konten yang relevan.</p>
+              <ul class="profile-list">
+                <li>Buka halaman VIP untuk cek apakah akses sudah benar-benar terbuka.</li>
+                <li>Kalau masa aktif habis, status akan berubah otomatis menjadi expired.</li>
+                <li>Struktur ini juga cocok nanti untuk dipakai bersama login Google.</li>
+              </ul>
+            </section>
+
+            <section class="profile-note vip-only" id="vipBlock" hidden>
+              <span class="eyebrow small">VIP View</span>
+              <h2 style="margin:14px 0 10px;">Akses VIP sedang aktif.</h2>
+              <p>Kalau sesi VIP valid, halaman ini bisa jadi tempat untuk menampilkan ringkasan akses private, masa aktif, teaser premium, atau link cepat menuju konten VIP.</p>
+            </section>
+          </div>
+
+          <aside class="profile-side-stack">
+            <section class="activity-card">
+              <span class="eyebrow small">Live Session</span>
+              <h3 style="margin:14px 0 10px;">Storage yang sedang terbaca</h3>
+              <p>Bagian ini membantu melihat ringkasan sesi browser yang sedang dipakai halaman publik.</p>
+              <code id="sessionDump">Memuat sesi browser...</code>
+            </section>
+
+            <section class="admin-tools" id="adminTools" hidden>
+              <span class="eyebrow small">Admin Tools</span>
+              <h3 style="margin:14px 0 10px;">Akses admin terdeteksi</h3>
+              <p>Kalau sesi admin aktif, bagian ini bisa jadi jalur cepat menuju panel admin terpisah yang ada di subdomain.</p>
+              <div class="tool-grid">
+                <article class="tool-card">
+                  <strong>Generate Keys</strong>
+                  <p>Buat dan kelola key member dari panel admin terpisah.</p>
+                  <a href="https://admin.karbitprime.fun" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-key"></i> Buka Admin</a>
+                </article>
+                <article class="tool-card">
+                  <strong>Upload Game Baru</strong>
+                  <p>Kelola katalog dan update posting dari area admin.</p>
+                  <a href="https://admin.karbitprime.fun" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-from-bracket"></i> Panel Upload</a>
+                </article>
+              </div>
+            </section>
+          </aside>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div>
+          <strong>Karbit Prime</strong>
+          <p>Minimalis, modern, dan tetap fokus ke katalog.</p>
+        </div>
+
+        <div class="footer-links">
+          <a href="./vip.html">VIP</a>
+          <a href="./save-editor.html">Save Editor</a>
+          <a href="./donasi.html">Donasi</a>
+          <a href="./profile.html">Profil</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const nav = document.getElementById("siteNav");
+      const toggle = document.getElementById("navToggle");
+      if (nav && toggle) {
+        toggle.addEventListener("click", () => {
+          const isOpen = nav.classList.toggle("is-open");
+          toggle.classList.toggle("is-active", isOpen);
+          toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        });
+      }
+
+      const STORAGE_KEYS = [
+        "kp_member_logged_in",
+        "kp_member_code",
+        "kp_vip_active",
+        "kp_vip_expires_at",
+        "kp_member_email",
+        "kp_member_name",
+        "kp_member_provider",
+        "kp_member_role",
+        "kp_admin_logged_in",
+        "kp_admin_email"
+      ];
+
+      const get = (key) => localStorage.getItem(key);
+      const bool = (value) => String(value || "").toLowerCase() === "true";
+      const ADMIN_EMAILS = [
+        "admin@karbitprime.fun"
+      ];
+
+      const session = {
+        loggedIn: bool(get("kp_member_logged_in")),
+        memberCode: get("kp_member_code") || "",
+        vipActive: bool(get("kp_vip_active")),
+        expiresAt: get("kp_vip_expires_at") || "",
+        email: get("kp_member_email") || get("kp_admin_email") || "",
+        name: get("kp_member_name") || "",
+        provider: get("kp_member_provider") || "Browser session",
+        memberRole: (get("kp_member_role") || "").toLowerCase(),
+        adminLoggedIn: bool(get("kp_admin_logged_in")),
+        adminEmail: get("kp_admin_email") || ""
+      };
+
+      const parseDate = (value) => {
+        if (!value) return null;
+        const v = String(value).trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+          const dt = new Date(v + "T23:59:59+07:00");
+          return Number.isNaN(dt.getTime()) ? null : dt;
+        }
+        const dt = new Date(v);
+        return Number.isNaN(dt.getTime()) ? null : dt;
+      };
+
+      const expiryDate = parseDate(session.expiresAt);
+      const vipValid = session.vipActive && (!expiryDate || Date.now() <= expiryDate.getTime());
+      const inferredAdmin = session.adminLoggedIn || session.memberRole === "admin" || ADMIN_EMAILS.includes((session.email || "").toLowerCase());
+      const role = inferredAdmin ? "Admin" : vipValid ? "VIP Member" : session.loggedIn ? "Member" : "Guest";
+      const displayName = session.name || session.memberCode || (session.email ? session.email.split("@")[0] : "Guest");
+      const initials = displayName
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0])
+        .join("")
+        .toUpperCase() || "KP";
+
+      const dump = {};
+      STORAGE_KEYS.forEach((key) => {
+        const value = get(key);
+        if (value !== null) dump[key] = value;
+      });
+
+      document.getElementById("profileAvatar").textContent = initials;
+      document.getElementById("profileDisplayName").textContent = displayName;
+      document.getElementById("profileRoleLabel").textContent = inferredAdmin
+        ? "Admin aktif • akses panel tersedia"
+        : vipValid
+          ? "Member VIP • akses premium aktif"
+          : session.loggedIn
+            ? "Member login • akses publik + cek VIP"
+            : "Belum login • akses publik";
+
+      document.getElementById("loginStatus").textContent = session.loggedIn ? "Sudah login" : "Belum login";
+      document.getElementById("vipStatus").textContent = vipValid ? "VIP aktif" : session.vipActive ? "VIP expired" : "VIP tidak aktif";
+      document.getElementById("roleStatus").textContent = role;
+      document.getElementById("memberCodeValue").textContent = session.memberCode || "-";
+      document.getElementById("memberEmailValue").textContent = session.email || "Belum tersedia";
+      document.getElementById("vipExpiryValue").textContent = session.expiresAt || "-";
+      document.getElementById("providerValue").textContent = session.provider || "Browser session";
+      document.getElementById("sessionDump").textContent = Object.keys(dump).length
+        ? JSON.stringify(dump, null, 2)
+        : "Belum ada key session yang tersimpan di browser ini.";
+
+      document.getElementById("guestBlock").hidden = session.loggedIn;
+      document.getElementById("memberBlock").hidden = !session.loggedIn;
+      document.getElementById("vipBlock").hidden = !vipValid;
+      document.getElementById("adminTools").hidden = !inferredAdmin;
+
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
+        location.reload();
+      });
+    });
+  </script>
+</body>
+</html>

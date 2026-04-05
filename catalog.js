@@ -265,6 +265,42 @@ function renderCard(game) {
 }
 
 
+function setupGenreToggle(initialSelectedCount = 0) {
+  const button = document.getElementById("genreToggleBtn");
+  const panel = document.getElementById("genrePanelBody");
+  if (!button || !panel) {
+    return {
+      setSelectedCount() {}
+    };
+  }
+
+  const storageKey = `kp-genre-toggle-${document.body.dataset.page || "page"}-${document.body.dataset.category || "all"}`;
+  let isOpen = sessionStorage.getItem(storageKey) === "1";
+  let selectedCount = initialSelectedCount;
+
+  const sync = () => {
+    panel.hidden = !isOpen;
+    button.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    const baseLabel = isOpen ? "Sembunyikan Genre" : "Tampilkan Genre";
+    button.textContent = selectedCount > 0 ? `${baseLabel} (${selectedCount})` : baseLabel;
+  };
+
+  button.addEventListener("click", () => {
+    isOpen = !isOpen;
+    sessionStorage.setItem(storageKey, isOpen ? "1" : "0");
+    sync();
+  });
+
+  sync();
+
+  return {
+    setSelectedCount(count) {
+      selectedCount = Number(count) || 0;
+      sync();
+    }
+  };
+}
+
 function renderGenreFilters(root, genres, selectedGenres, onToggle) {
   if (!root) return;
   if (!genres.length) {
@@ -350,6 +386,7 @@ async function initCatalog() {
   if (!catalogList) return;
 
   const state = getParams();
+  const genreToggleManager = setupGenreToggle(state.genres.length);
   let games = [];
 
   function applyInputs() {
@@ -375,6 +412,8 @@ async function initCatalog() {
       state.page = 1;
       render();
     });
+
+    genreToggleManager.setSelectedCount(state.genres.length);
 
     if (catalogCount) {
       catalogCount.textContent = `${paged.totalItems} item ditemukan`;

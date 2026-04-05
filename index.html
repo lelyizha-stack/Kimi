@@ -184,9 +184,14 @@
                 </label>
               </div>
 
-              <div class="genre-panel">
-                <span class="genre-label">Genre</span>
-                <div id="genreFilterList" class="genre-list"></div>
+              <div class="genre-panel" data-genre-toggle-root>
+                <div class="genre-panel-head">
+                  <span class="genre-label">Genre</span>
+                  <button id="genreToggleBtn" class="genre-toggle" type="button" aria-expanded="false" aria-controls="genrePanelBody">Tampilkan Genre</button>
+                </div>
+                <div id="genrePanelBody" class="genre-panel-body" hidden>
+                  <div id="genreFilterList" class="genre-list"></div>
+                </div>
               </div>
 
               <div class="filter-actions">
