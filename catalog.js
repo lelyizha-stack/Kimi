@@ -235,6 +235,42 @@ function renderGenrePreview(genres, limit = 3) {
   return visible.join('');
 }
 
+
+function categoryBadgeClass(category) {
+  const key = String(category || '').trim().toLowerCase();
+  return `is-${key || 'default'}`;
+}
+
+function languageBadgeClass(language) {
+  const key = String(language || '').trim().toLowerCase();
+  if (!key) return 'is-language';
+  if (key.includes('indo')) return 'is-language-id';
+  if (key.includes('eng')) return 'is-language-en';
+  return 'is-language';
+}
+
+function platformBadgeClass(platforms) {
+  const values = Array.isArray(platforms)
+    ? platforms.map((item) => String(item || '').trim()).filter(Boolean)
+    : [];
+  const hasAndroid = values.includes('Android');
+  const hasWindows = values.includes('Windows');
+  if (hasAndroid && hasWindows) return 'is-platform-both';
+  if (hasAndroid) return 'is-platform-android';
+  if (hasWindows) return 'is-platform-windows';
+  return 'is-platform';
+}
+
+function statusBadgeClass(status) {
+  const key = String(status || '').trim().toLowerCase();
+  if (key.includes('complete')) return 'is-complete';
+  if (key.includes('finish')) return 'is-complete';
+  if (key.includes('ongoing')) return 'is-ongoing';
+  if (key.includes('update')) return 'is-updated';
+  if (key.includes('hiatus')) return 'is-hiatus';
+  return 'is-default';
+}
+
 function renderImage(game) {
   if (game.image) {
     return `
@@ -263,28 +299,29 @@ function renderCard(game) {
   const languageLabel = game.language ? escapeHTML(game.language) : "Bahasa belum ada";
   const platformLabel = formatPlatformLabel(game.platform);
   const genrePreview = renderGenrePreview(game.genres || [], 3);
+  const statusLabel = game.status ? escapeHTML(game.status) : "Lihat detail lengkap";
 
   return `
-    <article class="catalog-card is-compact">
+    <article class="catalog-card is-compact ${categoryBadgeClass(game.category)}">
       ${renderImage(game)}
       <div class="catalog-card-body">
         <div class="card-topline compact">
-          <span class="card-tag">${escapeHTML(categoryLabel)}</span>
+          <span class="card-tag category-pill ${categoryBadgeClass(game.category)}">${escapeHTML(categoryLabel)}</span>
           <span class="card-version-pill">${versionLabel}</span>
         </div>
 
         <h3>${escapeHTML(game.title)}</h3>
 
         <div class="card-meta compact-main">
-          <span class="card-tag soft info-pill">${languageLabel}</span>
-          ${platformLabel ? `<span class="card-tag soft info-pill">${escapeHTML(platformLabel)}</span>` : ""}
+          <span class="card-tag soft info-pill ${languageBadgeClass(game.language)}">${languageLabel}</span>
+          ${platformLabel ? `<span class="card-tag soft info-pill ${platformBadgeClass(game.platform)}">${escapeHTML(platformLabel)}</span>` : ""}
         </div>
 
         ${genrePreview ? `<div class="card-meta compact-genres">${genrePreview}</div>` : ""}
 
         <div class="card-actions compact">
-          ${game.status ? `<span class="card-status-line">${escapeHTML(game.status)}</span>` : `<span class="card-status-line">Lihat detail lengkap</span>`}
-          <a class="mini-link primary" href="${detail}">Detail</a>
+          <span class="card-status-badge ${statusBadgeClass(game.status)}">${statusLabel}</span>
+          <a class="detail-btn cling-btn" href="${detail}"><span>Detail</span></a>
         </div>
       </div>
     </article>
