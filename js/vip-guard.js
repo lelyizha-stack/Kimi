@@ -17,23 +17,14 @@
 
   function parseDateSafe(value) {
     if (!value) return null;
+    const raw = String(value).trim();
 
-    const v = String(value).trim();
-
-    // format YYYY-MM-DD => anggap aktif sampai akhir hari
-    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
-      const dt = new Date(v + "T23:59:59+07:00");
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+      const dt = new Date(raw + "T23:59:59+07:00");
       return Number.isNaN(dt.getTime()) ? null : dt;
     }
 
-    // format DD/MM/YYYY
-    if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
-      const [dd, mm, yyyy] = v.split("/");
-      const dt = new Date(`${yyyy}-${mm}-${dd}T23:59:59+07:00`);
-      return Number.isNaN(dt.getTime()) ? null : dt;
-    }
-
-    const dt = new Date(v);
+    const dt = new Date(raw);
     return Number.isNaN(dt.getTime()) ? null : dt;
   }
 
@@ -71,13 +62,11 @@
     const session = getSession();
     console.log("VIP SESSION:", session);
 
-    // wajib login
     if (!session.loggedIn) {
       showPopup("locked");
       return;
     }
 
-    // VIP tidak aktif
     if (!session.vipActive) {
       showPopup("expired");
       return;
@@ -85,7 +74,6 @@
 
     const expires = parseDateSafe(session.expiresAt);
 
-    // kalau ada expiry dan sudah lewat
     if (expires && expires.getTime() < Date.now()) {
       localStorage.setItem(STORAGE.vipActive, "false");
       showPopup("expired");
