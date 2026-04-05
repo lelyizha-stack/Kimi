@@ -8,23 +8,19 @@
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <style>
-    .detail-shell{padding:34px 0 64px}
+    .detail-shell{padding:28px 0 64px}
     .detail-wrap{display:grid;gap:22px}
-    .detail-card,.detail-block,.related-panel,.review-panel{
-      background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
-      border:1px solid var(--line);
-      border-radius:24px;
-      box-shadow:var(--shadow);
-      overflow:hidden
-    }
+    .breadcrumb{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0;color:var(--muted);font-size:14px}
+    .breadcrumb a:hover{color:var(--text)}
+    .detail-card,.detail-block,.related-panel,.review-panel{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);overflow:hidden}
     .detail-top{display:grid;gap:0}
-    .detail-cover{position:relative;min-height:280px;background:rgba(255,255,255,.03)}
+    .detail-cover{position:relative;min-height:300px;background:rgba(255,255,255,.03)}
     .detail-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-    .detail-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.55))}
+    .detail-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.02),rgba(0,0,0,.55))}
     .detail-emoji{position:absolute;left:18px;bottom:18px;z-index:2;width:60px;height:60px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:28px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(10px)}
     .detail-body{padding:22px}
     .detail-title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px}
-    .detail-title-row h1{margin:0;font-size:clamp(30px,4vw,42px);line-height:1.1}
+    .detail-title-row h1{margin:0;font-size:clamp(30px,4vw,42px);line-height:1.12}
     .share-btn{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;border:1px solid rgba(255,255,255,.08);background:rgba(62,108,255,.14);color:#dfe7ff;padding:12px 14px;border-radius:14px;font-weight:700;cursor:pointer}
     .share-btn:hover{background:rgba(62,108,255,.2)}
     .meta-row,.badge-row,.genre-row,.tag-row,.review-meta,.support-row{display:flex;flex-wrap:wrap;gap:10px}
@@ -43,7 +39,7 @@
     .summary-line{margin:16px 0 0;color:var(--muted);line-height:1.75}
     .meta-row{margin-top:16px;color:var(--muted)}
     .meta-chip{display:inline-flex;align-items:center;gap:8px;color:#d9deef}
-    .detail-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:22px}
+    .detail-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);gap:22px}
     .detail-block,.review-panel,.related-panel{padding:22px}
     .detail-block h2,.review-panel h2,.related-panel h2{margin:0 0 14px;font-size:28px}
     .detail-copy{color:var(--muted);line-height:1.8;font-size:16px}
@@ -59,7 +55,6 @@
     .support-tile{width:72px;height:72px;border-radius:18px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:26px;background:rgba(255,255,255,.05)}
     .support-tile.trakteer{background:rgba(255,85,85,.14);color:#ffdede}
     .support-tile.wa{background:rgba(31,180,98,.14);color:#d4ffea}
-    .support-tile:hover{transform:translateY(-2px)}
     .related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
     .related-card{overflow:hidden;border-radius:20px;border:1px solid var(--line);background:rgba(255,255,255,.03);transition:.2s ease}
     .related-card:hover{transform:translateY(-3px);border-color:rgba(255,79,163,.35)}
@@ -85,28 +80,55 @@
     .review-item{padding:16px 0;border-bottom:1px solid rgba(255,255,255,.06)}
     .review-item:last-child{border-bottom:none;padding-bottom:0}
     .review-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:8px}
-    .review-author{font-weight:700}
-    .review-stars{color:#ffd464}
-    .review-date{font-size:13px;color:#9da7c9}
+    .review-author{font-weight:700}.review-stars{color:#ffd464}.review-date{font-size:13px;color:#9da7c9}
     .not-found,.loading-wrap{text-align:center;padding:42px;color:var(--muted)}
     .not-found{border:1px dashed var(--line-strong);border-radius:24px;background:rgba(255,255,255,.03)}
     .not-found h1{margin:0 0 10px;font-size:34px;color:var(--text)}
     .section-title{display:flex;align-items:center;justify-content:space-between;gap:12px}
     .section-title .pill{font-size:13px;padding:8px 12px}
+
+    /* header repair for old style.css */
+    .site-header{position:sticky;top:0;z-index:1000;background:rgba(7,15,38,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08)}
+    .header-inner{min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:relative}
+    .logo-wrap{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+    .logo-mark{width:50px;height:50px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-weight:800;background:linear-gradient(135deg,#7f93ff,#a06dff);color:#fff;flex:none}
+    .logo-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .logo-title{font-size:18px;font-weight:800;line-height:1.1;color:#f7f7ff}
+    .logo-sub{font-size:12px;color:#bfc8e8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .nav-toggle{display:none;width:48px;height:48px;flex:none;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(255,255,255,.04);align-items:center;justify-content:center;cursor:pointer;position:relative}
+    .nav-toggle span{position:absolute;width:18px;height:2px;background:#fff;border-radius:999px;transition:transform .25s ease,opacity .2s ease,top .25s ease}
+    .nav-toggle span:nth-child(1){top:15px}.nav-toggle span:nth-child(2){top:22px}.nav-toggle span:nth-child(3){top:29px}
+    .nav-toggle.is-active span:nth-child(1){top:22px;transform:rotate(45deg)}
+    .nav-toggle.is-active span:nth-child(2){opacity:0}
+    .nav-toggle.is-active span:nth-child(3){top:22px;transform:rotate(-45deg)}
+    .main-nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+    .main-nav a{padding:10px 14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);border-radius:12px;color:#eef3ff;font-size:14px}
+    .main-nav a:hover{background:rgba(255,255,255,.08)}
+
     @media (max-width:980px){
       .detail-grid,.related-grid,.review-form .row{grid-template-columns:1fr}
       .detail-title-row{flex-direction:column}
       .share-btn{width:100%;justify-content:center}
     }
+    @media (max-width:860px){
+      .nav-toggle{display:flex}
+      .main-nav{position:absolute;top:calc(100% + 10px);right:0;left:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px;background:rgba(8,16,42,.98);border:1px solid rgba(255,255,255,.08);border-radius:22px;box-shadow:0 16px 30px rgba(0,0,0,.3)}
+      .main-nav.is-collapsed{display:none}
+      .main-nav a{text-align:center}
+    }
     @media (max-width:640px){
-      .detail-shell{padding-top:26px}
+      .detail-shell{padding-top:22px}
       .detail-body,.detail-block,.review-panel,.related-panel{padding:18px}
       .detail-cover{min-height:220px}
-      .detail-title-row h1{font-size:30px}
+      .detail-title-row h1{font-size:28px}
       .detail-block h2,.review-panel h2,.related-panel h2{font-size:24px}
       .download-actions .download-btn{width:100%}
       .related-grid{grid-template-columns:1fr}
       .breadcrumb{font-size:13px}
+      .main-nav{grid-template-columns:1fr}
+      .logo-mark{width:44px;height:44px;border-radius:14px}
+      .logo-title{font-size:16px}
+      .logo-sub{font-size:11px;max-width:170px}
     }
   </style>
 </head>
@@ -145,10 +167,7 @@
 
   <footer class="site-footer">
     <div class="container footer-social-only">
-      <div class="footer-brand">
-        <h3>Karbit Prime</h3>
-        <p>©Kimi谢谢, Web Update 2026</p>
-      </div>
+      <div class="footer-brand"><h3>Karbit Prime</h3><p>©Kimi谢谢, Web Update 2026</p></div>
       <div class="footer-social-grid">
         <a class="social-box facebook" href="https://www.facebook.com/share/1Aq9ENw3yA/" target="_blank" rel="noopener noreferrer"><span class="social-icon"><i class="fab fa-facebook-f"></i></span><span>Facebook</span></a>
         <a class="social-box x" href="https://x.com/Clariss41005513" target="_blank" rel="noopener noreferrer"><span class="social-icon"><i class="fa-brands fa-x-twitter"></i></span><span>X</span></a>
@@ -162,257 +181,159 @@
     const APPS_SCRIPT_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMVCqdm-kXhbZ2NlEllCYe7CnbriUv7NbxKBur1iMSfaMiF3tm2-A5jJf2RuXR734zwqG0w-scWiMkbyTZ-nT_VGpr_ft6dOgeVkdmRsUKdKP8FvDtLujTU4B29zCYL0qNtbdkogGbkZf22cyTv4AwkGu5eHJ0zoFioctKSx3YH4aTam4f1w-8CIMLSXiRf0yr3D71MaQcyaopQfGcezNiGKcFz1nR01ngxRk-mUXaMqAJ_pSoLuCtHvRUuPdAWNnHnqbXD-hWgg9CgKDUNKz3GNMHuN5A&lib=M51hLTJXPQ14ZsjBvmZx8t4ZA7c56I8fg&sheet=githubweb_game_update";
 
     function escapeHTML(text) {
-      return String(text ?? "").replace(/[&<>"']/g, (m) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':'&quot;',"'":"&#39;"}[m]));
+      return String(text ?? "").replace(/[&<>"']/g, (m) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
     }
-
     function shortText(text, max=120) {
       const value = String(text || "").trim();
       return value.length <= max ? value : value.slice(0, max).trim() + "...";
     }
-
-    function categoryPage(category) {
-      const map = {renpy:"./renpy.html", rpgm:"./rpgm.html", mod:"./mod.html", cheat:"./cheat.html"};
-      return map[category] || "./";
-    }
-
-    function categoryLabel(category) {
-      const map = {renpy:"Ren'Py", rpgm:"RPGM", mod:"Mod", cheat:"Cheat"};
-      return map[category] || "Katalog";
-    }
-
-    function renderImage(game) {
-      if (game.image && String(game.image).trim()) {
-        return `<img src="${escapeHTML(game.image)}" alt="${escapeHTML(game.title)}">`;
+    function normalizeList(value) {
+      if (Array.isArray(value)) return value.map(v => String(v || '').trim()).filter(Boolean);
+      if (typeof value === 'string') {
+        return value.split(',').map(v => v.trim()).filter(Boolean);
       }
-      return "";
+      return [];
     }
-
-    function normalizeDownloadUrls(game) {
-      const urls = game.downloadUrls && typeof game.downloadUrls === "object" ? game.downloadUrls : {};
-      const legacy = String(game.downloadUrl || "").trim();
-      const platforms = Array.isArray(game.platform) ? game.platform : [];
+    function normalizeText(value) {
+      return String(value || '').trim();
+    }
+    function normalizeGame(raw) {
+      const game = raw && typeof raw === 'object' ? {...raw} : {};
       return {
-        Windows: urls.Windows || ((legacy && platforms.includes("Windows")) ? legacy : ""),
-        Android: urls.Android || ((legacy && platforms.includes("Android")) ? legacy : "")
+        ...game,
+        id: normalizeText(game.id),
+        slug: normalizeText(game.slug),
+        title: normalizeText(game.title || game.judul),
+        category: normalizeText(game.category || game.kategori).toLowerCase(),
+        version: normalizeText(game.version || game.versi),
+        language: normalizeText(game.language || game.bahasa),
+        status: normalizeText(game.status),
+        image: normalizeText(game.image || game.gambar),
+        description: normalizeText(game.description || game.deskripsi),
+        emoji: normalizeText(game.emoji),
+        createdAt: normalizeText(game.createdAt || game.updatedAt || game.dibuatPada),
+        platform: normalizeList(game.platform),
+        genres: normalizeList(game.genres || game.genre),
+        tags: normalizeList(game.tags || game.tag),
+        downloadUrl: normalizeText(game.downloadUrl),
+        windowsUrl: normalizeText(game.windowsUrl),
+        androidUrl: normalizeText(game.androidUrl),
+        downloadUrls: game.downloadUrls && typeof game.downloadUrls === 'object' ? game.downloadUrls : {}
       };
     }
-
+    function categoryPage(category) {
+      const map = {renpy:'./renpy.html', rpgm:'./rpgm.html', mod:'./mod.html', cheat:'./cheat.html'};
+      return map[category] || './';
+    }
+    function categoryLabel(category) {
+      const map = {renpy:"Ren'Py", rpgm:'RPGM', mod:'Mod', cheat:'Cheat'};
+      return map[category] || 'Katalog';
+    }
+    function renderImage(game) {
+      return game.image ? `<img src="${escapeHTML(game.image)}" alt="${escapeHTML(game.title)}">` : '';
+    }
+    function normalizeDownloadUrls(game) {
+      const urls = game.downloadUrls && typeof game.downloadUrls === 'object' ? game.downloadUrls : {};
+      const legacy = normalizeText(game.downloadUrl);
+      const platforms = normalizeList(game.platform);
+      return {
+        Windows: normalizeText(urls.Windows || game.windowsUrl || ((legacy && platforms.includes('Windows')) ? legacy : '')),
+        Android: normalizeText(urls.Android || game.androidUrl || ((legacy && platforms.includes('Android')) ? legacy : ''))
+      };
+    }
     function getPlatformLabel(platforms) {
-      const items = Array.isArray(platforms) ? platforms : [];
-      if (items.includes("Windows") && items.includes("Android")) return "Android • Windows";
-      if (items.includes("Android")) return "Android";
-      if (items.includes("Windows")) return "Windows";
-      return "Platform";
+      const items = normalizeList(platforms);
+      if (items.includes('Windows') && items.includes('Android')) return 'Android • Windows';
+      if (items.includes('Android')) return 'Android';
+      if (items.includes('Windows')) return 'Windows';
+      return 'Platform';
     }
-
     function platformClass(platforms) {
-      const items = Array.isArray(platforms) ? platforms : [];
-      if (items.includes("Windows") && items.includes("Android")) return "platform-both";
-      if (items.includes("Android")) return "platform-android";
-      if (items.includes("Windows")) return "platform-windows";
-      return "";
+      const items = normalizeList(platforms);
+      if (items.includes('Windows') && items.includes('Android')) return 'platform-both';
+      if (items.includes('Android')) return 'platform-android';
+      if (items.includes('Windows')) return 'platform-windows';
+      return '';
     }
-
     function categoryClass(category) {
       return `category-${String(category || '').toLowerCase()}`;
     }
-
     function renderPrimaryBadges(game) {
       const bits = [];
       bits.push(`<span class="pill ${escapeHTML(categoryClass(game.category))}"><i class="fa-solid fa-gamepad"></i>${escapeHTML(categoryLabel(game.category))}</span>`);
       if (game.version) bits.push(`<span class="pill version"><i class="fa-solid fa-code-branch"></i>${escapeHTML(game.version)}</span>`);
       if (game.language) bits.push(`<span class="pill language"><i class="fa-solid fa-language"></i>${escapeHTML(game.language)}</span>`);
-      bits.push(`<span class="pill ${escapeHTML(platformClass(game.platform))}"><i class="fa-solid fa-mobile-screen-button"></i>${escapeHTML(getPlatformLabel(game.platform))}</span>`);
+      const pClass = platformClass(game.platform);
+      bits.push(`<span class="pill ${escapeHTML(pClass)}"><i class="fa-solid fa-mobile-screen-button"></i>${escapeHTML(getPlatformLabel(game.platform))}</span>`);
       return bits.join('');
     }
-
     function renderGenreChips(game) {
-      return (game.genres || []).map((genre) => `<span class="pill genre">${escapeHTML(genre)}</span>`).join("");
+      const genres = normalizeList(game.genres);
+      return genres.map((genre) => `<span class="pill genre">${escapeHTML(genre)}</span>`).join('');
     }
-
     function renderTagChips(game) {
       const tags = [];
       if (game.status) tags.push(`<span class="pill tag">#${escapeHTML(game.status)}</span>`);
-      const extraTags = Array.isArray(game.tags) ? game.tags : [];
-      return tags.concat(extraTags.map((item) => `<span class="pill tag">#${escapeHTML(item)}</span>`)).join('');
+      return tags.concat(normalizeList(game.tags).map((item) => `<span class="pill tag">#${escapeHTML(item)}</span>`)).join('');
     }
-
     function getStoredReviews(slug) {
       try {
         const raw = localStorage.getItem(`kp_reviews_${slug}`);
         const parsed = raw ? JSON.parse(raw) : [];
         return Array.isArray(parsed) ? parsed : [];
-      } catch {
-        return [];
-      }
+      } catch { return []; }
     }
-
     function saveStoredReviews(slug, reviews) {
       localStorage.setItem(`kp_reviews_${slug}`, JSON.stringify(reviews));
     }
-
     function getAuthState() {
       const admin = localStorage.getItem('kp_admin_logged_in') === 'true';
       const member = localStorage.getItem('kp_member_logged_in') === 'true';
       const email = localStorage.getItem('kp_member_email') || '';
       const code = localStorage.getItem('kp_member_code') || '';
-      return {
-        loggedIn: admin || member,
-        name: email || code || (admin ? 'Admin' : 'Member')
-      };
+      return { loggedIn: admin || member, name: email || code || (admin ? 'Admin' : 'Member') };
     }
-
     function formatDate(dateValue) {
       if (!dateValue) return '-';
       const dt = new Date(dateValue);
       if (Number.isNaN(dt.getTime())) return String(dateValue);
       return dt.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
     }
-
     function averageRating(reviews) {
       if (!reviews.length) return 0;
       const total = reviews.reduce((sum, item) => sum + Number(item.rating || 0), 0);
       return total / reviews.length;
     }
-
     function starsMarkup(value) {
       const rounded = Math.round(Number(value || 0));
       let out = '';
       for (let i=1;i<=5;i++) out += i <= rounded ? '★' : '☆';
       return out;
     }
-
     function renderDownloadSection(game) {
       const urls = normalizeDownloadUrls(game);
       const blocks = [];
-      if (urls.Android) {
-        blocks.push(`
-          <div class="download-card">
-            <h3>Android</h3>
-            <div class="download-actions">
-              <a href="${escapeHTML(urls.Android)}" class="download-btn primary" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-download"></i>Download Android</a>
-            </div>
-          </div>
-        `);
-      }
-      if (urls.Windows) {
-        blocks.push(`
-          <div class="download-card">
-            <h3>Windows</h3>
-            <div class="download-actions">
-              <a href="${escapeHTML(urls.Windows)}" class="download-btn secondary" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-download"></i>Download Windows</a>
-            </div>
-          </div>
-        `);
-      }
-      if (!blocks.length) {
-        blocks.push(`
-          <div class="download-card">
-            <h3>Link Download</h3>
-            <div class="download-actions">
-              <span class="download-btn neutral">Belum tersedia</span>
-            </div>
-          </div>
-        `);
-      }
+      if (urls.Android) blocks.push(`<div class="download-card"><h3>Android</h3><div class="download-actions"><a href="${escapeHTML(urls.Android)}" class="download-btn primary" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-download"></i>Download Android</a></div></div>`);
+      if (urls.Windows) blocks.push(`<div class="download-card"><h3>Windows</h3><div class="download-actions"><a href="${escapeHTML(urls.Windows)}" class="download-btn secondary" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-download"></i>Download Windows</a></div></div>`);
+      if (!blocks.length) blocks.push(`<div class="download-card"><h3>Link Download</h3><div class="download-actions"><span class="download-btn neutral">Belum tersedia</span></div></div>`);
       return blocks.join('');
     }
-
     function renderRelatedCard(game) {
       const detailUrl = `./detail.html?slug=${encodeURIComponent(game.slug || '')}`;
-      return `
-        <article class="related-card">
-          <div class="related-cover">
-            ${renderImage(game)}
-            <div class="related-emoji">${escapeHTML(game.emoji || '🎮')}</div>
-          </div>
-          <div class="related-body">
-            <div class="badge-row" style="margin-bottom:10px">${renderPrimaryBadges(game)}</div>
-            <h3>${escapeHTML(game.title || '')}</h3>
-            <p>${escapeHTML(shortText(game.description || '', 96))}</p>
-            <div class="download-actions" style="margin-top:14px">
-              <a href="${escapeHTML(detailUrl)}" class="download-btn neutral">Detail</a>
-            </div>
-          </div>
-        </article>
-      `;
+      return `<article class="related-card"><div class="related-cover">${renderImage(game)}<div class="related-emoji">${escapeHTML(game.emoji || '🎮')}</div></div><div class="related-body"><div class="badge-row" style="margin-bottom:10px">${renderPrimaryBadges(game)}</div><h3>${escapeHTML(game.title || '')}</h3><p>${escapeHTML(shortText(game.description || '', 96))}</p><div class="download-actions" style="margin-top:14px"><a href="${escapeHTML(detailUrl)}" class="download-btn neutral">Detail</a></div></div></article>`;
     }
-
     function renderReviewItems(reviews) {
-      if (!reviews.length) {
-        return `<div class="empty-reviews"><p>Belum ada ulasan untuk game ini.</p></div>`;
-      }
-      return `<div class="review-list">${reviews.map((item) => `
-        <article class="review-item">
-          <div class="review-head">
-            <div>
-              <div class="review-author">${escapeHTML(item.author || 'Member')}</div>
-              <div class="review-date">${escapeHTML(formatDate(item.createdAt))}</div>
-            </div>
-            <div class="review-stars">${starsMarkup(item.rating)}</div>
-          </div>
-          <p>${escapeHTML(item.text || '')}</p>
-        </article>
-      `).join('')}</div>`;
+      if (!reviews.length) return `<div class="empty-reviews"><p>Belum ada ulasan untuk game ini.</p></div>`;
+      return `<div class="review-list">${reviews.map((item) => `<article class="review-item"><div class="review-head"><div><div class="review-author">${escapeHTML(item.author || 'Member')}</div><div class="review-date">${escapeHTML(formatDate(item.createdAt))}</div></div><div class="review-stars">${starsMarkup(item.rating)}</div></div><p>${escapeHTML(item.text || '')}</p></article>`).join('')}</div>`;
     }
-
     function renderReviewSection(game, reviews) {
       const auth = getAuthState();
       const avg = averageRating(reviews);
-      return `
-        <section class="review-panel" id="reviewSection">
-          <div class="section-title">
-            <h2>Ulasan</h2>
-            <span class="pill tag"><i class="fa-regular fa-star"></i>${reviews.length} ulasan</span>
-          </div>
-          <div class="review-meta">
-            <span class="meta-chip"><i class="fa-regular fa-star"></i>${starsMarkup(avg)} (${reviews.length})</span>
-            <span class="meta-chip"><i class="fa-solid fa-user-pen"></i>${auth.loggedIn ? escapeHTML(auth.name) : 'Belum login'}</span>
-          </div>
-          ${auth.loggedIn ? `
-            <form class="review-form" id="reviewForm">
-              <div class="row">
-                <div>
-                  <label for="reviewRating">Rating</label>
-                  <select id="reviewRating" required>
-                    <option value="5">5 ★</option>
-                    <option value="4">4 ★</option>
-                    <option value="3">3 ★</option>
-                    <option value="2">2 ★</option>
-                    <option value="1">1 ★</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="reviewText">Tulis ulasan</label>
-                  <textarea id="reviewText" maxlength="200" placeholder="Tulis ulasan Anda..."></textarea>
-                </div>
-              </div>
-              <button type="submit" class="review-submit">Kirim</button>
-              <div class="review-note">Ulasan sementara disimpan di browser ini sampai sistem backend ulasan dipasang.</div>
-            </form>
-          ` : `
-            <div class="review-gate">
-              <p>Login dulu untuk membuka form ulasan dan menulis pendapatmu tentang game ini.</p>
-              <a href="./profile.html" class="btn-login"><i class="fa-brands fa-google"></i>Login dari Profil</a>
-            </div>
-          `}
-          ${renderReviewItems(reviews)}
-        </section>
-      `;
+      return `<section class="review-panel" id="reviewSection"><div class="section-title"><h2>Ulasan</h2><span class="pill tag"><i class="fa-regular fa-star"></i>${reviews.length} ulasan</span></div><div class="review-meta"><span class="meta-chip"><i class="fa-regular fa-star"></i>${starsMarkup(avg)} (${reviews.length})</span><span class="meta-chip"><i class="fa-solid fa-user-pen"></i>${auth.loggedIn ? escapeHTML(auth.name) : 'Belum login'}</span></div>${auth.loggedIn ? `<form class="review-form" id="reviewForm"><div class="row"><div><label for="reviewRating">Rating</label><select id="reviewRating" required><option value="5">5 ★</option><option value="4">4 ★</option><option value="3">3 ★</option><option value="2">2 ★</option><option value="1">1 ★</option></select></div><div><label for="reviewText">Tulis ulasan</label><textarea id="reviewText" maxlength="200" placeholder="Tulis ulasan Anda..."></textarea></div></div><button type="submit" class="review-submit">Kirim</button><div class="review-note">Ulasan sementara disimpan di browser ini sampai sistem backend ulasan dipasang.</div></form>` : `<div class="review-gate"><p>Login dulu untuk membuka form ulasan dan menulis pendapatmu tentang game ini.</p><a href="./profile.html" class="btn-login"><i class="fa-brands fa-google"></i>Login dari Profil</a></div>`}${renderReviewItems(reviews)}</section>`;
     }
-
     function renderNotFound(app, slug) {
-      app.innerHTML = `
-        <div class="not-found">
-          <h1>Game tidak ditemukan</h1>
-          <p>Slug <b>${escapeHTML(slug || '-')}</b> tidak ditemukan di katalog.</p>
-          <div class="download-actions" style="justify-content:center;margin-top:18px">
-            <a href="./" class="download-btn secondary">Kembali ke Home</a>
-          </div>
-        </div>
-      `;
+      app.innerHTML = `<div class="not-found"><h1>Game tidak ditemukan</h1><p>Slug <b>${escapeHTML(slug || '-')}</b> tidak ditemukan di katalog.</p><div class="download-actions" style="justify-content:center;margin-top:18px"><a href="./" class="download-btn secondary">Kembali ke Home</a></div></div>`;
     }
-
     function initReviewForm(slug) {
       const form = document.getElementById('reviewForm');
       if (!form) return;
@@ -428,104 +349,34 @@
         window.location.reload();
       });
     }
-
     function renderDetail(app, game, allGames) {
-      const slug = String(game.slug || '').trim();
+      const slug = normalizeText(game.slug);
       const reviews = getStoredReviews(slug);
-      const currentSlug = String(game.slug || '').trim().toLowerCase();
-      const currentTitle = String(game.title || '').trim().toLowerCase();
-      const currentId = String(game.id || '').trim().toLowerCase();
+      const currentSlug = normalizeText(game.slug).toLowerCase();
+      const currentTitle = normalizeText(game.title).toLowerCase();
+      const currentId = normalizeText(game.id).toLowerCase();
+      const currentGenres = normalizeList(game.genres);
       const related = allGames
         .filter((item) => {
-          const itemSlug = String(item.slug || '').trim().toLowerCase();
-          const itemTitle = String(item.title || '').trim().toLowerCase();
-          const itemId = String(item.id || '').trim().toLowerCase();
+          const itemSlug = normalizeText(item.slug).toLowerCase();
+          const itemTitle = normalizeText(item.title).toLowerCase();
+          const itemId = normalizeText(item.id).toLowerCase();
           if (itemSlug && currentSlug && itemSlug === currentSlug) return false;
           if (itemId && currentId && itemId === currentId) return false;
           if (itemTitle && currentTitle && itemTitle === currentTitle) return false;
           return true;
         })
-        .filter((item) => item.category === game.category || (item.genres || []).some((genre) => (game.genres || []).includes(genre)))
+        .filter((item) => item.category === game.category || normalizeList(item.genres).some((genre) => currentGenres.includes(genre)))
         .slice(0, 3);
-
       const ratingAvg = averageRating(reviews);
       const reviewCount = reviews.length;
       const updateDate = formatDate(game.createdAt || game.updatedAt || '');
       document.title = `${game.title} - Karbit Prime`;
-
-      app.innerHTML = `
-        <div class="detail-wrap">
-          <nav class="breadcrumb">
-            <a href="./">Home</a><span>•</span>
-            <a href="${escapeHTML(categoryPage(game.category))}">${escapeHTML(categoryLabel(game.category))}</a><span>•</span>
-            <span>${escapeHTML(game.title)}</span>
-          </nav>
-
-          <section class="detail-card detail-top">
-            <div class="detail-cover">
-              ${renderImage(game)}
-              <div class="detail-emoji">${escapeHTML(game.emoji || '🎮')}</div>
-            </div>
-            <div class="detail-body">
-              <div class="detail-title-row">
-                <h1>${escapeHTML(game.title || '')}</h1>
-                <button class="share-btn" id="shareButton"><i class="fa-solid fa-share-nodes"></i>Bagikan</button>
-              </div>
-              <div class="badge-row">${renderPrimaryBadges(game)}</div>
-              <div class="meta-row">
-                <span class="meta-chip"><i class="fa-regular fa-star"></i>${starsMarkup(ratingAvg)} (${reviewCount} ulasan)</span>
-                <span class="meta-chip"><i class="fa-regular fa-calendar"></i>${escapeHTML(updateDate)}</span>
-              </div>
-              <p class="summary-line">${escapeHTML(game.description || 'Belum ada deskripsi lengkap untuk game ini.')}</p>
-            </div>
-          </section>
-
-          <section class="detail-grid">
-            <div class="detail-block">
-              <h2>Link Download</h2>
-              <div class="download-group">${renderDownloadSection(game)}</div>
-
-              <h2 style="margin-top:24px">Genre</h2>
-              <div class="genre-row">${renderGenreChips(game) || '<span class="pill genre">Belum ada genre</span>'}</div>
-
-              <h2 style="margin-top:24px">Tag</h2>
-              <div class="tag-row">${renderTagChips(game) || '<span class="pill tag">#Updated</span>'}</div>
-
-              <h2 style="margin-top:24px">Support</h2>
-              <div class="support-row">
-                <a class="support-tile trakteer" href="https://trakteer.id/Vil_Ordx" target="_blank" rel="noopener noreferrer" aria-label="Support via Trakteer"><i class="fa-solid fa-gift"></i></a>
-                <a class="support-tile wa" href="https://wa.me/6285385932565" target="_blank" rel="noopener noreferrer" aria-label="Hubungi WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
-              </div>
-            </div>
-
-            <div class="detail-block">
-              <h2>Deskripsi</h2>
-              <div class="detail-copy">${escapeHTML(game.description || 'Belum ada deskripsi lengkap untuk game ini.')}</div>
-            </div>
-          </section>
-
-          ${renderReviewSection(game, reviews)}
-
-          <section class="related-panel">
-            <div class="section-title">
-              <h2>Game Terkait</h2>
-              <span class="pill tag">${related.length} item</span>
-            </div>
-            <div class="related-grid">
-              ${related.length ? related.map(renderRelatedCard).join('') : '<div class="empty-reviews"><p>Belum ada game terkait untuk ditampilkan.</p></div>'}
-            </div>
-          </section>
-        </div>
-      `;
-
+      app.innerHTML = `<div class="detail-wrap"><nav class="breadcrumb"><a href="./">Home</a><span>•</span><a href="${escapeHTML(categoryPage(game.category))}">${escapeHTML(categoryLabel(game.category))}</a><span>•</span><span>${escapeHTML(game.title)}</span></nav><section class="detail-card detail-top"><div class="detail-cover">${renderImage(game)}<div class="detail-emoji">${escapeHTML(game.emoji || '🎮')}</div></div><div class="detail-body"><div class="detail-title-row"><h1>${escapeHTML(game.title || '')}</h1><button class="share-btn" id="shareButton"><i class="fa-solid fa-share-nodes"></i>Bagikan</button></div><div class="badge-row">${renderPrimaryBadges(game)}</div><div class="meta-row"><span class="meta-chip"><i class="fa-regular fa-star"></i>${starsMarkup(ratingAvg)} (${reviewCount} ulasan)</span><span class="meta-chip"><i class="fa-regular fa-calendar"></i>${escapeHTML(updateDate)}</span></div><p class="summary-line">${escapeHTML(game.description || 'Belum ada deskripsi lengkap untuk game ini.')}</p></div></section><section class="detail-grid"><div class="detail-block"><h2>Link Download</h2><div class="download-group">${renderDownloadSection(game)}</div><h2 style="margin-top:24px">Genre</h2><div class="genre-row">${renderGenreChips(game) || '<span class="pill genre">Belum ada genre</span>'}</div><h2 style="margin-top:24px">Tag</h2><div class="tag-row">${renderTagChips(game) || '<span class="pill tag">#Updated</span>'}</div><h2 style="margin-top:24px">Support</h2><div class="support-row"><a class="support-tile trakteer" href="https://trakteer.id/Vil_Ordx" target="_blank" rel="noopener noreferrer" aria-label="Support via Trakteer"><i class="fa-solid fa-gift"></i></a><a class="support-tile wa" href="https://wa.me/6285385932565" target="_blank" rel="noopener noreferrer" aria-label="Hubungi WhatsApp"><i class="fa-brands fa-whatsapp"></i></a></div></div><div class="detail-block"><h2>Deskripsi</h2><div class="detail-copy">${escapeHTML(game.description || 'Belum ada deskripsi lengkap untuk game ini.')}</div></div></section>${renderReviewSection(game, reviews)}<section class="related-panel"><div class="section-title"><h2>Game Terkait</h2><span class="pill tag">${related.length} item</span></div><div class="related-grid">${related.length ? related.map(renderRelatedCard).join('') : '<div class="empty-reviews"><p>Belum ada game terkait untuk ditampilkan.</p></div>'}</div></section></div>`;
       const shareButton = document.getElementById('shareButton');
       if (shareButton) {
         shareButton.addEventListener('click', async () => {
-          const shareData = {
-            title: `${game.title} - Karbit Prime`,
-            text: `Lihat ${game.title} di Karbit Prime`,
-            url: window.location.href
-          };
+          const shareData = { title: `${game.title} - Karbit Prime`, text: `Lihat ${game.title} di Karbit Prime`, url: window.location.href };
           try {
             if (navigator.share) await navigator.share(shareData);
             else {
@@ -536,39 +387,57 @@
           } catch {}
         });
       }
-
       initReviewForm(slug);
     }
-
     async function initDetail() {
       const app = document.getElementById('detailApp');
       const params = new URLSearchParams(window.location.search);
-      const slug = params.get('slug') || '';
+      const slug = normalizeText(params.get('slug') || '');
       if (!slug) { renderNotFound(app, slug); return; }
       try {
         const res = await fetch(APPS_SCRIPT_URL);
         if (!res.ok) throw new Error('Gagal memuat data katalog.');
         const data = await res.json();
-        const games = Array.isArray(data) ? data : Array.isArray(data.rows) ? data.rows : [];
-        const game = games.find((item) => String(item.slug || '') === slug);
+        const rawGames = Array.isArray(data) ? data : Array.isArray(data.rows) ? data.rows : [];
+        const games = rawGames.map(normalizeGame);
+        const game = games.find((item) => item.slug === slug);
         if (!game) { renderNotFound(app, slug); return; }
         renderDetail(app, game, games);
       } catch (err) {
         app.innerHTML = `<div class="not-found"><h1>Gagal memuat detail</h1><p>${escapeHTML(err.message)}</p></div>`;
       }
     }
-
     document.addEventListener('DOMContentLoaded', () => {
       const nav = document.getElementById('mainNav');
       const toggle = document.getElementById('navToggle');
       if (nav && toggle) {
         const STORAGE_KEY = 'kp-mobile-nav-collapsed';
-        function isMobile(){ return window.matchMedia('(max-width: 768px)').matches; }
-        function setState(collapsed){ nav.classList.toggle('is-collapsed', collapsed); toggle.classList.toggle('is-active', !collapsed); toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true'); }
-        function loadState(){ const saved = localStorage.getItem(STORAGE_KEY); if (saved === null) return true; return saved === '1'; }
-        function applyResponsiveState(){ if (isMobile()) setState(loadState()); else { nav.classList.remove('is-collapsed'); toggle.classList.remove('is-active'); toggle.setAttribute('aria-expanded','true'); }}
-        toggle.addEventListener('click', () => { const collapsed = !nav.classList.contains('is-collapsed'); setState(collapsed); localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); });
-        window.addEventListener('resize', applyResponsiveState); applyResponsiveState();
+        function isMobile() { return window.matchMedia('(max-width: 860px)').matches; }
+        function setState(collapsed) {
+          nav.classList.toggle('is-collapsed', collapsed);
+          toggle.classList.toggle('is-active', !collapsed);
+          toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        }
+        function loadState() {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved === null) return true;
+          return saved === '1';
+        }
+        function applyResponsiveState() {
+          if (isMobile()) setState(loadState());
+          else {
+            nav.classList.remove('is-collapsed');
+            toggle.classList.remove('is-active');
+            toggle.setAttribute('aria-expanded', 'true');
+          }
+        }
+        toggle.addEventListener('click', () => {
+          const collapsed = !nav.classList.contains('is-collapsed');
+          setState(collapsed);
+          localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0');
+        });
+        window.addEventListener('resize', applyResponsiveState);
+        applyResponsiveState();
       }
       initDetail();
     });
