@@ -1,5 +1,10 @@
+const CONFIG = {
+  endpoint: "https://script.google.com/macros/s/AKfycbyWrwUpmdLpMM-u0yHxbIFw_SEkFiXiXF52BBahIXz178xX-IaywLaowEGPXYq0heKN/exec",
+  sheet: "Sheet1"
+};
+
 const CATEGORY_META = {
-  all: { title: "Semua Katalog", page: "./" },
+  all: { title: "Semua Katalog", page: "./index.html" },
   renpy: { title: "Ren'Py", page: "./renpy.html" },
   rpgm: { title: "RPGM", page: "./rpgm.html" },
   mod: { title: "Mod", page: "./mod.html" },
@@ -9,7 +14,8 @@ const CATEGORY_META = {
 
 const PAGE_SIZE = {
   home: 8,
-  catalog: 12
+  catalog: 12,
+  vip: 12
 };
 
 function escapeHTML(text) {
@@ -37,32 +43,36 @@ function normalizeString(value) {
   return String(value || "").trim();
 }
 
+function parseSizeWeight(size) {
+  const raw = String(size || "").trim().toUpperCase();
+  const match = raw.match(/([\d.]+)\s*(KB|MB|GB|TB)?/);
+  if (!match) return Number.POSITIVE_INFINITY;
+  const value = parseFloat(match[1]);
+  const unit = match[2] || "MB";
+  const multiplier = {
+    KB: 1 / 1024,
+    MB: 1,
+    GB: 1024,
+    TB: 1024 * 1024
+  }[unit] || 1;
+  return value * multiplier;
+}
+
 function isVipGame(game) {
   return String(game.access || "public").trim().toLowerCase() === "vip";
 }
 
 function visibleForPage(game, pageCategory) {
-  if (pageCategory === "vip") {
-    return isVipGame(game);
-  }
+  if (pageCategory === "vip") return isVipGame(game);
   return !isVipGame(game);
 }
 
 async function loadGames() {
-  const baseUrl = "https://script.google.com/macros/s/AKfycbyWrwUpmdLpMM-u0yHxbIFw_SEkFiXiXF52BBahIXz178xX-IaywLaowEGPXYq0heKN/exec";
-  const sheetName = "Sheet1";
-
-  const response = await fetch(`${baseUrl}?sheet=${encodeURIComponent(sheetName)}`);
+  const response = await fetch(`${CONFIG.endpoint}?sheet=${encodeURIComponent(CONFIG.sheet)}`);
   if (!response.ok) throw new Error("Gagal memuat data katalog.");
 
   const data = await response.json();
-  console.log("DATA APPS SCRIPT:", data);
-
-  const rows = Array.isArray(data)
-    ? data
-    : Array.isArray(data.rows)
-      ? data.rows
-      : [];
+  const rows = Array.isArray(data) ? data : Array.isArray(data.rows) ? data.rows : [];
 
   return rows.map((row) => ({
     ...row,
@@ -77,7 +87,7 @@ async function loadGames() {
     size: normalizeString(row.size || row.ukuran),
     language: normalizeString(row.language || row.bahasa),
     status: normalizeString(row.status),
-    emoji: normalizeString(row.emoji),
+    emoji: normalizeString(row.emoji || "🎮"),
     image: normalizeString(row.image || row.gambar),
     description: normalizeString(row.description || row.deskripsi),
     detailUrl: normalizeString(row.detailUrl),
@@ -106,170 +116,126 @@ function updateParams(state, fixedCategory) {
   const sp = new URLSearchParams();
 
   if (state.q) sp.set("q", state.q);
-  if (!fixedCategory && state.category && state.category !== "all") {
-    sp.set("category", state.category);
-  }
-  if (state.genres && state.genres.length) {
-    sp.set("genres", state.genres.join(","));
-  }
+  if (!fixedCategory && state.category && state.category !== "all") sp.set("category", state.category);
+  if (state.genres.length) sp.set("genres", state.genres.join(","));
   if (state.platform) sp.set("platform", state.platform);
-  if (state.sort && state.sort !== "latest") sp.set("sort", state.sort);
-  if (state.page && state.page > 1) sp.set("page", String(state.page));
+  if (state.sort !== "latest") sp.set("sort", state.sort);
+  if (state.page > 1) sp.set("page", String(state.page));
 
-  const qs = sp.toString();
-  history.replaceState({}, "", qs ? `${window.location.pathname}?${qs}` : window.location.pathname);
+  const next = sp.toString();
+  history.replaceState({}, "", next ? `${window.location.pathname}?${next}` : window.location.pathname);
 }
 
 function activeCategory(pageCategory, selectedCategory) {
-  return pageCategory && pageCategory !== "all"
-    ? pageCategory
-    : (selectedCategory || "all");
+  return pageCategory && pageCategory !== "all" ? pageCategory : selectedCategory || "all";
 }
 
-function uniqueGenres(games, category) {
-  const base = category === "all"
-    ? games
-    : games.filter((g) => g.category === category);
-
-  return [...new Set(base.flatMap((g) => g.genres || []))]
-    .sort((a, b) => a.localeCompare(b));
+function uniqueGenres(games, category, pageCategory) {
+  const base = games.filter((game) => visibleForPage(game, pageCategory));
+  const filtered = category === "all" ? base : base.filter((g) => g.category === category);
+  return [...new Set(filtered.flatMap((g) => g.genres || []))].sort((a, b) => a.localeCompare(b));
 }
 
 function filterGames(games, state, pageCategory) {
   const category = activeCategory(pageCategory, state.category);
-  let result = [...games].filter((g) => visibleForPage(g, pageCategory));
+  let result = games.filter((game) => visibleForPage(game, pageCategory));
 
   if (category !== "all") {
-    result = result.filter((g) => g.category === category);
+    result = result.filter((game) => game.category === category);
   }
 
   const q = state.q.trim().toLowerCase();
   if (q) {
     result = result.filter((game) => {
-      const text = [
+      const haystack = [
         game.title,
-        game.category,
         game.description,
+        game.category,
         game.language,
         game.status,
         ...(game.genres || []),
         ...(game.platform || [])
       ].join(" ").toLowerCase();
-
-      return text.includes(q);
+      return haystack.includes(q);
     });
   }
 
-  if (state.genres && state.genres.length) {
-    result = result.filter((g) => {
-      const gameGenres = g.genres || [];
-      return state.genres.every((genre) => gameGenres.includes(genre));
-    });
+  if (state.genres.length) {
+    result = result.filter((game) => state.genres.every((genre) => (game.genres || []).includes(genre)));
   }
 
   if (state.platform === "both") {
-    result = result.filter((g) => {
-      const platforms = g.platform || [];
+    result = result.filter((game) => {
+      const platforms = game.platform || [];
       return platforms.includes("Windows") && platforms.includes("Android");
     });
   } else if (state.platform) {
-    result = result.filter((g) => (g.platform || []).includes(state.platform));
+    result = result.filter((game) => (game.platform || []).includes(state.platform));
   }
 
   switch (state.sort) {
     case "title":
-      result.sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
+      result.sort((a, b) => a.title.localeCompare(b.title));
       break;
     case "size":
-      result.sort((a, b) =>
-        String(a.size || "").localeCompare(String(b.size || ""), undefined, { numeric: true })
-      );
+      result.sort((a, b) => parseSizeWeight(a.size) - parseSizeWeight(b.size));
       break;
     case "latest":
     default:
-      result.sort((a, b) =>
-        String(b.createdAt || "").localeCompare(String(a.createdAt || ""))
-      );
+      result.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
       break;
   }
 
   return result;
 }
 
-function paginateItems(items, currentPage, perPage) {
+function paginate(items, currentPage, perPage) {
   const totalPages = Math.max(1, Math.ceil(items.length / perPage));
   const safePage = Math.min(Math.max(1, currentPage), totalPages);
   const start = (safePage - 1) * perPage;
-
   return {
     pageItems: items.slice(start, start + perPage),
-    totalPages,
     currentPage: safePage,
+    totalPages,
     totalItems: items.length
   };
 }
 
+function normalizeDownloadUrls(game) {
+  return {
+    windows: normalizeString(game.windowsUrl),
+    android: normalizeString(game.androidUrl)
+  };
+}
+
 function renderImage(game) {
-  const hasImage = typeof game.image === "string" && game.image.trim() !== "";
-  if (hasImage) {
+  if (game.image) {
     return `
-      <div class="catalog-cover">
+      <div class="card-cover with-image">
         <img src="${escapeHTML(game.image)}" alt="${escapeHTML(game.title)}">
-        <div class="cover-emoji">${escapeHTML(game.emoji || "🎮")}</div>
+        <span class="cover-emoji">${escapeHTML(game.emoji || "🎮")}</span>
       </div>
     `;
   }
 
   return `
-    <div class="catalog-cover">
-      <div class="cover-emoji">${escapeHTML(game.emoji || "🎮")}</div>
+    <div class="card-cover no-image">
+      <span class="cover-emoji solo">${escapeHTML(game.emoji || "🎮")}</span>
     </div>
   `;
 }
 
-function categoryPage(category) {
-  return (CATEGORY_META[category] || CATEGORY_META.all).page;
-}
-
-function filterLink(game, type, value) {
-  const page = categoryPage(game.category);
-  const sp = new URLSearchParams();
-
-  if (type === "genre") sp.set("genres", value);
-  if (type === "platform") sp.set("platform", value);
-
-  return `${page}?${sp.toString()}`;
-}
-
-function normalizeDownloadUrls(game) {
-  const urls = game.downloadUrls && typeof game.downloadUrls === "object"
-    ? game.downloadUrls
-    : {};
-
-  const legacy = String(game.downloadUrl || "").trim();
-  const platforms = Array.isArray(game.platform) ? game.platform : [];
-
-  return {
-    Windows: urls.Windows || ((legacy && platforms.includes("Windows")) ? legacy : ""),
-    Android: urls.Android || ((legacy && platforms.includes("Android")) ? legacy : "")
-  };
-}
-
 function renderDownloadButtons(game) {
   const urls = normalizeDownloadUrls(game);
-  const platforms = Array.isArray(game.platform) ? game.platform : [];
+  const platforms = game.platform || [];
   const buttons = [];
 
-  if (platforms.includes("Windows") && urls.Windows) {
-    buttons.push(
-      `<a href="${escapeHTML(urls.Windows)}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Windows</a>`
-    );
+  if (platforms.includes("Windows") && urls.windows) {
+    buttons.push(`<a class="mini-link" href="${escapeHTML(urls.windows)}" target="_blank" rel="noopener noreferrer">Windows</a>`);
   }
 
-  if (platforms.includes("Android") && urls.Android) {
-    buttons.push(
-      `<a href="${escapeHTML(urls.Android)}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Android</a>`
-    );
+  if (platforms.includes("Android") && urls.android) {
+    buttons.push(`<a class="mini-link" href="${escapeHTML(urls.android)}" target="_blank" rel="noopener noreferrer">Android</a>`);
   }
 
   return buttons.join("");
@@ -277,246 +243,231 @@ function renderDownloadButtons(game) {
 
 function renderCard(game) {
   const detail = `./detail.html?slug=${encodeURIComponent(game.slug || "")}`;
+  const categoryLabel = CATEGORY_META[game.category]?.title || game.category || "Game";
+  const description = game.description || "Deskripsi belum tersedia.";
+  const platforms = (game.platform || []).slice(0, 2).map((item) => `<span>${escapeHTML(item)}</span>`).join("");
 
   return `
-    <article class="download-card minimal-card">
+    <article class="catalog-card">
       ${renderImage(game)}
-      <div class="download-body">
-        <h3>${escapeHTML(game.title)}</h3>
+      <div class="catalog-card-body">
+        <div class="card-topline">
+          <span class="card-tag">${escapeHTML(categoryLabel)}</span>
+          ${game.status ? `<span class="card-tag soft">${escapeHTML(game.status)}</span>` : ""}
+        </div>
 
-        <div class="download-actions">
-          <a href="${escapeHTML(detail)}" class="btn btn-secondary">Detail</a>
+        <h3>${escapeHTML(game.title)}</h3>
+        <p>${escapeHTML(description)}</p>
+
+        <div class="card-meta">
+          ${platforms || "<span>Umum</span>"}
+          ${game.size ? `<span>${escapeHTML(game.size)}</span>` : ""}
+        </div>
+
+        <div class="card-actions">
+          <a class="mini-link primary" href="${detail}">Detail</a>
+          ${renderDownloadButtons(game)}
         </div>
       </div>
     </article>
   `;
 }
 
-function renderList(target, games) {
-  if (!target) return;
-
-  if (!games.length) {
-    target.innerHTML = `<div class="empty-state">Belum ada item yang cocok dengan filter ini.</div>`;
+function renderGenreFilters(root, genres, selectedGenres, onToggle) {
+  if (!root) return;
+  if (!genres.length) {
+    root.innerHTML = '<span class="genre-empty">Genre belum tersedia.</span>';
     return;
   }
 
-  target.innerHTML = games.map(renderCard).join("");
-}
-
-function renderGenreFilter(container, games, category, selected = []) {
-  if (!container) return [];
-
-  const genres = uniqueGenres(games, category);
-
-  container.innerHTML = genres.map((genre) => {
-    const checked = selected.includes(genre) ? "checked" : "";
-    const active = selected.includes(genre) ? " active" : "";
-    return `
-      <label class="multi-filter-item${active}">
-        <input type="checkbox" name="genreMulti" value="${escapeHTML(genre)}" ${checked}>
-        <span>${escapeHTML(genre)}</span>
-      </label>
-    `;
+  root.innerHTML = genres.map((genre) => {
+    const active = selectedGenres.includes(genre) ? "is-active" : "";
+    return `<button class="genre-chip ${active}" type="button" data-genre="${escapeHTML(genre)}">${escapeHTML(genre)}</button>`;
   }).join("");
 
-  return genres;
-}
-
-function getCheckedGenres(container) {
-  if (!container) return [];
-  return [...container.querySelectorAll('input[name="genreMulti"]:checked')].map((el) => el.value);
-}
-
-function pageButton(label, page, disabled = false, active = false) {
-  return `<button type="button" class="page-btn${active ? " active" : ""}" data-page="${page}"${disabled ? " disabled" : ""}>${label}</button>`;
-}
-
-function renderPagination(target, currentPage, totalPages) {
-  if (!target) return;
-
-  if (totalPages <= 1) {
-    target.innerHTML = "";
-    return;
-  }
-
-  const buttons = [];
-  buttons.push(pageButton("Prev", currentPage - 1, currentPage <= 1, false));
-
-  let start = Math.max(1, currentPage - 2);
-  let end = Math.min(totalPages, currentPage + 2);
-
-  if (currentPage <= 3) end = Math.min(totalPages, 5);
-  if (currentPage >= totalPages - 2) start = Math.max(1, totalPages - 4);
-
-  if (start > 1) {
-    buttons.push(pageButton("1", 1, false, currentPage === 1));
-    if (start > 2) buttons.push('<span class="page-dots">…</span>');
-  }
-
-  for (let page = start; page <= end; page += 1) {
-    buttons.push(pageButton(String(page), page, false, page === currentPage));
-  }
-
-  if (end < totalPages) {
-    if (end < totalPages - 1) buttons.push('<span class="page-dots">…</span>');
-    buttons.push(pageButton(String(totalPages), totalPages, false, currentPage === totalPages));
-  }
-
-  buttons.push(pageButton("Next", currentPage + 1, currentPage >= totalPages, false));
-  target.innerHTML = `<div class="pagination">${buttons.join("")}</div>`;
-}
-
-function bindPagination(target, onChange) {
-  if (!target) return;
-
-  target.addEventListener("click", (event) => {
-    const btn = event.target.closest(".page-btn");
-    if (!btn || btn.disabled) return;
-    const page = parseInt(btn.dataset.page || "1", 10) || 1;
-    onChange(page);
+  root.querySelectorAll("[data-genre]").forEach((button) => {
+    button.addEventListener("click", () => onToggle(button.getAttribute("data-genre") || ""));
   });
 }
 
-function bindCatalogPage(allGames) {
-  const body = document.body;
-  const pageType = body.dataset.page || "catalog";
-  const pageCategory = body.dataset.category || "all";
-  const perPage = PAGE_SIZE[pageType] || 12;
+function renderPagination(root, currentPage, totalPages, onChange) {
+  if (!root) return;
+  if (totalPages <= 1) {
+    root.innerHTML = "";
+    return;
+  }
+
+  const items = [];
+  for (let page = 1; page <= totalPages; page += 1) {
+    items.push(`
+      <button type="button" class="page-btn ${page === currentPage ? "is-active" : ""}" data-page="${page}">${page}</button>
+    `);
+  }
+
+  root.innerHTML = items.join("");
+  root.querySelectorAll("[data-page]").forEach((button) => {
+    button.addEventListener("click", () => onChange(Number(button.getAttribute("data-page"))));
+  });
+}
+
+function renderFeatured(root, games) {
+  if (!root) return;
+  const latest = games
+    .filter((game) => !isVipGame(game))
+    .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
+    .slice(0, 8);
+
+  root.innerHTML = latest.map((game) => {
+    const detail = `./detail.html?slug=${encodeURIComponent(game.slug || "")}`;
+    return `
+      <article class="featured-card">
+        ${renderImage(game)}
+        <div class="featured-body">
+          <span class="card-tag">${escapeHTML(CATEGORY_META[game.category]?.title || game.category || "Game")}</span>
+          <h3>${escapeHTML(game.title)}</h3>
+          <a href="${detail}" class="mini-link primary">Lihat detail</a>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+function syncHeroCount(games) {
+  const target = document.getElementById("heroCount");
+  if (!target) return;
+  target.textContent = String(games.filter((game) => !isVipGame(game)).length);
+}
+
+async function initCatalog() {
+  const page = document.body.dataset.page || "home";
+  const pageCategory = document.body.dataset.category || "all";
 
   const searchInput = document.getElementById("searchInput");
   const categoryFilter = document.getElementById("categoryFilter");
-  const genreFilterList = document.getElementById("genreFilterList");
   const platformFilter = document.getElementById("platformFilter");
   const sortFilter = document.getElementById("sortFilter");
-  const resetBtn = document.getElementById("resetFilters");
-  const countEl = document.getElementById("catalogCount");
+  const resetFilters = document.getElementById("resetFilters");
+  const genreFilterList = document.getElementById("genreFilterList");
+  const catalogCount = document.getElementById("catalogCount");
   const catalogList = document.getElementById("catalogList");
-  const paginationTarget = document.getElementById("catalogPagination");
+  const catalogPagination = document.getElementById("catalogPagination");
   const featuredList = document.getElementById("featuredList");
-
-  if (featuredList) {
-    const latest = [...allGames]
-      .filter((g) => visibleForPage(g, pageCategory))
-      .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
-      .slice(0, 6);
-
-    renderList(featuredList, latest);
-  }
+  const featuredPrev = document.getElementById("featuredPrev");
+  const featuredNext = document.getElementById("featuredNext");
 
   if (!catalogList) return;
 
-  const params = getParams();
-  const state = {
-    q: params.q,
-    category: params.category,
-    genres: params.genres,
-    platform: params.platform,
-    sort: params.sort,
-    page: params.page
-  };
+  const state = getParams();
+  let games = [];
 
-  if (searchInput) searchInput.value = state.q;
-  if (categoryFilter) categoryFilter.value = state.category;
-  if (platformFilter) platformFilter.value = state.platform;
-  if (sortFilter) sortFilter.value = state.sort;
+  function applyInputs() {
+    if (searchInput) searchInput.value = state.q;
+    if (categoryFilter) categoryFilter.value = activeCategory(pageCategory, state.category);
+    if (platformFilter) platformFilter.value = state.platform;
+    if (sortFilter) sortFilter.value = state.sort;
+  }
 
-  function rerender(resetPage = false) {
-    state.q = searchInput ? searchInput.value : "";
-    state.category = categoryFilter ? categoryFilter.value : state.category;
-    state.platform = platformFilter ? platformFilter.value : state.platform;
-    state.sort = sortFilter ? sortFilter.value : state.sort;
+  function render() {
+    const effectiveCategory = activeCategory(pageCategory, state.category);
+    const filtered = filterGames(games, state, pageCategory);
+    const paged = paginate(filtered, state.page, PAGE_SIZE[page] || PAGE_SIZE.catalog);
 
-    const currentCategory = activeCategory(pageCategory, state.category);
-    const visibleGames = allGames.filter((g) => visibleForPage(g, pageCategory));
-    const availableGenres = renderGenreFilter(genreFilterList, visibleGames, currentCategory, state.genres);
-
-    state.genres = state.genres.filter((genre) => availableGenres.includes(genre));
-
-    if (resetPage) state.page = 1;
-
-    const filtered = filterGames(allGames, state, pageCategory);
-    const paged = paginateItems(filtered, state.page, perPage);
     state.page = paged.currentPage;
-
-    renderList(catalogList, paged.pageItems);
-    renderPagination(paginationTarget, paged.currentPage, paged.totalPages);
-
-    if (countEl) {
-      const label = activeCategory(pageCategory, state.category);
-      const categoryText = label !== "all" ? ` • ${CATEGORY_META[label].title}` : "";
-      countEl.textContent =
-        `Ditemukan ${paged.totalItems} item${categoryText} • Halaman ${paged.currentPage}/${paged.totalPages}`;
-    }
-
     updateParams(state, pageCategory !== "all");
-  }
 
-  if (searchInput) searchInput.addEventListener("input", () => rerender(true));
-
-  if (categoryFilter) {
-    categoryFilter.addEventListener("change", () => {
-      state.genres = [];
-      rerender(true);
-    });
-  }
-
-  if (genreFilterList) {
-    genreFilterList.addEventListener("change", () => {
-      state.genres = getCheckedGenres(genreFilterList);
-      rerender(true);
-    });
-  }
-
-  if (platformFilter) platformFilter.addEventListener("change", () => rerender(true));
-  if (sortFilter) sortFilter.addEventListener("change", () => rerender(true));
-
-  if (resetBtn) {
-    resetBtn.addEventListener("click", () => {
-      if (searchInput) searchInput.value = "";
-      if (categoryFilter) categoryFilter.value = "all";
-      if (platformFilter) platformFilter.value = "";
-      if (sortFilter) sortFilter.value = "latest";
-
-      state.q = "";
-      state.genres = [];
-      state.platform = "";
-      state.sort = "latest";
-      state.category = "all";
+    const genrePool = uniqueGenres(games, effectiveCategory, pageCategory);
+    renderGenreFilters(genreFilterList, genrePool, state.genres, (genre) => {
+      state.genres = state.genres.includes(genre)
+        ? state.genres.filter((item) => item !== genre)
+        : [...state.genres, genre];
       state.page = 1;
+      render();
+    });
 
-      rerender(false);
+    if (catalogCount) {
+      catalogCount.textContent = `${paged.totalItems} item ditemukan`;
+    }
+
+    if (!paged.pageItems.length) {
+      catalogList.innerHTML = `
+        <div class="empty-state">
+          <strong>Tidak ada hasil.</strong>
+          <p>Coba ubah kata kunci, kategori, atau filter genre.</p>
+        </div>
+      `;
+    } else {
+      catalogList.innerHTML = paged.pageItems.map(renderCard).join("");
+    }
+
+    renderPagination(catalogPagination, paged.currentPage, paged.totalPages, (nextPage) => {
+      state.page = nextPage;
+      render();
+      window.scrollTo({ top: catalogList.getBoundingClientRect().top + window.scrollY - 110, behavior: "smooth" });
     });
   }
 
-  bindPagination(paginationTarget, (page) => {
-    state.page = page;
-    rerender(false);
+  try {
+    catalogList.innerHTML = `<div class="empty-state"><strong>Memuat katalog...</strong></div>`;
+    games = await loadGames();
+    syncHeroCount(games);
+    applyInputs();
+    render();
+    renderFeatured(featuredList, games);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Gagal memuat katalog.";
+    catalogList.innerHTML = `
+      <div class="empty-state">
+        <strong>Gagal memuat katalog.</strong>
+        <p>${escapeHTML(message)}</p>
+      </div>
+    `;
+  }
 
-    const topTarget =
-      document.getElementById("cari-katalog") ||
-      document.querySelector(".page-hero-wrap") ||
-      document.querySelector(".page-section");
-
-    if (topTarget) {
-      topTarget.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+  searchInput?.addEventListener("input", (event) => {
+    state.q = event.target.value;
+    state.page = 1;
+    render();
   });
 
-  rerender(false);
-}
+  categoryFilter?.addEventListener("change", (event) => {
+    state.category = event.target.value;
+    state.genres = [];
+    state.page = 1;
+    render();
+  });
 
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    const games = await loadGames();
-    bindCatalogPage(games);
-  } catch (err) {
-    const targets = [
-      document.getElementById("catalogList"),
-      document.getElementById("featuredList")
-    ].filter(Boolean);
+  platformFilter?.addEventListener("change", (event) => {
+    state.platform = event.target.value;
+    state.page = 1;
+    render();
+  });
 
-    targets.forEach((el) => {
-      el.innerHTML = `<div class="empty-state">${escapeHTML(err.message)}</div>`;
+  sortFilter?.addEventListener("change", (event) => {
+    state.sort = event.target.value;
+    state.page = 1;
+    render();
+  });
+
+  resetFilters?.addEventListener("click", () => {
+    state.q = "";
+    state.category = pageCategory === "all" ? "all" : pageCategory;
+    state.genres = [];
+    state.platform = "";
+    state.sort = "latest";
+    state.page = 1;
+    applyInputs();
+    render();
+  });
+
+  if (featuredList && featuredPrev && featuredNext) {
+    const scrollAmount = () => Math.min(featuredList.clientWidth * 0.86, 420);
+    featuredPrev.addEventListener("click", () => {
+      featuredList.scrollBy({ left: -scrollAmount(), behavior: "smooth" });
+    });
+    featuredNext.addEventListener("click", () => {
+      featuredList.scrollBy({ left: scrollAmount(), behavior: "smooth" });
     });
   }
-});
+}
+
+document.addEventListener("DOMContentLoaded", initCatalog);
