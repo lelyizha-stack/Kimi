@@ -208,6 +208,33 @@ function normalizeDownloadUrls(game) {
   };
 }
 
+
+function formatPlatformLabel(platforms) {
+  const values = Array.isArray(platforms)
+    ? platforms.map((item) => String(item || '').trim()).filter(Boolean)
+    : [];
+
+  const hasAndroid = values.includes('Android');
+  const hasWindows = values.includes('Windows');
+
+  if (hasAndroid && hasWindows) return 'Android • Windows';
+  if (hasAndroid) return 'Android';
+  if (hasWindows) return 'Windows';
+  return values.join(' • ');
+}
+
+function renderGenrePreview(genres, limit = 3) {
+  const list = Array.isArray(genres) ? genres.filter(Boolean) : [];
+  const visible = list.slice(0, limit).map((genre) => `<span class="card-tag soft genre-tag">${escapeHTML(genre)}</span>`);
+  const remaining = list.length - visible.length;
+
+  if (remaining > 0) {
+    visible.push(`<span class="card-tag soft genre-tag is-more">+${remaining}</span>`);
+  }
+
+  return visible.join('');
+}
+
 function renderImage(game) {
   if (game.image) {
     return `
@@ -232,31 +259,31 @@ function renderDownloadButtons(game) {
 function renderCard(game) {
   const detail = `./detail.html?slug=${encodeURIComponent(game.slug || "")}`;
   const categoryLabel = CATEGORY_META[game.category]?.title || game.category || "Game";
-  const meta = [
-    game.version ? `<span>Versi ${escapeHTML(game.version)}</span>` : "",
-    game.size ? `<span>${escapeHTML(game.size)}</span>` : "",
-    game.language ? `<span>${escapeHTML(game.language)}</span>` : ""
-  ].filter(Boolean).join("");
-
-  const genrePreview = (game.genres || []).slice(0, 3).map((genre) =>
-    `<span class="card-tag soft">${escapeHTML(genre)}</span>`
-  ).join("");
+  const versionLabel = game.version ? `v${escapeHTML(game.version)}` : "Versi belum ada";
+  const languageLabel = game.language ? escapeHTML(game.language) : "Bahasa belum ada";
+  const platformLabel = formatPlatformLabel(game.platform);
+  const genrePreview = renderGenrePreview(game.genres || [], 3);
 
   return `
-    <article class="catalog-card">
+    <article class="catalog-card is-compact">
       ${renderImage(game)}
       <div class="catalog-card-body">
-        <div class="card-topline">
+        <div class="card-topline compact">
           <span class="card-tag">${escapeHTML(categoryLabel)}</span>
-          ${game.status ? `<span class="card-tag soft">${escapeHTML(game.status)}</span>` : ""}
+          <span class="card-version-pill">${versionLabel}</span>
         </div>
 
         <h3>${escapeHTML(game.title)}</h3>
 
-        ${genrePreview ? `<div class="card-meta">${genrePreview}</div>` : ""}
-        ${meta ? `<div class="card-meta">${meta}</div>` : ""}
+        <div class="card-meta compact-main">
+          <span class="card-tag soft info-pill">${languageLabel}</span>
+          ${platformLabel ? `<span class="card-tag soft info-pill">${escapeHTML(platformLabel)}</span>` : ""}
+        </div>
 
-        <div class="card-actions">
+        ${genrePreview ? `<div class="card-meta compact-genres">${genrePreview}</div>` : ""}
+
+        <div class="card-actions compact">
+          ${game.status ? `<span class="card-status-line">${escapeHTML(game.status)}</span>` : `<span class="card-status-line">Lihat detail lengkap</span>`}
           <a class="mini-link primary" href="${detail}">Detail</a>
         </div>
       </div>

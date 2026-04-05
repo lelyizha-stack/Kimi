@@ -1023,3 +1023,95 @@ body.popup-open {
     grid-template-columns: 1fr;
   }
 }
+
+
+.catalog-card.is-compact .catalog-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.catalog-card.is-compact .card-topline.compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 0;
+}
+
+.catalog-card.is-compact h3 {
+  margin: 0;
+  line-height: 1.34;
+  font-size: 1.28rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 3.3rem;
+}
+
+.card-version-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(124, 140, 255, 0.24);
+  background: rgba(124, 140, 255, 0.12);
+  color: #eef1ff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.catalog-card.is-compact .card-meta {
+  margin-top: 0;
+}
+
+.catalog-card.is-compact .card-meta.compact-main {
+  gap: 10px;
+}
+
+.catalog-card.is-compact .card-meta.compact-genres {
+  gap: 8px;
+}
+
+.info-pill,
+.genre-tag {
+  font-size: 0.8rem;
+}
+
+.genre-tag.is-more {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f2f4ff;
+}
+
+.card-actions.compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.card-status-line {
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .catalog-card.is-compact h3 {
+    font-size: 1.14rem;
+    min-height: auto;
+  }
+
+  .card-actions.compact {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .card-actions.compact .mini-link {
+    width: 100%;
+  }
+}
