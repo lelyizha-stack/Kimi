@@ -244,8 +244,11 @@ function renderDownloadButtons(game) {
 function renderCard(game) {
   const detail = `./detail.html?slug=${encodeURIComponent(game.slug || "")}`;
   const categoryLabel = CATEGORY_META[game.category]?.title || game.category || "Game";
-  const description = game.description || "Deskripsi belum tersedia.";
-  const platforms = (game.platform || []).slice(0, 2).map((item) => `<span>${escapeHTML(item)}</span>`).join("");
+  const meta = [
+    game.size ? `<span>${escapeHTML(game.size)}</span>` : "",
+    game.version ? `<span>v${escapeHTML(game.version)}</span>` : "",
+    game.language ? `<span>${escapeHTML(game.language)}</span>` : ""
+  ].filter(Boolean).join("");
 
   return `
     <article class="catalog-card">
@@ -257,16 +260,13 @@ function renderCard(game) {
         </div>
 
         <h3>${escapeHTML(game.title)}</h3>
-        <p>${escapeHTML(description)}</p>
 
-        <div class="card-meta">
-          ${platforms || "<span>Umum</span>"}
-          ${game.size ? `<span>${escapeHTML(game.size)}</span>` : ""}
+        <div class="card-meta ${meta ? "" : "is-empty"}">
+          ${meta || "<span>Tekan detail untuk info lengkap</span>"}
         </div>
 
         <div class="card-actions">
           <a class="mini-link primary" href="${detail}">Detail</a>
-          ${renderDownloadButtons(game)}
         </div>
       </div>
     </article>

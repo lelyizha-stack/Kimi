@@ -731,3 +731,7 @@ textarea {
     grid-auto-columns: minmax(220px, 82vw);
   }
 }
+
+.card-meta.is-empty {
+  color: var(--muted);
+}
