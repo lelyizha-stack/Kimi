@@ -17,7 +17,23 @@
 
   function parseDateSafe(value) {
     if (!value) return null;
-    const dt = new Date(value);
+
+    const v = String(value).trim();
+
+    // format YYYY-MM-DD => anggap aktif sampai akhir hari
+    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+      const dt = new Date(v + "T23:59:59+07:00");
+      return Number.isNaN(dt.getTime()) ? null : dt;
+    }
+
+    // format DD/MM/YYYY
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
+      const [dd, mm, yyyy] = v.split("/");
+      const dt = new Date(`${yyyy}-${mm}-${dd}T23:59:59+07:00`);
+      return Number.isNaN(dt.getTime()) ? null : dt;
+    }
+
+    const dt = new Date(v);
     return Number.isNaN(dt.getTime()) ? null : dt;
   }
 
@@ -31,9 +47,7 @@
     overlay.hidden = false;
     document.body.style.overflow = "hidden";
 
-    if (content) {
-      content.style.display = "none";
-    }
+    if (content) content.style.display = "none";
 
     if (type === "expired") {
       image.src = "./images/popup2.webp";
@@ -57,28 +71,27 @@
     const session = getSession();
     console.log("VIP SESSION:", session);
 
-    // benar-benar belum login
-    if (!session.memberCode) {
+    // wajib login
+    if (!session.loggedIn) {
       showPopup("locked");
       return;
     }
 
-    // kalau status aktif = true, utamakan buka
-    if (session.vipActive) {
-      const expires = parseDateSafe(session.expiresAt);
-
-      // kalau tanggal valid dan memang sudah lewat, baru expired
-      if (expires && expires.getTime() <= Date.now()) {
-        localStorage.setItem(STORAGE.vipActive, "false");
-        showPopup("expired");
-        return;
-      }
-
-      showContent();
+    // VIP tidak aktif
+    if (!session.vipActive) {
+      showPopup("expired");
       return;
     }
 
-    // punya member id tapi vip mati / expired
-    showPopup("expired");
+    const expires = parseDateSafe(session.expiresAt);
+
+    // kalau ada expiry dan sudah lewat
+    if (expires && expires.getTime() < Date.now()) {
+      localStorage.setItem(STORAGE.vipActive, "false");
+      showPopup("expired");
+      return;
+    }
+
+    showContent();
   });
 })();
