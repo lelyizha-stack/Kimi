@@ -222,6 +222,28 @@
       </section>
     </main>
 
+
+    <div id="waPopup" class="wa-popup" aria-hidden="true">
+      <div class="wa-popup-card" role="dialog" aria-modal="true" aria-labelledby="waPopupTitle">
+        <button id="waPopupClose" class="wa-popup-close" type="button" aria-label="Tutup popup">×</button>
+        <div class="wa-popup-head">
+          <span class="wa-popup-badge">Join Channel</span>
+          <span class="wa-popup-dot"></span>
+        </div>
+        <a id="waPopupLink" class="wa-popup-link" href="https://whatsapp.com/channel/0029Vb6o4llD38CZm9ksDi1D" target="_blank" rel="noopener noreferrer">
+          <img src="./images/saluran (1).webp" alt="Gabung grup WhatsApp Karbit Prime">
+        </a>
+        <div class="wa-popup-copy">
+          <strong id="waPopupTitle">Gabung channel WhatsApp Karbit Prime</strong>
+          <p>Masuk untuk dapat info update, rilisan baru, dan pengumuman penting lebih cepat.</p>
+          <div class="wa-popup-actions">
+            <a class="btn btn-primary wa-popup-cta" href="https://whatsapp.com/channel/0029Vb6o4llD38CZm9ksDi1D" target="_blank" rel="noopener noreferrer">Gabung sekarang</a>
+            <button class="btn btn-secondary wa-popup-later" id="waPopupLater" type="button">Nanti saja</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <footer class="site-footer">
       <div class="container footer-inner">
         <div>
@@ -244,12 +266,42 @@
     document.addEventListener("DOMContentLoaded", () => {
       const nav = document.getElementById("siteNav");
       const toggle = document.getElementById("navToggle");
-      if (!nav || !toggle) return;
+      if (nav && toggle) {
+        toggle.addEventListener("click", () => {
+          const isOpen = nav.classList.toggle("is-open");
+          toggle.classList.toggle("is-active", isOpen);
+          toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        });
+      }
 
-      toggle.addEventListener("click", () => {
-        const isOpen = nav.classList.toggle("is-open");
-        toggle.classList.toggle("is-active", isOpen);
-        toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      const popup = document.getElementById("waPopup");
+      const closeBtn = document.getElementById("waPopupClose");
+      const popupLink = document.getElementById("waPopupLink");
+      const laterBtn = document.getElementById("waPopupLater");
+      const sessionKey = "kp-wa-popup-seen";
+
+      if (!popup || !closeBtn || !popupLink || !laterBtn) return;
+
+      const hidePopup = () => {
+        popup.classList.remove("is-visible");
+        popup.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("popup-open");
+        sessionStorage.setItem(sessionKey, "1");
+      };
+
+      if (sessionStorage.getItem(sessionKey) !== "1") {
+        window.setTimeout(() => {
+          popup.classList.add("is-visible");
+          popup.setAttribute("aria-hidden", "false");
+          document.body.classList.add("popup-open");
+        }, 650);
+      }
+
+      closeBtn.addEventListener("click", hidePopup);
+      laterBtn.addEventListener("click", hidePopup);
+      popupLink.addEventListener("click", hidePopup);
+      popup.addEventListener("click", (event) => {
+        if (event.target === popup) hidePopup();
       });
     });
   </script>
