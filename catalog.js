@@ -226,29 +226,21 @@ function renderImage(game) {
 }
 
 function renderDownloadButtons(game) {
-  const urls = normalizeDownloadUrls(game);
-  const platforms = game.platform || [];
-  const buttons = [];
-
-  if (platforms.includes("Windows") && urls.windows) {
-    buttons.push(`<a class="mini-link" href="${escapeHTML(urls.windows)}" target="_blank" rel="noopener noreferrer">Windows</a>`);
-  }
-
-  if (platforms.includes("Android") && urls.android) {
-    buttons.push(`<a class="mini-link" href="${escapeHTML(urls.android)}" target="_blank" rel="noopener noreferrer">Android</a>`);
-  }
-
-  return buttons.join("");
+  return "";
 }
 
 function renderCard(game) {
   const detail = `./detail.html?slug=${encodeURIComponent(game.slug || "")}`;
   const categoryLabel = CATEGORY_META[game.category]?.title || game.category || "Game";
   const meta = [
+    game.version ? `<span>Versi ${escapeHTML(game.version)}</span>` : "",
     game.size ? `<span>${escapeHTML(game.size)}</span>` : "",
-    game.version ? `<span>v${escapeHTML(game.version)}</span>` : "",
     game.language ? `<span>${escapeHTML(game.language)}</span>` : ""
   ].filter(Boolean).join("");
+
+  const genrePreview = (game.genres || []).slice(0, 3).map((genre) =>
+    `<span class="card-tag soft">${escapeHTML(genre)}</span>`
+  ).join("");
 
   return `
     <article class="catalog-card">
@@ -261,9 +253,8 @@ function renderCard(game) {
 
         <h3>${escapeHTML(game.title)}</h3>
 
-        <div class="card-meta ${meta ? "" : "is-empty"}">
-          ${meta || "<span>Tekan detail untuk info lengkap</span>"}
-        </div>
+        ${genrePreview ? `<div class="card-meta">${genrePreview}</div>` : ""}
+        ${meta ? `<div class="card-meta">${meta}</div>` : ""}
 
         <div class="card-actions">
           <a class="mini-link primary" href="${detail}">Detail</a>
@@ -272,6 +263,7 @@ function renderCard(game) {
     </article>
   `;
 }
+
 
 function renderGenreFilters(root, genres, selectedGenres, onToggle) {
   if (!root) return;

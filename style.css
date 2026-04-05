@@ -941,3 +941,47 @@ body.popup-open {
     width: 100%;
   }
 }
+
+
+.page-note-card {
+  border-radius: 22px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+}
+
+.shortcut-card.is-current {
+  border-color: rgba(124, 140, 255, 0.45);
+  background: linear-gradient(180deg, rgba(124, 140, 255, 0.12), rgba(255, 255, 255, 0.04));
+}
+
+.page-summary {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.page-summary div {
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--line);
+}
+
+.page-summary strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 1rem;
+}
+
+.page-summary small {
+  color: var(--muted);
+}
+
+@media (max-width: 920px) {
+  .page-summary {
+    grid-template-columns: 1fr;
+  }
+}
